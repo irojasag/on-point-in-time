@@ -1,1 +1,2 @@
-dashboard
+<pre>{{ auth.user$ | async | json }}</pre>
+<button (click)="auth.signOut()" class="bg-red-300">Logout!</button>
