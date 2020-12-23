@@ -7,7 +7,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   styleUrls: ['./layout.component.scss'],
 })
 export class LayoutComponent implements OnInit {
-  public isOpen: boolean;
+  public isSidebarOpen: boolean;
   constructor(public auth: AuthService) {}
 
   ngOnInit(): void {}
