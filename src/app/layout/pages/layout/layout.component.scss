@@ -1,0 +1,10 @@
+.menu-item {
+  @apply bg-white h-9 flex items-center font-semibold border-t border-gray-300 px-4 hover:bg-gray-100 cursor-pointer;
+  &:last-child {
+    @apply border-b;
+  }
+  & .fas,
+  & .far {
+    @apply mr-2;
+  }
+}

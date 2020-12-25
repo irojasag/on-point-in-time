@@ -1,6 +1,6 @@
 <div class="h-full">
   <!-- Header -->
-  <div class="flex flex-row bg-blue-500 h-12 items-center px-4 justify-between">
+  <div class="flex flex-row bg-blue-500 h-12 items-center px-4 justify-between shadow-lg">
     <button class="text-white font-normal text-xl" (click)="isSidebarOpen = !isSidebarOpen"><i class="fas fa-bars"></i></button>
     <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center">
       <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
@@ -15,16 +15,17 @@
     <!-- Sidebar -->
     <div [hidden]="!isSidebarOpen" class="bg-gray-200 fixed max-w-xxs w-full h-full">
       <ul>
-        <li>Calendario</li>
-        <li>Contáctenos</li>
-        <li>Productos</li>
-        <li>Configuración</li>
-        <li>Cerrar Sesión</li>
+        <li class="menu-item" *ngIf="(auth.user$ | async)?.isAdmin"><i class="fas fa-chart-line"></i>Estadísticas</li>
+        <li class="menu-item"><i class="far fa-calendar"></i>Calendario</li>
+        <li class="menu-item"><i class="far fa-id-card"></i>Contáctenos</li>
+        <li class="menu-item"><i class="fas fa-shopping-basket"></i>Productos</li>
+        <li class="menu-item"><i class="fas fa-cog"></i>Configuración</li>
+        <li class="menu-item" (click)="auth.signOut()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>
       </ul>
     </div>
     <!-- Content -->
-    <div>
-      <router-outlet></router-outlet>
+    <div class="max-w-full h-full overflow-x-scroll">
+      <router-outlet class="h-full"></router-outlet>
     </div>
   </div>
 
