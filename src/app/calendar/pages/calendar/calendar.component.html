@@ -1,0 +1,62 @@
+<div [hidden]="true">
+  <mat-form-field>
+    <input [formControl]="dateControl" matInput [matDatepicker]="picker">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker touchUi #picker></mat-datepicker>
+  </mat-form-field>
+</div>
+
+<div>
+  <div *ngFor="let currentDate of nearbyDates; let ind = index;" class="min-h-full pb-2 bg-white border-b rounded-xl mx-2 my-1 shadow-sm">
+    <div id="date-{{ind}}" class="bg-blue-500 flex flex-row justify-between h-8 items-center px-4 rounded-t-xl">
+      <span class="text-white">
+        <!-- Mostrar Calendario -->
+        <i class="fas fa-chevron-left" (click)="picker.open()"></i>
+        {{ currentDate | date}}
+        <!-- Saltar al día siguiente -->
+        <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i>
+      </span>
+    </div>
+    <div class="min-h-32 max-h-58 w-full border my-2 p-4" *ngFor="let hour of availableHours; let i = index">
+      <div class="flex flex-row">
+        <div class="flex flex-col mr-4 items-center">
+          <span class="font-semibold mb-2">{{hour}}</span>
+          <span class=""><i class="fas fa-redo"></i></span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-semibold mb-2">Clase Funcional</span>
+          <span class="">4 de 8 espacios disponibles</span>
+        </div>
+      </div>
+      <div class="flex flex-row justify-center items-center" *ngIf="i > 1">
+        <div class="flex flex-col bg-yellow-300 h-20 w-48">
+          <span class="font-semibold">Texto de prueba</span>
+        </div>
+      </div>
+      <div class="flex flex-row justify-end items-center mr-5">
+        <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
+          <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+            <img class="h-full w-full rounded-full" src="https://picsum.photos/200/300?random=1" alt="Profile Photo">
+          </div>
+        </div>
+        <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
+          <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+            <img class="h-full w-full rounded-full" src="https://picsum.photos/200/300?random=2" alt="Profile Photo">
+          </div>
+        </div>
+        <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
+          <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+            <img class="h-full w-full rounded-full" src="https://picsum.photos/200/300?random=3" alt="Profile Photo">
+          </div>
+        </div>
+        <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
+          <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+            <img class="h-full w-full rounded-full" src="https://picsum.photos/200/300?random=4" alt="Profile Photo">
+          </div>
+        </div>
+      </div>
+      <!-- Participants -->
+
+    </div>
+    <button class="bg-blue-500 text-white rounded-full fixed bottom-4 right-4 h-12 w-12 shadow-sm" (click)="picker.open()"><i class="fas fa-calendar"></i></button>
+  </div>

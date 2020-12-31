@@ -10,6 +10,11 @@ const routes: Routes = [
     children: [
       { path: 'dashboard', component: DashboardComponent },
       {
+        path: 'calendar',
+        loadChildren: () =>
+          import('../calendar/calendar.module').then((m) => m.CalendarModule),
+      },
+      {
         path: '**',
         redirectTo: 'dashboard',
       },

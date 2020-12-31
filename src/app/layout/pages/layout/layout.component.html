@@ -15,8 +15,8 @@
     <!-- Sidebar -->
     <div [hidden]="!isSidebarOpen" class="bg-gray-200 fixed max-w-xxs w-full h-full">
       <ul>
-        <li class="menu-item" *ngIf="(auth.user$ | async)?.isAdmin"><i class="fas fa-chart-line"></i>Estadísticas</li>
-        <li class="menu-item"><i class="far fa-calendar"></i>Calendario</li>
+        <li class="menu-item" *ngIf="(auth.user$ | async)?.isAdmin" [routerLink]="'dashboard'"><i class="fas fa-chart-line"></i>Estadísticas</li>
+        <li class="menu-item" [routerLink]="'calendar'"><i class="far fa-calendar"></i>Calendario</li>
         <li class="menu-item"><i class="far fa-id-card"></i>Contáctenos</li>
         <li class="menu-item"><i class="fas fa-shopping-basket"></i>Productos</li>
         <li class="menu-item"><i class="fas fa-cog"></i>Configuración</li>
