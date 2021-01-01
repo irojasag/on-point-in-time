@@ -15,7 +15,7 @@ export const getIconClassFromType = (type: string): string => {
     case BussinessContactTypes.FACEBOOK:
       return 'fab fa-facebook-square';
     case BussinessContactTypes.LINKEDIN:
-      return 'fab fa-facebook-square';
+      return 'fab fa-linkedin';
     case BussinessContactTypes.WHATSAPP:
       return 'fab fa-whatsapp-square';
     default:

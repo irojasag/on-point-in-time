@@ -22,6 +22,11 @@ const routes: Routes = [
           ).then((m) => m.BussinessContactInfoModule),
       },
       {
+        path: 'profile',
+        loadChildren: () =>
+          import('../profile/profile.module').then((m) => m.ProfileModule),
+      },
+      {
         path: '**',
         redirectTo: 'dashboard',
       },

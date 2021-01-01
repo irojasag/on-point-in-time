@@ -1,0 +1,13 @@
+<!-- <pre>{{ auth.user$ | async | json}}</pre> -->
+<div>
+  <div class="flex flex-row justify-center items-center">
+    <div class="bg-white rounded-full h-36 w-36 flex flex-col justify-center items-center">
+      <div class="bg-gray-300 rounded-full h-32 w-32 flex flex-row justify-center items-center" [routerLink]="['profile']">
+        <img *ngIf="(auth.user$ | async)?.photoURL" class="h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-row justify-center items-center mt-4">
+    <span class="text-xl">{{(auth.user$ | async)?.displayName}} <i class="fas fa-edit text-gray-300"></i></span>
+  </div>
+</div>
