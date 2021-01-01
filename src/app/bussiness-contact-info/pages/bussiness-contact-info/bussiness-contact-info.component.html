@@ -1,0 +1,22 @@
+<div *ngIf="(auth$.user$ | async) as user">
+  <div *ngFor="let contactData of contactInfo$ | async; let index= index;" class="flex flex-row rounded-md h-16 mb-3 shadow items-center bg-white justify-between"
+    (click)="(user.isAdmin || user.isSuperAdmin) ? openBottomSheet(contactData) : null">
+    <div class="flex flex-col w-12 rounded-l-md h-full justify-center items-center border-r mr-4">
+      <span class="text-3xl"><i class="{{contactData.icon}}"></i></span>
+    </div>
+    <span>
+      <a *ngIf="contactData.type !== 'other'; else noType" id="contact-{{index}}" href="{{contactData.linkType}}{{contactData.value}}" target="_blank"
+        class="font-medium text-md">{{contactData.value}}</a>
+      <ng-template #noType>
+        <span id="contact-{{index}}" class="font-medium text-md">{{contactData.value}}</span>
+      </ng-template>
+
+    </span>
+    <div class="flex flex-col w-12 rounded-r-md h-full justify-center items-center border-l ml-4" (click)="copy(contactData.value)">
+      <span class="text-3xl"><i class="far fa-copy"></i></span>
+    </div>
+  </div>
+</div>
+
+<button *ngIf="(auth$.user$ | async)?.isAdmin ||(auth$.user$ | async)?.isSuperAdmin" class="bg-blue-500 fixed bottom-4 right-4 h-12 w-12 shadow-sm text-white rounded-full" (click)="openAddDialog()"><i
+    class="fas fa-plus"></i></button>

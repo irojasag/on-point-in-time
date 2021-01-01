@@ -22,6 +22,7 @@ export class AuthService {
     private afs: AngularFirestore,
     private router: Router
   ) {
+    this.afAuth.idToken.subscribe(console.log);
     this.user$ = this.afAuth.authState.pipe(
       switchMap((user) => {
         console.log(user);

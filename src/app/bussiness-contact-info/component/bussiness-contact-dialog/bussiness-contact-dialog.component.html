@@ -1,0 +1,36 @@
+<div [formGroup]="form">
+  <div class="flex flex-row justify-center items-center mb-8">
+    <span class="font-semibold">Crea nueva información de contacto!</span>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Tipo</mat-label>
+      <mat-select placeholder="Tipo" formControlName="type">
+        <mat-option *ngFor="let option of typeOptions" value="{{option.value}}">{{option.displayName}}</mat-option>
+      </mat-select>
+      <mat-hint>Esto facilita a las personas contactarte</mat-hint>
+      <mat-error *ngIf="form.controls.type.hasError('required')">
+        El tipo es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Contacto</mat-label>
+      <input matInput placeholder="Contacto" class="w-full" formControlName="value">
+      <mat-error *ngIf="form.controls.value.hasError('required')">
+        El valor es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-end items-center">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="saveBussinessContact()">Guardar</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+<mat-nav-list>
+  <div class="flex flex-row justify-center items-center">
+    <span class="text-lg">Acciones para <strong>{{data.value}}</strong></span>
+  </div>
+
+
+  <a *ngIf="data.type !== 'other'" href="{{data.linkType}}{{data.value}}" target="_blank" mat-list-item (click)="openLink($event)">
+    <span mat-line><i class="text-xl mr-2 {{data.icon}}"></i> Abrir {{data.value}}</span>
+  </a>
+
+  <a href="#" mat-list-item (click)="deleteData($event)">
+    <span mat-line><i class="text-xl mr-2 fas fa-minus-square"></i>Eliminar {{data.value}}</span>
+  </a>
+
+
+</mat-nav-list>

@@ -15,6 +15,13 @@ const routes: Routes = [
           import('../calendar/calendar.module').then((m) => m.CalendarModule),
       },
       {
+        path: 'contact',
+        loadChildren: () =>
+          import(
+            '../bussiness-contact-info/bussiness-contact-info.module'
+          ).then((m) => m.BussinessContactInfoModule),
+      },
+      {
         path: '**',
         redirectTo: 'dashboard',
       },
