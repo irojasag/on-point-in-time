@@ -1,9 +1,11 @@
-<!-- <pre>{{ auth.user$ | async | json}}</pre> -->
 <div>
   <div class="flex flex-row justify-center items-center">
-    <div class="bg-white rounded-full h-36 w-36 flex flex-col justify-center items-center">
-      <div class="bg-gray-300 rounded-full h-32 w-32 flex flex-row justify-center items-center" [routerLink]="['profile']">
-        <img *ngIf="(auth.user$ | async)?.photoURL" class="h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
+    <div class="bg-white rounded-full h-36 w-36 flex flex-col justify-center items-center shadow-lg">
+      <div class="bg-gray-300 rounded-full h-32 w-32 flex flex-row justify-center items-center relative" [routerLink]="['profile']">
+        <div class="h-full w-full rounded-full bg-black absolute flex flex-col justify-center items-center hover:opacity-50 opacity-0" (click)="openProfilePhotoBottomSheet()">
+          <i class="text-2xl text-white fas fa-camera opacity-100 "></i>
+        </div>
+        <img *ngIf="(auth.user$ | async)?.photoURL" class="h-full w-full rounded-full " src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
       </div>
     </div>
   </div>

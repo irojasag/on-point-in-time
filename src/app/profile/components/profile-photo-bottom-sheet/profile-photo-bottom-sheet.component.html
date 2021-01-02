@@ -1,0 +1,17 @@
+<mat-nav-list>
+  <div class="flex flex-row justify-center items-center">
+    <span class="text-lg">Subir foto de perfil</span>
+  </div>
+
+  <a href="#" mat-list-item (click)="uploadCameraPhoto($event)" *ngIf="allowCapture">
+    <span mat-line>
+      <i class="text-xl mr-2 fas fa-camera"></i>Tomar Foto</span>
+  </a>
+  <a href="#" mat-list-item (click)="uploadPhoto($event)">
+    <span mat-line><i class="text-xl mr-2 fas fa-file-upload"></i>Escoger Foto</span>
+  </a>
+
+
+</mat-nav-list>
+<input class="hidden" type="file" id="fileUpload" name="fileUpload" accept="image/*" />
+<input class="hidden" type="file" id="fileUploadWithCamera" name="fileUploadWithCamera" accept="image/*" capture />
