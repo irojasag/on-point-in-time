@@ -25,7 +25,6 @@ export class AuthService {
     this.afAuth.idToken.subscribe(console.log);
     this.user$ = this.afAuth.authState.pipe(
       switchMap((user) => {
-        console.log(user);
         if (user) {
           return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
         } else {
@@ -50,7 +49,6 @@ export class AuthService {
   }
 
   public async emailSignin(email, password) {
-    // const provider = new auth.EmailAuthProvider();
     const credential = await this.afAuth.signInWithEmailAndPassword(
       email,
       password
@@ -68,15 +66,25 @@ export class AuthService {
     const userRef: AngularFirestoreDocument<User> = this.afs.doc(
       `users/${user.uid}`
     );
-
-    console.log(user);
     const data = {
       uid: user.uid,
-      email: user.email || '',
-      displayName: user.displayName || '',
-      photoURL: user.photoURL || '',
+      email: user.email,
     };
 
-    return await userRef.set(data, { merge: true });
+    try {
+      return await userRef.update(data);
+    } catch (err) {
+      if (String(err).includes('No document to update')) {
+        return await userRef.set(
+          {
+            ...data,
+            displayName: user.displayName || '',
+            photoURL: user.photoURL || '',
+          },
+          { merge: true }
+        );
+      }
+      console.log('error', err);
+    }
   }
 }

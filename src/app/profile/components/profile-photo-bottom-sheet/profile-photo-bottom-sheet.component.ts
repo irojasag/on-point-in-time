@@ -48,7 +48,6 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
           finalize(() => {
             fileRef.getDownloadURL().subscribe((photoURL) => {
               if (photoURL) {
-                console.log('photoURL', photoURL);
                 this.afs.doc(`users/${this.data.uid}`).update({ photoURL });
               }
             });
@@ -81,7 +80,6 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
           finalize(() => {
             fileRef.getDownloadURL().subscribe((photoURL) => {
               if (photoURL) {
-                console.log('photoURL', photoURL);
                 this.afs.doc(`users/${this.data.uid}`).update({ photoURL });
               }
             });

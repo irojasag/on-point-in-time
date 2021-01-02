@@ -58,12 +58,10 @@ export class CalendarComponent implements OnInit {
     }
   }
   public scroll(id): void {
-    console.log('scrolling to ' + id);
     console.log(document.getElementById(id));
     setTimeout(() => {
-      const element = this.renderer.selectRootElement(`#${id}`, true); // true to indicate that you will preserve the content
-
-      element.scrollIntoView({ behavior: 'smooth' }); // for smooth scrolling
+      const element = this.renderer.selectRootElement(`#${id}`, true);
+      element.scrollIntoView({ behavior: 'smooth' });
     }, 10);
   }
 }
