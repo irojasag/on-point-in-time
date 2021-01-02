@@ -8,7 +8,7 @@ import {
   AngularFirestoreDocument,
 } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import * as firebase from 'firebase/app';
 
 @Injectable({
@@ -26,7 +26,18 @@ export class AuthService {
     this.user$ = this.afAuth.authState.pipe(
       switchMap((user) => {
         if (user) {
-          return this.afs.doc<User>(`users/${user.uid}`).valueChanges();
+          return this.afs
+            .doc<User>(`users/${user.uid}`)
+            .valueChanges()
+            .pipe(
+              map((userDoc) => {
+                console.log(userDoc);
+                return {
+                  ...userDoc,
+                  createdDate: new Date(userDoc.createdAt.seconds * 1000),
+                };
+              })
+            );
         } else {
           return of(null);
         }
@@ -80,6 +91,7 @@ export class AuthService {
             ...data,
             displayName: user.displayName || '',
             photoURL: user.photoURL || '',
+            createdAt: new Date(),
           },
           { merge: true }
         );

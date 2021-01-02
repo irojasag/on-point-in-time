@@ -12,4 +12,8 @@
   <div class="flex flex-row justify-center items-center mt-4">
     <span class="text-xl">{{(auth.user$ | async)?.displayName}} <i class="fas fa-edit text-gray-300"></i></span>
   </div>
+  <div class="flex flex-row justify-center items-center mt-2">
+    <span class="text-md text-gray-400">Desde {{(auth.user$ | async)?.createdDate | date: 'longDate'}}</span>
+  </div>
+
 </div>

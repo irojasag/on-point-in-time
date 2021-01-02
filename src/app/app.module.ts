@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, LOCALE_ID } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -10,6 +10,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { AppFirebaseModule } from '../app/app-firebase/app-firebase.module';
+import { registerLocaleData } from '@angular/common';
+import localeCr from '@angular/common/locales/es-CR';
+registerLocaleData(localeCr, 'es');
 
 @NgModule({
   declarations: [AppComponent],
@@ -25,7 +28,7 @@ import { AppFirebaseModule } from '../app/app-firebase/app-firebase.module';
     MatInputModule,
     MatIconModule,
   ],
-  providers: [],
+  providers: [{ provide: LOCALE_ID, useValue: 'es-CR' }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
