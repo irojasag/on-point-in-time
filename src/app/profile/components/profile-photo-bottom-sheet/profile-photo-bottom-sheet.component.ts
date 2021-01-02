@@ -41,27 +41,7 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
       const refDir = `${this.data.uid}/profile-photos/${Date.now()}`;
       const fileRef = this.afst.ref(refDir);
 
-      this.afst
-        .upload(refDir, file)
-        .snapshotChanges()
-        .pipe(
-          finalize(() => {
-            fileRef.getDownloadURL().subscribe((photoURL) => {
-              if (photoURL) {
-                this.afs.doc(`users/${this.data.uid}`).update({ photoURL });
-              }
-            });
-            this.snackBar.open('Tu foto de perfil ha sido actualizada!', '', {
-              duration: 2000,
-            });
-            this.bottomSheetRef.dismiss();
-          })
-        )
-        .subscribe((url) => {
-          if (url) {
-            console.log(url);
-          }
-        });
+      this.updateFileOnStorage(refDir, file, fileRef);
     };
   }
   private configureFileUploader(): void {
@@ -73,28 +53,32 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
       const refDir = `${this.data.uid}/profile-photos/${Date.now()}`;
       const fileRef = this.afst.ref(refDir);
 
-      this.afst
-        .upload(refDir, file)
-        .snapshotChanges()
-        .pipe(
-          finalize(() => {
-            fileRef.getDownloadURL().subscribe((photoURL) => {
-              if (photoURL) {
-                this.afs.doc(`users/${this.data.uid}`).update({ photoURL });
-              }
-            });
-            this.snackBar.open('Tu foto de perfil ha sido actualizada!', '', {
-              duration: 2000,
-            });
-            this.bottomSheetRef.dismiss();
-          })
-        )
-        .subscribe((url) => {
-          if (url) {
-            console.log(url);
-          }
-        });
+      this.updateFileOnStorage(refDir, file, fileRef);
     };
+  }
+
+  private updateFileOnStorage(refDir: string, file: File, fileRef): void {
+    this.afst
+      .upload(refDir, file)
+      .snapshotChanges()
+      .pipe(
+        finalize(() => {
+          fileRef.getDownloadURL().subscribe((photoURL) => {
+            if (photoURL) {
+              this.afs.doc(`users/${this.data.uid}`).update({ photoURL });
+            }
+          });
+          this.snackBar.open('Tu foto de perfil ha sido actualizada!', '', {
+            duration: 2000,
+          });
+          this.bottomSheetRef.dismiss();
+        })
+      )
+      .subscribe((url) => {
+        if (url) {
+          console.log(url);
+        }
+      });
   }
 
   public uploadPhoto(event): void {
