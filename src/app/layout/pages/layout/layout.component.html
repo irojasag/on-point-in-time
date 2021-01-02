@@ -36,7 +36,7 @@
         <li class="menu-item" *ngIf="(auth.user$ | async)?.isAdmin" [routerLink]="'dashboard'"><i class="fas fa-chart-line"></i>Estadísticas</li>
         <li class="menu-item" [routerLink]="'calendar'" (click)="isSidebarOpen = false"><i class="far fa-calendar"></i>Calendario</li>
         <li class="menu-item" [routerLink]="'contact'" (click)="isSidebarOpen = false"><i class="far fa-id-card"></i>Contáctenos</li>
-        <li class="menu-item"><i class="fas fa-shopping-basket"></i>Productos</li>
+        <li class="menu-item" [routerLink]="'productos'" (click)="isSidebarOpen = false"><i class="fas fa-shopping-basket"></i>Productos</li>
         <li class="menu-item"><i class="fas fa-cog"></i>Configuración</li>
         <li class="menu-item" (click)="auth.signOut()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>
       </ul>

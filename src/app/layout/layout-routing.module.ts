@@ -27,6 +27,13 @@ const routes: Routes = [
           ).then((m) => m.BussinessContactInfoModule),
       },
       {
+        path: 'productos',
+        loadChildren: () =>
+          import('../productos/productos.module').then(
+            (m) => m.ProductosModule
+          ),
+      },
+      {
         path: 'profile',
         loadChildren: () =>
           import('../profile/profile.module').then((m) => m.ProfileModule),
