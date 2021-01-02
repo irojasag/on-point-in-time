@@ -5,6 +5,8 @@ import { User } from 'src/app/models/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ProfilePhotoBottomSheetComponent } from '../../components/profile-photo-bottom-sheet/profile-photo-bottom-sheet.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ProfileUserDataDialogComponent } from '../../components/profile-user-data-dialog/profile-user-data-dialog.component';
 
 @Component({
   selector: 'app-profile',
@@ -12,29 +14,25 @@ import { ProfilePhotoBottomSheetComponent } from '../../components/profile-photo
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  public user: User;
   constructor(
     public auth: AuthService,
-    private afst: AngularFireStorage,
-    private snackBar: MatSnackBar,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private dialog: MatDialog
   ) {}
 
-  ngOnInit(): void {
-    this.auth.user$.subscribe((user) => {
-      this.user = user;
-      // if (this.user) {
-      //   this.afst
-      //     .ref(`${user.uid}/unnamed.jpg`)
-      //     .getDownloadURL()
-      //     .subscribe(console.log);
-      // }
+  ngOnInit(): void {}
+
+  public openProfilePhotoBottomSheet(user: User): void {
+    this.bottomSheet.open(ProfilePhotoBottomSheetComponent, {
+      data: user,
     });
   }
 
-  public openProfilePhotoBottomSheet(): void {
-    this.bottomSheet.open(ProfilePhotoBottomSheetComponent, {
-      data: this.user,
+  public openUserDataFormDialog(user: User): void {
+    this.dialog.open(ProfileUserDataDialogComponent, {
+      height: '400px',
+      width: '300px',
+      data: user,
     });
   }
 }

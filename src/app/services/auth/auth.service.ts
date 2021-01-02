@@ -34,7 +34,12 @@ export class AuthService {
                 console.log(userDoc);
                 return {
                   ...userDoc,
-                  createdDate: new Date(userDoc.createdAt.seconds * 1000),
+                  createdDate: userDoc.createdAt
+                    ? new Date(userDoc.createdAt.seconds * 1000)
+                    : null,
+                  birthDate: userDoc.birthDateAt
+                    ? new Date(userDoc.birthDateAt.seconds * 1000)
+                    : null,
                 };
               })
             );
@@ -91,7 +96,7 @@ export class AuthService {
             ...data,
             displayName: user.displayName || '',
             photoURL: user.photoURL || '',
-            createdAt: new Date(),
+            createdAt: new Date() as any,
           },
           { merge: true }
         );

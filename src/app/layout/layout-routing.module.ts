@@ -2,13 +2,18 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { LayoutComponent } from './pages/layout/layout.component';
+import { AdminGuard } from '../../app/guards/admin.guard';
 
 const routes: Routes = [
   {
     path: '',
     component: LayoutComponent,
     children: [
-      { path: 'dashboard', component: DashboardComponent },
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        canActivate: [AdminGuard],
+      },
       {
         path: 'calendar',
         loadChildren: () =>

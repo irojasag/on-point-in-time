@@ -1,0 +1,32 @@
+<div [formGroup]="form">
+  <div class="flex flex-row justify-center items-center mb-8">
+    <span class="font-semibold">Actualiza tu perfil</span>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Nombre</mat-label>
+      <input matInput placeholder="Nombre" class="w-full" formControlName="displayName">
+      <mat-error *ngIf="form.controls.displayName.hasError('required')">
+        El nombre es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Fecha de nacimiento</mat-label>
+      <input matInput [matDatepicker]="picker" [max]="today" placeholder="Fecha de nacimiento" class="w-full" formControlName="birthDateAt" disabled>
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker touchUi disabled="false"></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-end items-center">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="saveProfileData()">Guardar</button>
+    </div>
+  </div>
+</div>

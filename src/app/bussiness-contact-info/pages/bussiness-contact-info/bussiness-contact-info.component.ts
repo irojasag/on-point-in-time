@@ -63,7 +63,7 @@ export class BussinessContactInfoComponent implements OnInit {
   }
 
   public openAddDialog(): void {
-    const dialogRef = this.dialog.open(BussinessContactDialogComponent, {
+    this.dialog.open(BussinessContactDialogComponent, {
       height: '400px',
       width: '300px',
     });

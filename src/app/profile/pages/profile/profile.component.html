@@ -1,19 +1,33 @@
-<div>
+<div *ngIf="(auth.user$ | async); let user">
   <div class="flex flex-row justify-center items-center">
     <div class="bg-white rounded-full h-36 w-36 flex flex-col justify-center items-center shadow-lg">
       <div class="bg-gray-300 rounded-full h-32 w-32 flex flex-row justify-center items-center relative" [routerLink]="['profile']">
-        <div class="h-full w-full rounded-full bg-black absolute flex flex-col justify-center items-center hover:opacity-50 opacity-0" (click)="openProfilePhotoBottomSheet()">
+        <div class="h-full w-full rounded-full bg-black absolute flex flex-col justify-center items-center hover:opacity-50 opacity-0" (click)="openProfilePhotoBottomSheet(user)">
           <i class="text-2xl text-white fas fa-camera opacity-100 "></i>
         </div>
-        <img *ngIf="(auth.user$ | async)?.photoURL" class="h-full w-full rounded-full " src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
+        <img *ngIf="user.photoURL" class="h-full w-full rounded-full " src="{{user.photoURL}}" alt="Profile Photo">
       </div>
     </div>
   </div>
   <div class="flex flex-row justify-center items-center mt-4">
-    <span class="text-xl">{{(auth.user$ | async)?.displayName}} <i class="fas fa-edit text-gray-300"></i></span>
+    <div class="flex flex-col">
+      <div class="flex flex-row justify-center items-center">
+        <span class="text-xl block">{{user.displayName}} <i class="fas fa-edit text-gray-500 ml-2 cursor-pointer" (click)="openUserDataFormDialog(user)"></i></span>
+      </div>
+      <div class="flex flex-row justify-center items-center" *ngIf="user.birthDate; else noBirthDate">
+        <span class="text-md text-gray-400">Cumpleaños {{user.birthDate | date: 'longDate'}}</span>
+      </div>
+      <ng-template #noBirthDate>
+        <div class="flex flex-row justify-center items-center">
+          <span class="text-md text-gray-400">Cumpleaños no especificados</span>
+        </div>
+      </ng-template>
+    </div>
+
+
   </div>
-  <div class="flex flex-row justify-center items-center mt-2" *ngIf="(auth.user$ | async)?.createdDate">
-    <span class="text-md text-gray-400">Desde {{(auth.user$ | async)?.createdDate | date: 'longDate'}}</span>
+  <div class="flex flex-row justify-center items-center mt-2" *ngIf="user.createdDate">
+    <span class="text-md text-gray-400">Miembro desde {{user.createdDate | date: 'longDate'}}</span>
   </div>
 
 </div>
