@@ -2,11 +2,31 @@
   <!-- Header -->
   <div class="flex flex-row bg-blue-500 h-12 items-center px-4 justify-between shadow-lg z-20">
     <button class="text-white font-normal text-xl" (click)="isSidebarOpen = !isSidebarOpen"><i class="fas fa-bars"></i></button>
-    <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center">
-      <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center" [routerLink]="['profile']" (click)="isSidebarOpen = false">
-        <img *ngIf="(auth.user$ | async)?.photoURL" class="h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
+    <div class="flex-col">
+      <div class="flex flex-row justify-center items-center">
+        <div class="flex flex-col mr-4">
+          <span *ngIf="(updatesService.hasUpdates$ | async); else noUpdates" [matMenuTriggerFor]="menu" class="text-xl text-white"><i class="fas fa-bell cursor-pointer" matBadge="1"
+              matBadgeColor="warn" matBadgeSize="small"></i></span>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="updatesService.doAppUpdate()">
+              <i class="fas fa-home"></i>
+              <span>Actualiza la aplicación</span>
+            </button>
+          </mat-menu>
+          <ng-template #noUpdates>
+            <span class="text-xl text-white"><i class="fas fa-bell cursor-pointer text-gray-300"></i></span>
+          </ng-template>
+        </div>
+        <div class="flex flex-col">
+          <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center">
+            <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center" [routerLink]="['profile']" (click)="isSidebarOpen = false">
+              <img *ngIf="(auth.user$ | async)?.photoURL" class="h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
   <!-- Content & Sidebar-->
   <div class="w-full">
