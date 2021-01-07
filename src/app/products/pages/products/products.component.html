@@ -1,7 +1,20 @@
 <ng-container *ngIf="(auth.user$ | async); let user;">
 
-  <div class="flex flex-row  items-center h-12 shadow-md mb-2" *ngFor="let product of productInfo$ | async">
-    <span>{{product.name}}</span>
+  <div class="flex flex-row  items-center h-24 shadow-md mb-2 py-2 pl-2 rounded-md" *ngFor="let product of productInfo$ | async">
+    <div class="flex flex-col">
+      <div class="flex flex-row mb-1 justify-items-start">
+        <span>{{product.name}}</span>
+      </div>
+      <div class="flex flex-row mb-1 justify-items-start">
+        <span><strong>Tipo:</strong> {{product.type}}</span>
+      </div>
+      <div class="flex flex-row mb-1 justify-items-start">
+        <span><strong>Precio:</strong> {{product.price | currency:'CRC'}}</span>
+      </div>
+      <div class="flex flex-row mb-1 justify-items-start" *ngIf="product.needsReservationsPerWeek">
+        <span><strong>Reservaciones semanales:</strong> {{product.reservationsPerWeek | number}}</span>
+      </div>
+    </div>
 
   </div>
 
