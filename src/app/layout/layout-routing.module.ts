@@ -27,11 +27,9 @@ const routes: Routes = [
           ).then((m) => m.BussinessContactInfoModule),
       },
       {
-        path: 'productos',
+        path: 'products',
         loadChildren: () =>
-          import('../productos/productos.module').then(
-            (m) => m.ProductosModule
-          ),
+          import('../products/products.module').then((m) => m.ProductsModule),
       },
       {
         path: 'profile',

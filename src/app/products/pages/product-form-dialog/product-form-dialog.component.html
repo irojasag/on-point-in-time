@@ -1,0 +1,141 @@
+<form [formGroup]="form" class="w-full h-full overflow-y-scroll pb-16">
+  <div class="flex flex-row">
+    <button class="mt-2 text-lg cursor-pointer" [routerLink]="['../']"><i class="fas fa-chevron-left mr-2"></i> Volver</button>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mt-2 mb-2">
+    <span class="text-lg font-medium">Crea un nuevo producto!</span>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Tipo</mat-label>
+      <mat-select placeholder="Tipo" formControlName="type">
+        <mat-option *ngFor="let option of typeOptions" value="{{option.value}}">{{option.displayName}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.controls.type.hasError('required')">
+        El tipo es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Nombre del producto</mat-label>
+      <input matInput placeholder="Nombre del producto" class="w-full" formControlName="name">
+      <mat-error *ngIf="form.controls.name.hasError('required')">
+        El nombre es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Precio del producto</mat-label>
+      <input matInput type="number" placeholder="Precio del producto" class="w-full" formControlName="price">
+      <mat-error *ngIf="form.controls.price.hasError('required')">
+        El precio es <strong>requerido</strong>
+      </mat-error>
+      <mat-error *ngIf="form.controls.price.hasError('max')">
+        El precio debe ser menor que <strong>{{form.controls.price.errors.max.max}}</strong>
+      </mat-error>
+      <mat-error *ngIf="form.controls.price.hasError('min')">
+        El precio debe ser mínimo <strong>{{form.controls.price.errors.min.min}}</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+
+  <div class="flex flex-row justify-start items-center mb-2">
+    <mat-checkbox [color]="'primary'" formControlName="isPublic">El producto es público</mat-checkbox>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <div class="flex flex-col max-w-full">
+      <div class="flex flex-row">
+        <span>Expira en:</span>
+      </div>
+      <div class="flex flex-row ">
+        <mat-form-field appearance="outline" class="flex flex-col w-5/12">
+          <mat-label>Cantidad</mat-label>
+          <input matInput type="number" placeholder="Cantidad" class="w-full" formControlName="expirationAmunt">
+          <mat-error *ngIf="form.controls.expirationAmunt.hasError('required')">
+            La cantidad es <strong>requerida</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.expirationAmunt.hasError('max')">
+            La cantidad debe ser menor que <strong>{{form.controls.expirationAmunt.errors.max.max}}</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.expirationAmunt.hasError('min')">
+            La cantidad debe ser mínimo <strong>{{form.controls.expirationAmunt.errors.min.min}}</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="flex flex-col ml-1 w-5/12">
+          <mat-label>Frecuencia</mat-label>
+          <mat-select placeholder="Frecuencia" formControlName="expirationFrequency">
+            <mat-option *ngFor="let option of expirationFrequencyOptions" value="{{option.value}}">{{option.displayName}}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.controls.expirationFrequency.hasError('required')">
+            El frecuencia es <strong>requerida</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="flex flex-row justify-start items-center mb-4">
+        <mat-checkbox [color]="'primary'" formControlName="needsReservationsPerWeek">Necesita reservar semanalmente</mat-checkbox>
+      </div>
+
+
+      <div class="flex flex-row justify-center items-center mb-2" *ngIf="form.controls.needsReservationsPerWeek.value">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Cantidad de reservaciones semanales</mat-label>
+          <input matInput type="number" placeholder="Cantidad de reservaciones semanales" class="w-full" formControlName="reservationsPerWeek">
+          <mat-error *ngIf="form.controls.reservationsPerWeek.hasError('required')">
+            La cantidad de reservaciones es <strong>requerido</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.reservationsPerWeek.hasError('max')">
+            La cantidad de reservaciones debe ser menor que <strong>{{form.controls.reservationsPerWeek.errors.max.max}}</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.reservationsPerWeek.hasError('min')">
+            La cantidad de reservaciones debe ser mínimo <strong>{{form.controls.reservationsPerWeek.errors.min.min}}</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="flex flex-row justify-start items-center mb-4">
+        <mat-checkbox [color]="'primary'" formControlName="needsPackages">Necesita paquetes</mat-checkbox>
+      </div>
+
+
+      <div class="flex flex-row justify-center items-center mb-2" *ngIf="form.controls.needsPackages.value">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Paquetes</mat-label>
+          <input matInput type="number" placeholder="Cantidad de reservaciones semanales" class="w-full" formControlName="packages">
+          <mat-error *ngIf="form.controls.packages.hasError('required')">
+            La cantidad de paquetes es <strong>requerido</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.packages.hasError('max')">
+            La cantidad de paquetes debe ser menor que <strong>{{form.controls.packages.errors.max.max}}</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.packages.hasError('min')">
+            La cantidad de paquetes debe ser mínimo <strong>{{form.controls.packages.errors.min.min}}</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+
+
+
+    </div>
+  </div>
+
+  <div class="flex flex-row items-center justify-end fixed z-20 px-4 w-full h-12 bg-white shadow-md bottom-0 left-0">
+    <div>
+      <button mat-stroked-button color="warn" [routerLink]="['../']">Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="saveProductForm()">Guardar</button>
+    </div>
+  </div>
+
+</form>

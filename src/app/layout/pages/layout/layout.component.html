@@ -1,6 +1,6 @@
 <div class="h-full">
   <!-- Header -->
-  <div class="flex flex-row bg-blue-500 h-12 items-center px-4 justify-between shadow-lg z-20">
+  <div class="flex flex-row bg-blue-500 h-12 items-center px-4 justify-between shadow-lg z-20 fixed w-full">
     <button class="text-white font-normal text-xl" (click)="isSidebarOpen = !isSidebarOpen"><i class="fas fa-bars"></i></button>
     <div class="flex-col">
       <div class="flex flex-row justify-center items-center">
@@ -29,21 +29,21 @@
 
   </div>
   <!-- Content & Sidebar-->
-  <div class="w-full">
+  <div class="w-full pt-12">
     <!-- Sidebar -->
     <div [hidden]="!isSidebarOpen" class="bg-gray-200 fixed max-w-xxs w-full h-full shadow-md z-10">
       <ul>
         <li class="menu-item" *ngIf="(auth.user$ | async)?.isAdmin" [routerLink]="'dashboard'"><i class="fas fa-chart-line"></i>Estadísticas</li>
         <li class="menu-item" [routerLink]="'calendar'" (click)="isSidebarOpen = false"><i class="far fa-calendar"></i>Calendario</li>
         <li class="menu-item" [routerLink]="'contact'" (click)="isSidebarOpen = false"><i class="far fa-id-card"></i>Contáctenos</li>
-        <li class="menu-item" [routerLink]="'productos'" (click)="isSidebarOpen = false"><i class="fas fa-shopping-basket"></i>Productos</li>
+        <li class="menu-item" [routerLink]="'products'" (click)="isSidebarOpen = false"><i class="fas fa-shopping-basket"></i>Productos</li>
         <li class="menu-item"><i class="fas fa-cog"></i>Configuración</li>
         <li class="menu-item" (click)="auth.signOut()"><i class="fas fa-sign-out-alt"></i>Cerrar Sesión</li>
       </ul>
     </div>
     <!-- Content -->
-    <div class="max-w-full h-full overflow-y-scroll px-2 py-1">
-      <router-outlet class="h-full  "></router-outlet>
+    <div class="max-w-screen-md mx-auto h-full overflow-y-scroll px-2 py-1">
+      <router-outlet class="h-full max-w-screen-md"></router-outlet>
     </div>
     <div *ngIf="isSidebarOpen" (click)="isSidebarOpen = false" class="h-full w-full bg-gray-600 opacity-25 fixed overflow-y-hidden top-12 left-0"></div>
   </div>

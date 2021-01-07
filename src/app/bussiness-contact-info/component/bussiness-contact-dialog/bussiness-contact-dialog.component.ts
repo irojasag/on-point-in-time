@@ -37,7 +37,7 @@ export class BussinessContactDialogComponent implements OnInit {
     this.afs
       .collection('contact-info')
       .add(this.form.value)
-      .then((_val) => {
+      .then(() => {
         this.dialogRef.close(this.form.value.value);
         this.snackBar.open(`${this.form.value.value} ha sido añadido`, '', {
           duration: 2000,

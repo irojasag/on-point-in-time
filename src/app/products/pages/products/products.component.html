@@ -1,0 +1,9 @@
+<ng-container *ngIf="(auth.user$ | async); let user;">
+
+  <div class="flex flex-row  items-center h-12 shadow-md mb-2" *ngFor="let product of productInfo$ | async">
+    <span>{{product.name}}</span>
+
+  </div>
+
+  <button *ngIf="user.isAdmin ||user.isSuperAdmin" class="bg-blue-500 fixed bottom-4 right-4 h-12 w-12 shadow-sm text-white rounded-full" [routerLink]="['add']"><i class="fas fa-plus"></i></button>
+</ng-container>

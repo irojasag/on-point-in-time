@@ -26,7 +26,7 @@ export class BussinessContactInfoComponent implements OnInit {
     private snackBar: MatSnackBar,
     public dialog: MatDialog,
     private bottomSheet: MatBottomSheet,
-    public auth$: AuthService
+    public auth: AuthService
   ) {
     this.contactInfo$ = this.afs
       .collection<ContactInfo>('contact-info')
