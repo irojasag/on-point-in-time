@@ -7,9 +7,9 @@ branches:
   only:
     - develop
 before_script:
-  - npm install -g @angular/cli
+  - npm install
 script:
-  - ng build --prod
+  - npm run build -- --prod
 deploy:
   skip_cleanup: true
   provider: firebase
