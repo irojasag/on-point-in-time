@@ -11,4 +11,8 @@ export interface Product {
   reservationsPerWeek: number;
   needsPackages: boolean;
   packages: number;
+  createdAt?: firebase.firestore.Timestamp;
+  createdDate?: Date;
+  expirationDate: firebase.firestore.Timestamp;
+  isExpired?: boolean;
 }

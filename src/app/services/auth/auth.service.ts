@@ -22,7 +22,7 @@ export class AuthService {
     private afs: AngularFirestore,
     private router: Router
   ) {
-    this.afAuth.idToken.subscribe(console.log);
+    //this.afAuth.idToken.subscribe(console.log);
     this.user$ = this.afAuth.authState.pipe(
       switchMap((user) => {
         if (user) {
@@ -31,14 +31,13 @@ export class AuthService {
             .valueChanges()
             .pipe(
               map((userDoc) => {
-                console.log(userDoc);
                 return {
                   ...userDoc,
                   createdDate: userDoc.createdAt
-                    ? new Date(userDoc.createdAt.seconds * 1000)
+                    ? userDoc.createdAt.toDate()
                     : null,
                   birthDate: userDoc.birthDateAt
-                    ? new Date(userDoc.birthDateAt.seconds * 1000)
+                    ? userDoc.birthDateAt.toDate()
                     : null,
                 };
               })

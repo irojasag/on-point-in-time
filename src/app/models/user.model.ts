@@ -3,9 +3,9 @@ export interface User {
   email: string;
   photoURL?: string;
   displayName?: string;
-  createdAt?: { seconds: number; nanoseconds: number };
+  createdAt?: firebase.firestore.Timestamp;
   createdDate?: Date;
-  birthDateAt?: { seconds: number; nanoseconds: number };
+  birthDateAt?: firebase.firestore.Timestamp;
   birthDate?: Date;
   isAdmin?: boolean;
   isSuperAdmin?: boolean;

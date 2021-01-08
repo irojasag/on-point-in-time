@@ -4,7 +4,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProductFormDialogComponent } from '../product-form-dialog/product-form-dialog.component';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Product } from '../../../models/product.model';
+import { getTextForProductType } from '../../../helpers/product.helpers';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import * as firebase from 'firebase/app';
 
 @Component({
   selector: 'app-products',
@@ -18,9 +21,52 @@ export class ProductsComponent implements OnInit {
     private dialog: MatDialog,
     private afs: AngularFirestore
   ) {
-    this.productInfo$ = this.afs
-      .collection<Product>('products')
-      .valueChanges({ idField: 'id' });
+    this.auth.user$.subscribe((user) => {
+      if (user) {
+        if (user.isAdmin) {
+          this.productInfo$ = this.afs
+            .collection<Product>('products')
+            .valueChanges({ idField: 'id' })
+            .pipe(
+              map((productsCol) => {
+                return (productsCol || []).map((productDoc) => ({
+                  ...productDoc,
+                  type: getTextForProductType(productDoc.type),
+                  createdDate: productDoc.createdAt
+                    ? productDoc.createdAt.toDate()
+                    : null,
+                  isExpired:
+                    productDoc.expirationDate.toDate().getTime() <
+                    new Date().getTime(),
+                }));
+              })
+            );
+        } else {
+          this.productInfo$ = this.afs
+            .collection<Product>('products', (ref) =>
+              ref
+                .where('isPublic', '==', true)
+                .where(
+                  'expirationDate',
+                  '<=',
+                  firebase.firestore.Timestamp.fromDate(new Date())
+                )
+            )
+            .valueChanges({ idField: 'id' })
+            .pipe(
+              map((productsCol) => {
+                return (productsCol || []).map((productDoc) => ({
+                  ...productDoc,
+                  type: getTextForProductType(productDoc.type),
+                  createdDate: productDoc.createdAt
+                    ? productDoc.createdAt.toDate()
+                    : null,
+                }));
+              })
+            );
+        }
+      }
+    });
   }
 
   ngOnInit(): void {}

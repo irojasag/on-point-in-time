@@ -76,7 +76,7 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
       )
       .subscribe((url) => {
         if (url) {
-          console.log(url);
+          //console.log(url);
         }
       });
   }
