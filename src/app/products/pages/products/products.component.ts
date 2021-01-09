@@ -80,9 +80,11 @@ export class ProductsComponent implements OnInit {
       width: '300px',
     });
   }
-  public openActions(product: Product): void {
-    this.bottomSheet.open(ProductActionsBottomSheetComponent, {
-      data: product,
-    });
+  public openActions(product: Product, isAdmin: boolean): void {
+    if (isAdmin) {
+      this.bottomSheet.open(ProductActionsBottomSheetComponent, {
+        data: product,
+      });
+    }
   }
 }
