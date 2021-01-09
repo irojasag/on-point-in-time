@@ -8,9 +8,9 @@ branches:
     - develop
 before_script:
   - npm install
+  - npm install -g firebase-tools
 script:
   - npm run build -- --prod
 deploy:
-  provider: firebase
-  token:
-    secure: "1//05qKk61FG7dUFCgYIARAAGAUSNwF-L9Irxoy3SobBXkWqE-wC2W93hFD0WrUC-saG6v88dvjSYdG95SBYXj9MIqxXWsN9w27O_9Y"
+  provider: script
+  script: firebase deploy --token "$FIREBASE_TOKEN"
