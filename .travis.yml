@@ -1,0 +1,17 @@
+language: node_js
+node_js:
+  - "12"
+dist: trusty
+sudo: required
+branches:
+  only:
+    - develop
+before_script:
+  - npm install
+script:
+  - npm run build -- --prod
+deploy:
+  skip_cleanup: true
+  provider: firebase
+  token:
+    secure: "1//05qKk61FG7dUFCgYIARAAGAUSNwF-L9Irxoy3SobBXkWqE-wC2W93hFD0WrUC-saG6v88dvjSYdG95SBYXj9MIqxXWsN9w27O_9Y"
