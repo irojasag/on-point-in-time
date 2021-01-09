@@ -13,9 +13,16 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { NativeDateModule } from '@angular/material/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { ProductActionsBottomSheetComponent } from './components/product-actions-bottom-sheet/product-actions-bottom-sheet.component';
+import { MatListModule } from '@angular/material/list';
 
 @NgModule({
-  declarations: [ProductsComponent, ProductFormDialogComponent],
+  declarations: [
+    ProductsComponent,
+    ProductFormDialogComponent,
+    ProductActionsBottomSheetComponent,
+  ],
   imports: [
     CommonModule,
     ProductsRoutingModule,
@@ -28,6 +35,8 @@ import { MatButtonModule } from '@angular/material/button';
     MatButtonModule,
     MatDatepickerModule,
     NativeDateModule,
+    MatBottomSheetModule,
+    MatListModule,
   ],
 })
 export class ProductsModule {}

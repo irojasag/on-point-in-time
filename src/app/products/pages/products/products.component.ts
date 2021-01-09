@@ -8,6 +8,8 @@ import { getTextForProductType } from '../../../helpers/product.helpers';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as firebase from 'firebase/app';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ProductActionsBottomSheetComponent } from '../../components/product-actions-bottom-sheet/product-actions-bottom-sheet.component';
 
 @Component({
   selector: 'app-products',
@@ -19,7 +21,8 @@ export class ProductsComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private dialog: MatDialog,
-    private afs: AngularFirestore
+    private afs: AngularFirestore,
+    private bottomSheet: MatBottomSheet
   ) {
     this.auth.user$.subscribe((user) => {
       if (user) {
@@ -75,6 +78,11 @@ export class ProductsComponent implements OnInit {
     this.dialog.open(ProductFormDialogComponent, {
       height: '400px',
       width: '300px',
+    });
+  }
+  public openActions(product: Product): void {
+    this.bottomSheet.open(ProductActionsBottomSheetComponent, {
+      data: product,
     });
   }
 }

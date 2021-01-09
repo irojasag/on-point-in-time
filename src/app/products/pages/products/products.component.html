@@ -1,6 +1,7 @@
 <ng-container *ngIf="(auth.user$ | async); let user;">
 
-  <div class="flex flex-row  items-center h-24 shadow-md mb-2 py-2 pl-2 rounded-md" *ngFor="let product of productInfo$ | async" [ngClass]="{'bg-red-300': product.isExpired}">
+  <div class="flex flex-row  items-center h-24 shadow-md mb-2 py-2 pl-2 rounded-md" *ngFor="let product of productInfo$ | async" [ngClass]="{'bg-red-300': product.isExpired}"
+    (click)="openActions(product)">
     <div class="flex flex-col">
       <div class="flex flex-row mb-1 justify-items-start">
         <span *ngIf="user.isAdmin || user.isSuperAdmin"><i class="fas {{product.isPublic ? 'fa-eye' : 'fa-eye-slash'}} mr-1"></i></span>
