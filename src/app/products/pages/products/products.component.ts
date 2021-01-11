@@ -51,7 +51,7 @@ export class ProductsComponent implements OnInit {
                 .where('isPublic', '==', true)
                 .where(
                   'expirationDate',
-                  '<=',
+                  '>=',
                   firebase.firestore.Timestamp.fromDate(new Date())
                 )
             )

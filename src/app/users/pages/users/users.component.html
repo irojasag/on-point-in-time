@@ -1,0 +1,18 @@
+<div *ngIf="auth.user$ | async; let user">
+
+
+<div *ngFor="let u of users$ | async" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
+  <div class="flex flex-col w-14">
+    <img class="h-14 w-14 rounded-l-md" src="{{u.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{u.displayName}}">
+  </div>
+  <div class="flex flex-col">
+    <div class="flex flex-row pl-2 justify-between w-full">
+      <span class="font-medium">{{u.displayName || 'Nombre no especificado'}}</span>
+    </div>
+  </div>
+  <div class="absolute right-2">
+    <i *ngIf="u.isAdmin" class="fas fa-shield-alt" alt="Usuario es administrador"></i>
+    <i *ngIf="user.isSuperAdmin && u.isSuperAdmin" class="fas ml-1 fa-dungeon" alt="Usuario es super administrador"></i>
+  </div>
+</div>
+</div>

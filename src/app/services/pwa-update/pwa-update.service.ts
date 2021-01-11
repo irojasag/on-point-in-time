@@ -17,9 +17,6 @@ export class PwaUpdateService {
   }
 
   public doAppUpdate(): void {
-    if (!this.updates.isEnabled) {
-      return;
-    }
     this.updates.available.subscribe(() => {
       this.updates.activateUpdate().then(() => document.location.reload());
     });
