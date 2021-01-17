@@ -1,0 +1,140 @@
+<div *ngIf="auth.user$ | async; let user">
+
+
+  <!-- TODO -->
+  <!-- <p>Productos activos</p> -->
+  <!-- TODO -->
+  <!-- <p>Status de la cuenta Activo | Bloqueado</p> -->
+  <div class="flex flex-row justify-between items-center">
+    <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Métodos de pago</span>
+    <i *ngIf="user.isAdmin || user.isSuperAdmin" (click)="openAddDialog()" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
+  </div>
+  <div class="flex flex-row mb-2 w-full mt-2 relative">
+    <div class="flex flex-col w-full">
+      <div class="flex flex-row bg-white shadow-sm mb-1 h-8 w-full rounded-md items-center px-4" *ngFor="let paymentMethod of paymentMethods$ | async">
+        <span>
+          {{paymentMethod.displayName}}
+          <i *ngIf="user.isAdmin || user.isSuperAdmin" class="fas fa-trash text-red-500 ml-2 cursor-pointer absolute right-4" (click)="openDeletePaymentMethodDialog(paymentMethod)"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+
+  <div class="flex flex-row justify-between items-center mt-2">
+    <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Cuentas Bancarias</span>
+    <i *ngIf="user.isAdmin || user.isSuperAdmin" (click)="openBankAccountAddDialog()" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
+  </div>
+  <div class="flex flex-row mb-2 w-full mt-2 relative">
+    <div class="flex flex-col w-full">
+      <ng-container *ngFor="let bankAccount of bankAccounts$ | async">
+        <div class="flex flex-row bg-blue-500 shadow-sm mt-1 h-8 w-full rounded-t-md items-center px-4">
+          <div class="flex flex-row w-full rounded-t-md">
+            <span class="text-white font-medium tracking-wide uppercase">{{bankAccount.displayName}}</span>
+            <i *ngIf="user.isAdmin || user.isSuperAdmin" class="fas fa-trash text-red-500 ml-2 cursor-pointer absolute right-4" (click)="openDeleteBankAccountDialog(bankAccount)"></i>
+          </div>
+        </div>
+        <div class="flex flex-row bg-white rounder-b-md mb-1">
+          <div class="flex flex-col w-full py-2 px-4">
+            <div class="flex flex-row items-center mb-1">
+              <span class="font-medium text-md">Número de cuenta: </span> <span class="ml-2">{{bankAccount.accountNumber}}</span> <i (click)="copy(bankAccount.accountNumber)"
+                class="far fa-copy ml-2 text-lg cursor-pointer"></i>
+            </div>
+            <div class="flex flex-row items-center mb-1">
+              <span class="font-medium text-md">Nombre del titular: </span> <span class="ml-2">{{bankAccount.owner}}</span> <i (click)="copy(bankAccount.owner)"
+                class="far fa-copy ml-2 text-lg cursor-pointer"></i>
+            </div>
+            <div class="flex flex-row items-center mb-1">
+              <span class="font-medium text-md">Identificación del titular: </span> <span class="ml-2">{{bankAccount.ownerId}}</span> <i (click)="copy(bankAccount.ownerId)"
+                class="far fa-copy ml-2 text-lg cursor-pointer"></i>
+            </div>
+            <div class="flex flex-row items-center mb-1 rounded-b-md">
+              <span class="font-medium text-md">Moneda: </span> <span class="ml-2">{{bankAccount.currency}}</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+
+  <div class="flex flex-row justify-between items-center mt-2">
+    <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Enviar Comprobante A:</span>
+    <i *ngIf="user.isAdmin || user.isSuperAdmin" (click)="openPaymentContactAddDialog()" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
+  </div>
+  <div class="flex flex-row mb-2 w-full mt-2 relative">
+    <div class="flex flex-col w-full">
+      <div class="flex flex-row bg-white shadow-sm mb-1 h-8 w-full rounded-md items-center" *ngFor="let paymentContact of paymentContact$ | async">
+        <div class="flex flex-col w-8 h-8 bg-whatsapp justify-center items-center rounded-l-md">
+          <a class="text-lg" href="https://wa.me/{{generateValidWhatsappNumber(paymentContact.displayName)}}" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp text-white"></i>
+          </a>
+        </div>
+        <div class="flex flex-col w-full h-8 bg-white justify-center rounded-r-md pl-2">
+          {{paymentContact.displayName}}
+        </div>
+      </div>
+    </div>
+  </div>
+  <mat-divider></mat-divider>
+</div>
+
+
+<ng-template #deleteDialog let-data>
+  <div class="flex flex-row">
+    <span class="font-medium text-lg">Eliminando {{data.displayName}}</span>
+  </div>
+  <div class="flex flex-row mt-2">
+    <span class="text-md">Estás a punto de eliminar el método de pago <strong>{{data.displayName}}</strong></span>
+  </div>
+  <div class="flex flex-row mt-2">
+    <span class="font-medium text-md">Estás de acuerdo?</span>
+  </div>
+  <div class="flex flex-row justify-end items-center mt-4">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" class="ml-4" (click)="deletePaymentMetod(data)" mat-dialog-close>Eliminar</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #deleteBankAccountDialog let-data>
+  <div class="flex flex-row">
+    <span class="font-medium text-lg">Eliminando {{data.displayName}}</span>
+  </div>
+  <div class="flex flex-row mt-2">
+    <span class="text-md">Estás a punto de eliminar la cuenta bancaria <strong>{{data.displayName}}</strong></span>
+  </div>
+  <div class="flex flex-row mt-2">
+    <span class="font-medium text-md">Estás de acuerdo?</span>
+  </div>
+  <div class="flex flex-row justify-end items-center mt-4">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" class="ml-4" (click)="deleteBankAccount(data)" mat-dialog-close>Eliminar</button>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #deletePaymentContactDialog let-data>
+  <div class="flex flex-row">
+    <span class="font-medium text-lg">Eliminando {{data.displayName}}</span>
+  </div>
+  <div class="flex flex-row mt-2">
+    <span class="text-md">Estás a punto de eliminar el número para envío de comprobantes <strong>{{data.displayName}}</strong></span>
+  </div>
+  <div class="flex flex-row mt-2">
+    <span class="font-medium text-md">Estás de acuerdo?</span>
+  </div>
+  <div class="flex flex-row justify-end items-center mt-4">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" class="ml-4" (click)="deletePaymentContact(data)" mat-dialog-close>Eliminar</button>
+    </div>
+  </div>
+</ng-template>

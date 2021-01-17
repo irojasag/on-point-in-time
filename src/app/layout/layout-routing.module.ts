@@ -37,6 +37,20 @@ const routes: Routes = [
           import('../users/users.module').then((m) => m.UsersModule),
       },
       {
+        path: 'purchases',
+        loadChildren: () =>
+          import('../purchases/purchases.module').then(
+            (m) => m.PurchasesModule
+          ),
+      },
+      {
+        path: 'payment-info',
+        loadChildren: () =>
+          import('../payment-info/payment-info.module').then(
+            (m) => m.PaymentInfoModule
+          ),
+      },
+      {
         path: 'profile',
         loadChildren: () =>
           import('../profile/profile.module').then((m) => m.ProfileModule),
