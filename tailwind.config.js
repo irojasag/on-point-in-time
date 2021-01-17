@@ -15,6 +15,7 @@ module.exports = {
     colors: {
       transparent: "transparent",
       current: "currentColor",
+      whatsapp: "#25D366",
       black: colors.black,
       white: colors.white,
       rose: colors.rose,

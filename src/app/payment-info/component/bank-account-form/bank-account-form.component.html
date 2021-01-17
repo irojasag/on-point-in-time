@@ -1,0 +1,64 @@
+<div [formGroup]="form">
+  <div class="flex flex-row justify-center items-center mb-4">
+    <span class="font-semibold">Crea nueva de cuenta bancaria!</span>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Nombre de la cuenta bancaria</mat-label>
+      <input matInput placeholder="Nombre de la cuenta bancaria" class="w-full" formControlName="displayName">
+      <mat-error *ngIf="form.controls.displayName.hasError('required')">
+        El valor es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Número de cuenta</mat-label>
+      <input matInput placeholder="Número de cuenta" class="w-full" formControlName="accountNumber">
+      <mat-error *ngIf="form.controls.accountNumber.hasError('required')">
+        El valor es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Titular de la cuenta</mat-label>
+      <input matInput placeholder="Titular de la cuenta" class="w-full" formControlName="owner">
+      <mat-error *ngIf="form.controls.owner.hasError('required')">
+        El valor es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Identificación de titular de la cuenta</mat-label>
+      <input matInput placeholder="Identificación de titular de la cuenta" class="w-full" formControlName="ownerId">
+      <mat-error *ngIf="form.controls.ownerId.hasError('required')">
+        El valor es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Moneda</mat-label>
+      <input matInput placeholder="Moneda" class="w-full" formControlName="currency">
+      <mat-error *ngIf="form.controls.currency.hasError('required')">
+        El valor es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-end items-center">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="saveBankAccountForm()">Guardar</button>
+    </div>
+  </div>
+</div>
