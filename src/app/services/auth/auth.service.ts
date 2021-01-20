@@ -22,7 +22,6 @@ export class AuthService {
     private afs: AngularFirestore,
     private router: Router
   ) {
-    //this.afAuth.idToken.subscribe(console.log);
     this.user$ = this.afAuth.authState.pipe(
       switchMap((user) => {
         if (user) {
@@ -94,7 +93,9 @@ export class AuthService {
           {
             ...data,
             displayName: user.displayName || '',
-            photoURL: user.photoURL || '',
+            photoURL:
+              user.photoURL ||
+              'https://style.anu.edu.au/_anu/4/images/placeholders/person.png',
             createdAt: new Date() as any,
           },
           { merge: true }
@@ -102,5 +103,21 @@ export class AuthService {
       }
       console.log('error', err);
     }
+  }
+
+  public async createUserWithEmailAndPassword(
+    email: string,
+    password: string,
+    displayName: string
+  ) {
+    this.afAuth
+      .createUserWithEmailAndPassword(email, password)
+      .then(async (credential) => {
+        await this.updateUserData({
+          ...credential.user,
+          displayName,
+        });
+        return this.router.navigate(['/app']);
+      });
   }
 }
