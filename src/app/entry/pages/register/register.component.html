@@ -1,0 +1,73 @@
+<div class="flex items-center min-h-screen p-4 bg-gray-100 lg:justify-center" [formGroup]="form">
+  <div class="flex flex-col bg-white rounded-md shadow-lg max md:flex-row md:flex-1 lg:max-w-screen-md">
+    <div class="p-4 py-6 text-white bg-blue-500 md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
+      <div class="my-3 text-4xl font-bold tracking-wider text-center">
+        <a [routerLink]="['/']">On Point In Time</a>
+      </div>
+      <p class="mt-6 font-normal text-center text-gray-300 md:mt-0">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut vulputate porttitor blandit. Pellentesque feugiat, quam vitae auctor consectetur, nisl velit malesuada sapien, vel tincidunt nulla
+        sapien in purus.
+      </p>
+      <p class="flex flex-col items-center justify-center mt-10 text-center">
+        <span>Don't have an account?</span>
+        <a href="#" class="underline">Get Started!</a>
+      </p>
+      <p class="mt-6 text-sm text-center text-gray-300">
+        Read our <a href="#" class="underline">terms</a> and <a href="#" class="underline">conditions</a>
+      </p>
+    </div>
+    <div class="p-5 bg-white md:flex-1">
+      <h3 class="my-4 text-2xl font-semibold text-gray-700">Crea tu cuenta</h3>
+      <div class="flex flex-col space-y-5">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Nombre Completo</mat-label>
+          <input matInput placeholder="Nombre Completo" class="w-full" formControlName="displayName" type="text" id="displayName">
+          <mat-error *ngIf="form.controls.displayName.hasError('required')">
+            El nombre es <strong>requerido</strong>
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Correo Electrónico</mat-label>
+          <input matInput placeholder="Correo Electrónico" class="w-full" formControlName="email" type="email" id="email">
+          <mat-error *ngIf="form.controls.email.hasError('required')">
+            El email es <strong>requerido</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.email.hasError('email')">
+            El email debe ser válido
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Contraseña</mat-label>
+          <input matInput placeholder="Contraseña" class="w-full" formControlName="password" type="password" id="password">
+          <mat-error *ngIf="form.controls.password.hasError('required')">
+            La contraseña es <strong>requerida</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.password.hasError('minlength')">
+            El valor debe ser mínimo <strong>{{form.controls.password.errors.minlength.requiredLength}}</strong> caracteres de largo
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Confirmar Contraseña</mat-label>
+          <input matInput placeholder="Confirmar Contraseña" class="w-full" formControlName="passwordConfirm" type="password" id="passwordConfirm">
+          <mat-error *ngIf="form.controls.passwordConfirm.hasError('required')">
+            La confirmación de contraseña es <strong>requerida</strong>
+          </mat-error>
+          <mat-error *ngIf="form.hasError('match')">
+            Las contraseñas tienen que coincidir
+          </mat-error>
+        </mat-form-field>
+
+        <div>
+          <div class="flex flex-row justify-end items-center">
+            <div>
+              <button mat-stroked-button color="warn" [routerLink]="['/']">Cancelar</button>
+            </div>
+            <div class="ml-2">
+              <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="registerUser()">Crear usuario!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

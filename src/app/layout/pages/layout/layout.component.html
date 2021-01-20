@@ -20,7 +20,7 @@
         <div class="flex flex-col">
           <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center">
             <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center" [routerLink]="['profile']" (click)="isSidebarOpen = false">
-              <img *ngIf="(auth.user$ | async)?.photoURL" class="h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
+              <img class="h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Profile Photo">
             </div>
           </div>
         </div>
