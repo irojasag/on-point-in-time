@@ -14,39 +14,51 @@ import { Purchase } from 'src/app/models/purchase.model';
 export class PurchasesComponent implements OnInit {
   public purchases$: Observable<Purchase[]>;
   constructor(public auth: AuthService, private afs: AngularFirestore) {
-    this.purchases$ = this.afs
-      .collection<Purchase>('purchases', (ref) =>
-        ref.orderBy('billNumber', 'desc')
-      )
-      .valueChanges({ idField: 'id' })
-      .pipe(
-        switchMap((purchases) => {
-          const clientIds = [...new Set(purchases.map((pur) => pur.clientId))];
+    this.auth.user$.subscribe((user) => {
+      if (user) {
+        const needsWhere = !(user.isAdmin || user.isSuperAdmin);
+        this.purchases$ = this.afs
+          .collection<Purchase>('purchases', (ref) => {
+            if (needsWhere) {
+              return ref
+                .where('clientId', '==', user.uid)
+                .orderBy('billNumber', 'desc');
+            }
+            return ref.orderBy('billNumber', 'desc');
+          })
+          .valueChanges({ idField: 'id' })
+          .pipe(
+            switchMap((purchases) => {
+              const clientIds = [
+                ...new Set(purchases.map((pur) => pur.clientId)),
+              ];
 
-          return combineLatest([
-            of(purchases),
-            combineLatest(
-              clientIds.map((clientId) =>
-                this.afs
-                  .collection<User>('users', (ref) =>
-                    ref.where('uid', '==', clientId)
+              return combineLatest([
+                of(purchases),
+                combineLatest(
+                  clientIds.map((clientId) =>
+                    this.afs
+                      .collection<User>('users', (ref) =>
+                        ref.where('uid', '==', clientId)
+                      )
+                      .valueChanges()
+                      .pipe(map((users) => users[0]))
                   )
-                  .valueChanges()
-                  .pipe(map((users) => users[0]))
-              )
-            ),
-          ]);
-        }),
-        map(([purchases, users]) => {
-          return purchases.map((purchase) => {
-            return {
-              ...purchase,
-              purchasedDate: purchase.purchasedAt.toDate(),
-              client: users.find((a) => a.uid === purchase.clientId),
-            };
-          });
-        })
-      );
+                ),
+              ]);
+            }),
+            map(([purchases, users]) => {
+              return purchases.map((purchase) => {
+                return {
+                  ...purchase,
+                  purchasedDate: purchase.purchasedAt.toDate(),
+                  client: users.find((a) => a.uid === purchase.clientId),
+                };
+              });
+            })
+          );
+      }
+    });
   }
 
   ngOnInit(): void {}

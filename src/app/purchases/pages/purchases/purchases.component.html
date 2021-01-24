@@ -1,22 +1,22 @@
 <div class="flex flex-row justify-between items-center my-2">
   <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Compras registradas</span>
 </div>
-<div *ngFor="let contactData of purchases$ | async; let index= index;" class="bg-white rounded-md h-16 w-full flex flex-row shadow-md mb-2 relative">
+<div *ngFor="let purchase of purchases$ | async; let index= index;" class="bg-white rounded-md h-16 w-full flex flex-row shadow-md mb-2 relative">
   <div class="flex flex-col w-16">
-    <img class="h-16 w-16 rounded-l-md" src="{{contactData.client.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{contactData.client.displayName}}">
+    <img class="h-16 w-16 rounded-l-md" src="{{purchase.client.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{purchase.client.displayName}}">
   </div>
   <div class="flex flex-col justify-center">
     <div class="absolute right-2 top-2">
-      <span class="font-medium">Factura: #{{contactData.billNumber}}</span>
+      <span class="font-medium">Factura: #{{purchase.billNumber}}</span>
     </div>
     <div class="flex flex-row pl-2 justify-between w-full">
-      <span>{{contactData.client.displayName || 'Nombre no especificado'}}</span>
+      <span>{{purchase.client.displayName || 'Nombre no especificado'}}</span>
     </div>
     <div class="flex flex-row pl-2 justify-between w-full h-4">
-      <span>Fecha de compra: {{contactData.purchasedDate | date}}</span>
+      <span>Fecha de compra: {{purchase.purchasedDate | date}}</span>
     </div>
     <div class="flex flex-row pl-2 justify-between w-full h-4">
-      <span>Total: {{contactData.total | currency:'CRC'}}</span>
+      <span>Total: {{purchase.total | currency:'CRC'}}</span>
     </div>
 
   </div>

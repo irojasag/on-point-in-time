@@ -97,6 +97,7 @@ export class AuthService {
               user.photoURL ||
               'https://style.anu.edu.au/_anu/4/images/placeholders/person.png',
             createdAt: new Date() as any,
+            locked: false,
           },
           { merge: true }
         );
