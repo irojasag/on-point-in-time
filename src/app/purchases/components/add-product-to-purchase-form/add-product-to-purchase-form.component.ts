@@ -100,10 +100,6 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     this.form.controls.type.patchValue(product.type);
     this.form.controls.name.patchValue(product.name);
     this.form.controls.price.patchValue(product.price);
-    // this.form.controls.expirationAmunt.patchValue(product.expirationAmunt);
-    // this.form.controls.expirationFrequency.patchValue(
-    //   product.expirationFrequency
-    // );
     this.form.controls.expirationAmunt.patchValue(1);
     this.form.controls.expirationFrequency.patchValue(
       ProductExpirationFrequencies.WEEKS
