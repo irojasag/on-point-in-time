@@ -9,4 +9,5 @@ export interface User {
   birthDate?: Date;
   isAdmin?: boolean;
   isSuperAdmin?: boolean;
+  locked: boolean;
 }
