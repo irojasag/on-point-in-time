@@ -116,9 +116,10 @@ export class AddPurchaseComponent implements OnInit {
 
   public savePurchaseForm(): void {
     const body = {
-      ...this.form.value,
+      ...this.form.getRawValue(),
       products: this.productsToBuy,
       total: this.totalToPay,
+      clientId: this.selectedClient.uid,
     };
     this.afs
       .collection('purchases')
