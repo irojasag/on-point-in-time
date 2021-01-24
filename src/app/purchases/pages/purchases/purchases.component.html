@@ -1,3 +1,26 @@
-<pre>{{purchases$ | async | json}}</pre>
+<div class="flex flex-row justify-between items-center my-2">
+  <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Compras registradas</span>
+</div>
+<div *ngFor="let contactData of purchases$ | async; let index= index;" class="bg-white rounded-md h-16 w-full flex flex-row shadow-md mb-2 relative">
+  <div class="flex flex-col w-16">
+    <img class="h-16 w-16 rounded-l-md" src="{{contactData.client.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{contactData.client.displayName}}">
+  </div>
+  <div class="flex flex-col justify-center">
+    <div class="absolute right-2 top-2">
+      <span class="font-medium">Factura: #{{contactData.billNumber}}</span>
+    </div>
+    <div class="flex flex-row pl-2 justify-between w-full">
+      <span>{{contactData.client.displayName || 'Nombre no especificado'}}</span>
+    </div>
+    <div class="flex flex-row pl-2 justify-between w-full h-4">
+      <span>Fecha de compra: {{contactData.purchasedDate | date}}</span>
+    </div>
+    <div class="flex flex-row pl-2 justify-between w-full h-4">
+      <span>Total: {{contactData.total | currency:'CRC'}}</span>
+    </div>
+
+  </div>
+
+</div>
 <button [routerLink]="['add']" *ngIf="(auth.user$ | async)?.isAdmin ||(auth.user$ | async)?.isSuperAdmin" class="bg-blue-500 fixed bottom-4 right-4 h-12 w-12 shadow-sm text-white rounded-full"><i
     class="fas fa-plus"></i></button>

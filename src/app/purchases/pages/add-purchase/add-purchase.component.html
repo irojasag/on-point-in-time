@@ -20,7 +20,7 @@
       <mat-label>Cliente</mat-label>
       <input matInput [matAutocomplete]="autoClient" formControlName="clientId">
       <mat-autocomplete #autoClient>
-        <mat-option *ngFor="let user of filteredUsers$ | async" [value]="user.displayName" class="shadow-sm" (click)="selectClient(user)">
+        <mat-option *ngFor="let user of filteredUsers$ | async" [value]="user.displayName" class="shadow-sm" (onSelectionChange)="selectClient(user)" (click)="selectClient(user)">
           <div class="flex flex-row items-center">
             <div class="flex flex-col">
               <img class="rounded-full" aria-hidden [src]="user.photoURL" height="36" width="36">
