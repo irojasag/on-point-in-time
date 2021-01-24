@@ -1,0 +1,13 @@
+<div class="flex flex-row px-2">
+  <span class="font-medium">Cantidad de usuarios: </span><span>{{totalUsers | number}}</span>
+</div>
+<div class="flex flex-row px-2">
+  <span class="font-medium">Cantidad de activos: </span><span>{{totalActiveUsers | number}}</span>
+</div>
+<div class="flex flex-row px-2">
+  <span class="font-medium">Cantidad de bloqueados: </span><span>{{totalLockedUsers | number}}</span>
+</div>
+<div style="display: block;">
+  <canvas baseChart height="176" [data]="pieChartData" [labels]="pieChartLabels" [chartType]="pieChartType" [options]="pieChartOptions" [plugins]="pieChartPlugins" [legend]="pieChartLegend">
+  </canvas>
+</div>
