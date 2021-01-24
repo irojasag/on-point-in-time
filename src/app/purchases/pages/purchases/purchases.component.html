@@ -1,1 +1,3 @@
-<p>purchases works!</p>
+<pre>{{purchases$ | async | json}}</pre>
+<button [routerLink]="['add']" *ngIf="(auth.user$ | async)?.isAdmin ||(auth.user$ | async)?.isSuperAdmin" class="bg-blue-500 fixed bottom-4 right-4 h-12 w-12 shadow-sm text-white rounded-full"><i
+    class="fas fa-plus"></i></button>

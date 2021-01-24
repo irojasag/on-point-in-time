@@ -1,0 +1,93 @@
+<div [formGroup]="form">
+  <div class="flex flex-row justify-between items-center my-1">
+    <span class="text-md text-blue-600">Factura #{{form.value.billNumber}}</span>
+  </div>
+  <div class="flex flex-row justify-between items-center my-2">
+    <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">General</span>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Fecha de compra</mat-label>
+      <input matInput [matDatepicker]="picker" [max]="today" placeholder="Fecha de compra" class="w-full" formControlName="purchasedAt">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker touchUi disabled="false"></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Cliente</mat-label>
+      <input matInput [matAutocomplete]="autoClient" formControlName="clientId">
+      <mat-autocomplete #autoClient>
+        <mat-option *ngFor="let user of filteredUsers$ | async" [value]="user.displayName" class="shadow-sm" (click)="selectClient(user)">
+          <div class="flex flex-row items-center">
+            <div class="flex flex-col">
+              <img class="rounded-full" aria-hidden [src]="user.photoURL" height="36" width="36">
+            </div>
+            <div class="flex flex-col pl-1">
+              <span>{{user.displayName}}</span>
+            </div>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="!selectedClient">
+        El cliente <strong>requerido</strong>
+      </mat-error>
+      <mat-error *ngIf="form.controls.clientId.hasError('required') && selectedClient">
+        El cliente <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Forma de pago</mat-label>
+      <mat-select placeholder="Forma de pago" formControlName="paymentMethod">
+        <mat-option *ngFor="let paymentMethod of paymentMethods$ | async" value="{{paymentMethod.displayName}}">{{paymentMethod.displayName}}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.controls.paymentMethod.hasError('required')">
+        La forma de pago es <strong>requerida</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+
+  <div class="flex flex-row justify-between items-center mb-2">
+    <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Productos</span>
+    <i (click)="openProductPurchaseAddDialog()" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
+  </div>
+
+  <div class="mb-14">
+    <div *ngFor="let product of productsToBuy; let index= index;" class="flex flex-row rounded-md h-20 mb-3 shadow items-center bg-white justify-between">
+      <div class="pl-2">
+        <span class="font-medium text-md">{{product.name}}</span><br>
+        <span class="font-normal text-md">Expira: {{product.expirationDate | date}}</span><br>
+        <span class="font-normal text-md" *ngIf="product.needsReservationsPerWeek"> {{ product.reservationsPerWeek }} reservaciones por semana</span><br>
+        <span class="font-normal text-md">Precio: {{product.price | currency:'CRC'}}</span>
+      </div>
+      <div class="flex flex-col w-12 rounded-r-md h-full justify-center items-center border-l ml-4 bg-red-500" (click)="removeItem(index)">
+        <span class="text-2xl text-white"><i class="fas fa-trash text-white"></i></span>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="flex flex-row items-center justify-between fixed z-20 px-4 w-full h-12 bg-white shadow-md bottom-0 left-0">
+    <div class="flex flex-col">
+      <span class="font-medium">Total</span>
+      {{totalToPay | currency:'CRC'}}
+    </div>
+    <div class="flex flex-col">
+      <div class="flex flex-row">
+        <div>
+          <button mat-stroked-button color="warn" [routerLink]="['../']">Cancelar</button>
+        </div>
+        <div class="ml-2">
+          <button mat-raised-button color="primary" [disabled]="form.invalid || !productsToBuy.length" class="ml-4" (click)="savePurchaseForm()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

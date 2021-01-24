@@ -3,13 +3,43 @@ import { CommonModule } from '@angular/common';
 
 import { PurchasesRoutingModule } from './purchases-routing.module';
 import { PurchasesComponent } from './pages/purchases/purchases.component';
-
+import { AddPurchaseComponent } from './pages/add-purchase/add-purchase.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AddProductToPurchaseFormComponent } from './components/add-product-to-purchase-form/add-product-to-purchase-form.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
 
 @NgModule({
-  declarations: [PurchasesComponent],
+  declarations: [
+    PurchasesComponent,
+    AddPurchaseComponent,
+    AddProductToPurchaseFormComponent,
+  ],
   imports: [
     CommonModule,
-    PurchasesRoutingModule
-  ]
+    PurchasesRoutingModule,
+    ReactiveFormsModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatAutocompleteModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatRippleModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatCheckboxModule,
+    MatExpansionModule,
+  ],
 })
-export class PurchasesModule { }
+export class PurchasesModule {}

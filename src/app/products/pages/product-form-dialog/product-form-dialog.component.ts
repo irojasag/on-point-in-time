@@ -4,6 +4,7 @@ import {
   ProductTypeOptions,
   ProductExpirationFrequencyOptions,
   ProductExpirationFrequencies,
+  ProductTypes,
 } from '../../../constants/product.constants';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -27,7 +28,7 @@ export class ProductFormDialogComponent implements OnInit {
     private activatedRoute: ActivatedRoute
   ) {
     this.form = this.formBuilder.group({
-      type: [null, Validators.required],
+      type: [ProductTypes.MEMBERSHIP, Validators.required],
       name: [null, Validators.required],
       price: [
         null,
