@@ -99,7 +99,7 @@ export class PurchasesChartComponent implements OnInit {
         newLineChartData.push(
           monthPurchases.reduce((acc, curr) => acc + curr.total, 0)
         );
-        //newLineChartData.push(monthNames[today.getMonth()]);
+
         this.lineChartData = [{ data: newLineChartData, label: 'Ganancias' }];
       });
   }

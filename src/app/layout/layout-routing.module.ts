@@ -44,6 +44,14 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'reservation-schedule',
+        loadChildren: () =>
+          import('../reservation-schedule/reservation-schedule.module').then(
+            (m) => m.ReservationScheduleModule
+          ),
+        canActivate: [AdminGuard],
+      },
+      {
         path: 'payment-info',
         loadChildren: () =>
           import('../payment-info/payment-info.module').then(
