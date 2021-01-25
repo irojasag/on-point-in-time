@@ -8,6 +8,8 @@ import {
   ReservationScheduleFrequencyOptions,
 } from 'src/app/constants/reservation-schedule.constants';
 import { map } from 'rxjs/operators';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ReservationScheduleBottomSheetComponent } from '../../components/reservation-schedule-bottom-sheet/reservation-schedule-bottom-sheet.component';
 
 @Component({
   selector: 'app-reservation-schedule',
@@ -17,7 +19,11 @@ import { map } from 'rxjs/operators';
 export class ReservationScheduleComponent implements OnInit {
   public reservationSchedules$: Observable<ReservationSchedule[]>;
 
-  constructor(public auth: AuthService, private afs: AngularFirestore) {
+  constructor(
+    public auth: AuthService,
+    private afs: AngularFirestore,
+    private bottomSheet: MatBottomSheet
+  ) {
     this.reservationSchedules$ = this.afs
       .collection<ReservationSchedule>('reservation-schedules')
       .valueChanges({ idField: 'id' })
@@ -40,4 +46,10 @@ export class ReservationScheduleComponent implements OnInit {
   }
 
   ngOnInit(): void {}
+
+  public openBottomSheet(reservationSchedule: ReservationSchedule): void {
+    this.bottomSheet.open(ReservationScheduleBottomSheetComponent, {
+      data: reservationSchedule,
+    });
+  }
 }

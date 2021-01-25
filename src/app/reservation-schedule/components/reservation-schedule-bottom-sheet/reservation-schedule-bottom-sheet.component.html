@@ -1,0 +1,16 @@
+<mat-nav-list>
+  <div class="flex flex-row justify-center items-center">
+    <span class="text-lg">Acciones para <strong>{{data.displayName}}</strong></span>
+  </div>
+
+  <a mat-list-item routerLink="/app/reservation-schedule/edit/{{data.id}}" (click)="openLink($event)">
+    <span mat-line><i class="text-xl mr-2 fas fa-edit"></i>Editar {{data.displayName}}</span>
+  </a>
+
+
+  <a href="#" mat-list-item (click)="deleteData($event)">
+    <span mat-line><i class="text-xl mr-2 fas fa-minus-square"></i>Eliminar {{data.displayName}}</span>
+  </a>
+
+
+</mat-nav-list>

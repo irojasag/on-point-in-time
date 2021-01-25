@@ -7,6 +7,11 @@ const routes: Routes = [
   { path: '', component: ReservationScheduleComponent },
   { path: 'add', component: ReservationScheduleFormComponent },
   {
+    path: 'edit/:id',
+    component: ReservationScheduleFormComponent,
+    data: { editMode: true },
+  },
+  {
     path: '**',
     redirectTo: '',
   },

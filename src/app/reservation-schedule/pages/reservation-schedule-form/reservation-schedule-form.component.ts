@@ -7,6 +7,8 @@ import {
 import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-reservation-schedule-form',
@@ -16,6 +18,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class ReservationScheduleFormComponent implements OnInit {
   public form: FormGroup;
   public reservationScheduleFrequencyOptions = ReservationScheduleFrequencyOptions;
+
+  public editMode: boolean;
+  private reservationId: string;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -30,24 +35,63 @@ export class ReservationScheduleFormComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe((data) => {
+      if (data && data.editMode) {
+        const reservationId: Observable<string> = this.activatedRoute.params.pipe(
+          map((p) => p.id)
+        );
+        reservationId.subscribe((id) => {
+          if (id) {
+            this.reservationId = id;
+            this.editMode = data.editMode;
+            this.afs
+              .doc(`reservation-schedules/${id}`)
+              .valueChanges({ idField: 'id' })
+              .subscribe((reservation) => {
+                this.form.patchValue(reservation);
+              });
+          }
+        });
+      }
+    });
+  }
 
   public saveForm(): void {
-    this.afs
-      .collection('reservation-schedules')
-      .add(this.form.getRawValue())
-      .then(() => {
-        this.snackBar.open(
-          `Se ha añadido la plantilla ${this.form.value.displayName}`,
-          '',
-          {
-            duration: 2000,
-          }
-        );
-        this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-      })
-      .catch((err) => {
-        console.log('error', err);
-      });
+    if (this.editMode) {
+      this.afs
+        .doc(`reservation-schedules/${this.reservationId}`)
+        .update(this.form.getRawValue())
+        .then(() => {
+          this.snackBar.open(
+            `Se ha actualizado la plantilla ${this.form.value.displayName}`,
+            '',
+            {
+              duration: 2000,
+            }
+          );
+          this.router.navigate(['../../'], { relativeTo: this.activatedRoute });
+        })
+        .catch((err) => {
+          console.log('error', err);
+        });
+    } else {
+      this.afs
+        .collection('reservation-schedules')
+        .add(this.form.getRawValue())
+        .then(() => {
+          this.snackBar.open(
+            `Se ha añadido la plantilla ${this.form.value.displayName}`,
+            '',
+            {
+              duration: 2000,
+            }
+          );
+          this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+        })
+        .catch((err) => {
+          console.log('error', err);
+        });
+    }
   }
 }
