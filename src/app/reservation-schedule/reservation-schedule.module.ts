@@ -14,11 +14,14 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { ReservationScheduleBottomSheetComponent } from './components/reservation-schedule-bottom-sheet/reservation-schedule-bottom-sheet.component';
+import { MatListModule } from '@angular/material/list';
 
 @NgModule({
   declarations: [
     ReservationScheduleComponent,
     ReservationScheduleFormComponent,
+    ReservationScheduleBottomSheetComponent,
   ],
   imports: [
     CommonModule,
@@ -33,6 +36,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
     MatDialogModule,
     MatSelectModule,
     MatBottomSheetModule,
+    MatListModule,
   ],
 })
 export class ReservationScheduleModule {}

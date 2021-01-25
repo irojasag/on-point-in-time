@@ -1,7 +1,8 @@
 <div class="flex flex-row justify-between items-center my-2">
   <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Plantillas de reservaciones</span>
 </div>
-<div *ngFor="let reservationSchedule of reservationSchedules$ | async; let index= index;" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
+<div *ngFor="let reservationSchedule of reservationSchedules$ | async; let index= index;" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative"
+  (click)="openBottomSheet(reservationSchedule)">
   <div class="flex flex-col justify-center">
     <div class="flex flex-row pl-2 justify-between w-full">
       <span>{{reservationSchedule.displayName}}</span>
