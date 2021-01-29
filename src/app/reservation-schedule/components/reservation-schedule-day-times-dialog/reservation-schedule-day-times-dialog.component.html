@@ -1,0 +1,92 @@
+<form [formGroup]="form" *ngIf="addMode; else listOfTimes">
+  <div class="h-full">
+    <span class="mt-4">Agrega un tiempo de reserva</span>
+
+    <div class="flex flex-row justify-between mt-4">
+      <div class="flex flex-col w-3/5">
+        <div class="flex flex-row">
+          <div class="flex flex-col w-2/5">
+            <mat-form-field appearance="outline">
+              <mat-label>Hora</mat-label>
+              <mat-select placeholder="Hora" formControlName="hours">
+                <mat-option *ngFor="let option of reservationScheduleHoursOptions" value="{{option.value}}">{{option.displayName}}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.controls.hours.hasError('required')">
+                La hora es <strong>requerida</strong>
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="flex flex-col w-3/5">
+            <mat-form-field appearance="outline">
+              <mat-label>Minutos</mat-label>
+              <mat-select placeholder="Minutos" formControlName="minutes">
+                <mat-option *ngFor="let option of reservationScheduleMinutesOptions" value="{{option.value}}">{{option.displayName}}</mat-option>
+              </mat-select>
+              <mat-error *ngIf="form.controls.minutes.hasError('required')">
+                Los minutos son <strong>requeridos</strong>
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+      </div>
+      <div class="flex flex-col w-2/5">
+        <mat-form-field appearance="outline">
+          <mat-label>Periodo</mat-label>
+          <mat-select placeholder="Periodo" formControlName="period">
+            <mat-option *ngFor="let option of reservationSchedulePeriodOptions" value="{{option.value}}">{{option.displayName}}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.controls.period.hasError('required')">
+            El periodo es <strong>requerido</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+
+    <div class="flex flex-row w-full">
+      <mat-form-field appearance="outline">
+        <mat-label>Espacios</mat-label>
+        <input matInput placeholder="Espacios" formControlName="spaces">
+        <mat-error *ngIf="form.controls.spaces.hasError('required')">
+          Los espacios son <strong>requeridos</strong>
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <div class="flex flex-row w-full">
+      <mat-form-field appearance="outline">
+        <mat-label>Nombre</mat-label>
+        <input matInput placeholder="Nombre" formControlName="customName">
+      </mat-form-field>
+    </div>
+
+    <div class="flex flex-row justify-end items-center relative top-36">
+      <div>
+        <button mat-stroked-button color="warn" (click)="addMode = false">Cancelar</button>
+      </div>
+      <div class="ml-2">
+        <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="addNewToList()">Guardar</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<ng-template #listOfTimes>
+  <div class="flex flex-row justify-between items-center">
+    <span>Editando distribución de {{getDistributionName(data.day, data.frequency)}}</span>
+    <i *ngIf="!addMode" (click)="addMode = true" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
+  </div>
+
+  <div class="flex flex-row justify-center items-center my-4">
+    <div class="flex flex-col w-full">
+      <div class="flex flex-row bg-gray-50 shadow-sm mb-2 h-8 w-full rounded-md justify-between items-center px-4 cursor-pointer" *ngFor="let time of data.times; let index = index;">
+        <span>
+          {{time.hour}} {{time.period}}
+        </span>
+        <span class="text-gray-500 text-xs italic justify-center">
+          {{time.spaces | number}} Espacios <i class="fas fa-trash text-red-500 cursor-pointer ml-2" (click)="removeItem(index)"></i>
+        </span>
+      </div>
+    </div>
+  </div>
+</ng-template>

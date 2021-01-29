@@ -16,12 +16,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ReservationScheduleBottomSheetComponent } from './components/reservation-schedule-bottom-sheet/reservation-schedule-bottom-sheet.component';
 import { MatListModule } from '@angular/material/list';
+import { ReservationScheduleDayTimesDialogComponent } from './components/reservation-schedule-day-times-dialog/reservation-schedule-day-times-dialog.component';
 
 @NgModule({
   declarations: [
     ReservationScheduleComponent,
     ReservationScheduleFormComponent,
     ReservationScheduleBottomSheetComponent,
+    ReservationScheduleDayTimesDialogComponent,
   ],
   imports: [
     CommonModule,

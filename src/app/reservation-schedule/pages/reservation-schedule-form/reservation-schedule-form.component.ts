@@ -3,13 +3,20 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import {
   ReservationScheduleFrequency,
   ReservationScheduleFrequencyOptions,
+  DefaultWeeklyDistribution,
+  ReservationSchedulePeriodOptions,
 } from '../../../constants/reservation-schedule.constants';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-
+import {
+  getDistributionName,
+  getDaySchedule,
+} from '../../../helpers/reservation-schedule.helpers';
+import { ReservationScheduleDayTimesDialogComponent } from '../../components/reservation-schedule-day-times-dialog/reservation-schedule-day-times-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 @Component({
   selector: 'app-reservation-schedule-form',
   templateUrl: './reservation-schedule-form.component.html',
@@ -18,8 +25,11 @@ import { Observable } from 'rxjs';
 export class ReservationScheduleFormComponent implements OnInit {
   public form: FormGroup;
   public reservationScheduleFrequencyOptions = ReservationScheduleFrequencyOptions;
-
+  public defaultWeeklyDistribution = DefaultWeeklyDistribution;
   public editMode: boolean;
+
+  public getDistributionName = getDistributionName;
+  public getDaySchedule = getDaySchedule;
   private reservationId: string;
 
   constructor(
@@ -27,11 +37,15 @@ export class ReservationScheduleFormComponent implements OnInit {
     private afs: AngularFirestore,
     private snackBar: MatSnackBar,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private dialog: MatDialog
   ) {
     this.form = this.formBuilder.group({
       displayName: [null, Validators.required],
       frequency: [ReservationScheduleFrequency.WEEKLY, Validators.required],
+      distribution: [
+        JSON.parse(JSON.stringify(this.defaultWeeklyDistribution)),
+      ],
     });
   }
 
@@ -93,5 +107,17 @@ export class ReservationScheduleFormComponent implements OnInit {
           console.log('error', err);
         });
     }
+  }
+
+  public openTimeDialog(data): void {
+    this.dialog.open(ReservationScheduleDayTimesDialogComponent, {
+      height: '500px',
+      width: '400px',
+      data: {
+        ...data,
+        frequency: this.form.controls.frequency.value,
+        displayName: this.form.controls.displayName.value,
+      },
+    });
   }
 }
