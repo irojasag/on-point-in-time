@@ -10,4 +10,6 @@ export interface Reservation {
   period: string;
   userId: string;
   user?: User;
+  confirmed: boolean;
+  asisted: boolean;
 }
