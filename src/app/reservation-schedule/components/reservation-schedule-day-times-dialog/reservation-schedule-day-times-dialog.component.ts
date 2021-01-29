@@ -28,6 +28,13 @@ export class ReservationScheduleDayTimesDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
     private formBuilder: FormBuilder
   ) {
+    this.resetForm();
+    this.dialogRef.beforeClosed().subscribe((event) => {
+      this.dialogRef.close(data);
+    });
+  }
+
+  public resetForm(): void {
     this.form = this.formBuilder.group({
       hours: [ReservationScheduleHoursOptions[0].value, Validators.required],
       minutes: [

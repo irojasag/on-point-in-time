@@ -47,7 +47,7 @@
     <div class="flex flex-row w-full">
       <mat-form-field appearance="outline">
         <mat-label>Espacios</mat-label>
-        <input matInput placeholder="Espacios" formControlName="spaces">
+        <input matInput type="number" placeholder="Espacios" formControlName="spaces">
         <mat-error *ngIf="form.controls.spaces.hasError('required')">
           Los espacios son <strong>requeridos</strong>
         </mat-error>
@@ -74,7 +74,7 @@
 <ng-template #listOfTimes>
   <div class="flex flex-row justify-between items-center">
     <span>Editando distribución de {{getDistributionName(data.day, data.frequency)}}</span>
-    <i *ngIf="!addMode" (click)="addMode = true" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
+    <i *ngIf="!addMode" (click)="addMode = true; resetForm()" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
   </div>
 
   <div class="flex flex-row justify-center items-center my-4">
