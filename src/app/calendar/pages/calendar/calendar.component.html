@@ -47,9 +47,11 @@
       </div>
     </div> -->
     <div class="flex flex-row justify-end items-center mr-5">
-      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let item of hour.reservations">
+      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let reservation of hour.reservations">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
-          <img class="h-full w-full rounded-full" src="{{item.user.photoURL}}" alt="Profile Photo">
+          <img class="h-full w-full rounded-full"
+            src="{{(selectedSchedule.showPhotos || (reservation.user.uid === user.uid) ? reservation.user.photoURL : null) || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+            alt="Profile Photo">
         </div>
       </div>
       <div *ngIf="hour.reservations.length < hour.spaces || hour.booked" class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5"

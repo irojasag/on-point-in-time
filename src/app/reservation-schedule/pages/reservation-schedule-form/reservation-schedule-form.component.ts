@@ -46,6 +46,7 @@ export class ReservationScheduleFormComponent implements OnInit {
       distribution: [
         JSON.parse(JSON.stringify(this.defaultWeeklyDistribution)),
       ],
+      showPhotos: [true, Validators.required],
     });
   }
 
