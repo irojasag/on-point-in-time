@@ -110,14 +110,12 @@ export class ReservationScheduleFormComponent implements OnInit {
   }
 
   public openTimeDialog(data): void {
+    data.frequency = this.form.controls.frequency.value;
+    data.displayName = this.form.controls.displayName.value;
     this.dialog.open(ReservationScheduleDayTimesDialogComponent, {
       height: '500px',
       width: '400px',
-      data: {
-        ...data,
-        frequency: this.form.controls.frequency.value,
-        displayName: this.form.controls.displayName.value,
-      },
+      data,
     });
   }
 }
