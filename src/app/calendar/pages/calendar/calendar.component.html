@@ -52,14 +52,12 @@
           <img class="h-full w-full rounded-full" src="{{item.user.photoURL}}" alt="Profile Photo">
         </div>
       </div>
-      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5" (click)="addReservation(currentDate, hour)">
+      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5" (click)="hour.booked ? removeReservation(hour.reservations) : addReservation(currentDate, hour)">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
-          <i class="fas fa-plus"></i>
+          <i class="fas {{ hour.booked ? 'fa-minus' : 'fa-plus'}}"></i>
         </div>
       </div>
     </div>
-
-    <!-- Participants -->
 
   </div>
   <button class="bg-blue-500 text-white rounded-full fixed bottom-4 right-4 h-12 w-12 shadow-sm" (click)="picker.open()"><i class="fas fa-calendar"></i></button>

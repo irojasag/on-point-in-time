@@ -185,20 +185,27 @@ export class CalendarComponent implements OnInit {
         time.reservations = [];
         const timeReservations = (this.reservations || []).filter(
           (reservation) => {
-            const first =
+            const firstDate =
               (nearbyDate.date as Date).getFullYear() +
               '-' +
               (nearbyDate.date as Date).getMonth() +
               '-' +
               (nearbyDate.date as Date).getDate();
-            const second =
+            const secondDate =
               (reservation.dateToDisplay as Date).getFullYear() +
               '-' +
               (reservation.dateToDisplay as Date).getMonth() +
               '-' +
               (reservation.dateToDisplay as Date).getDate();
 
-            return first === second && reservation.time === time.time;
+            const condition =
+              reservation.reservationScheduleId === this.selectedSchedule.id &&
+              firstDate === secondDate &&
+              reservation.time === time.time;
+            if (condition && reservation.userId === this.user.uid) {
+              time.booked = true;
+            }
+            return condition;
           }
         );
 
@@ -233,6 +240,7 @@ export class CalendarComponent implements OnInit {
     this.afs
       .collection('reservations')
       .add({
+        reservationScheduleId: this.selectedSchedule.id,
         date: schedule.date,
         userId: this.user.uid,
         hour: time.hour,
@@ -244,6 +252,20 @@ export class CalendarComponent implements OnInit {
             duration: 2000,
           });
         }
+      });
+  }
+
+  public removeReservation(reservations: Reservation[]): void {
+    const reservation = reservations.find(
+      (reserv) => reserv.userId === this.user.uid
+    );
+    this.afs
+      .doc(`reservations/${reservation.id}`)
+      .delete()
+      .then(() => {
+        this.snackBar.open(`Se ha eliminado la reserva`, '', {
+          duration: 2000,
+        });
       });
   }
 }
