@@ -9,7 +9,7 @@ import {
 } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
-import * as firebase from 'firebase/app';
+import * as firebase from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root',

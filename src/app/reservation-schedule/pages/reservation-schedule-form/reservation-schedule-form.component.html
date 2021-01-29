@@ -21,6 +21,21 @@
     </mat-form-field>
   </div>
 
+  <div class="flex flex-row justify-center items-center mb-4">
+    <div class="flex flex-col w-full">
+      <div class="flex flex-row bg-white shadow-sm mb-2 h-8 w-full rounded-md justify-between items-center px-4 cursor-pointer" *ngFor="let item of form.controls.distribution.value"
+        (click)="openTimeDialog(item)">
+        <span>
+          {{getDistributionName(item.day, form.controls.frequency.value)}}
+        </span>
+        <span class="text-gray-500 text-xs italic">
+          {{getDaySchedule(item.times)}} {{item.times.length | number}} Tiempos de reserva
+        </span>
+
+      </div>
+    </div>
+  </div>
+
   <div class="flex flex-row items-center justify-between fixed z-20 px-4 w-full h-12 bg-white shadow-md bottom-0 left-0">
     <div>
       <button mat-stroked-button color="warn" [routerLink]="['../']">Cancelar</button>
