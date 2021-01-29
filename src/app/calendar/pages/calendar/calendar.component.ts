@@ -204,6 +204,8 @@ export class CalendarComponent implements OnInit {
               reservation.time === time.time;
             if (condition && reservation.userId === this.user.uid) {
               time.booked = true;
+              time.confirmed = reservation.confirmed;
+              time.asisted = reservation.asisted;
             }
             return condition;
           }
@@ -245,6 +247,8 @@ export class CalendarComponent implements OnInit {
         userId: this.user.uid,
         hour: time.hour,
         period: time.period,
+        confirmed: false,
+        asisted: false,
       })
       .then((success) => {
         if (success) {
@@ -264,6 +268,28 @@ export class CalendarComponent implements OnInit {
       .delete()
       .then(() => {
         this.snackBar.open(`Se ha eliminado la reserva`, '', {
+          duration: 2000,
+        });
+      });
+  }
+
+  public confirmReservation(reservation: Reservation): void {
+    this.afs
+      .doc(`reservations/${reservation.id}`)
+      .update({ ...reservation, confirmed: true })
+      .then(() => {
+        this.snackBar.open(`Se ha confirmado la reserva`, '', {
+          duration: 2000,
+        });
+      });
+  }
+
+  public confirmAsistance(reservation: Reservation): void {
+    this.afs
+      .doc(`reservations/${reservation.id}`)
+      .update({ ...reservation, asisted: true })
+      .then(() => {
+        this.snackBar.open(`Se ha confirmado la reserva`, '', {
           duration: 2000,
         });
       });

@@ -38,7 +38,7 @@
       </div>
       <div class="flex flex-col">
         <span class="font-semibold mb-2">{{hour.displayName}}</span>
-        <span class="">{{hour.reservations.length}} de {{hour.spaces}} espacios disponibles</span>
+        <span class="">{{hour.spaces - hour.reservations.length}} de {{hour.spaces}} espacios disponibles</span>
       </div>
     </div>
     <!-- <div class="flex flex-row justify-center items-center" *ngIf="i > 1">
@@ -47,14 +47,56 @@
       </div>
     </div> -->
     <div class="flex flex-row justify-end items-center mr-5">
-      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5" *ngFor="let item of hour.reservations">
+      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let item of hour.reservations">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
           <img class="h-full w-full rounded-full" src="{{item.user.photoURL}}" alt="Profile Photo">
         </div>
       </div>
-      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5" (click)="hour.booked ? removeReservation(hour.reservations) : addReservation(currentDate, hour)">
+      <div *ngIf="hour.reservations.length < hour.spaces || hour.booked" class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5"
+        (click)="hour.booked ? removeReservation(hour.reservations) : addReservation(currentDate, hour)">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
           <i class="fas {{ hour.booked ? 'fa-minus' : 'fa-plus'}}"></i>
+        </div>
+      </div>
+      <div *ngIf="hour.reservations.length >= hour.spaces && !hour.booked" class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
+        <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+          <i class="fas fa-lock"></i>
+        </div>
+      </div>
+
+      <!-- Badges -->
+      <div class="absolute right-6 mb-28" *ngIf="hour.booked">
+        <div *ngIf="!hour.confirmed" class="flex flex-col h-9 w-9 justify-center items-center rounded-full bg-gray-500 text-white"><i class="fas fa-calendar-check text-lg"></i></div>
+        <div *ngIf="hour.confirmed && !hour.asisted" class="flex flex-col h-9 w-9 justify-center items-center rounded-full bg-blue-500 text-white"><i class="fas fa-check text-lg"></i></div>
+        <div *ngIf="hour.confirmed && hour.asisted" class="flex flex-col h-9 w-9 justify-center items-center rounded-full bg-green-500 text-white"><i class="fas fa-check-double text-lg"></i></div>
+      </div>
+
+    </div>
+
+    <div class="flex flex-row items-center mt-2 mr-5" *ngIf="user.isAdmin || user.isSuperAdmin">
+      <div class="flex flex-col w-full">
+        <div *ngFor="let reservation of hour.reservations; let index= index;" class="bg-gray-50 rounded-md h-12 w-full flex flex-row shadow-md mb-2 relative">
+          <div class="flex flex-col w-12">
+            <img class="h-12 w-12 rounded-l-md" src="{{reservation.user.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{reservation.user.displayName}}">
+          </div>
+          <div class="flex flex-col w-full justify-center">
+            <div class="flex flex-row pl-2 justify-between w-full h-full">
+              <div class="flex flex-col w-full">
+                <span>{{reservation.user.displayName || 'Nombre no especificado'}}</span>
+                <span class="text-xs">{{reservation.confirmed ? 'Reserva Confirmada' : 'Reserva Sin Confirmar'}} | {{reservation.asisted ? 'Asistencia Confirmada' : 'Asistencia Sin Confirmar'}}</span>
+              </div>
+              <div class="flex flex-col h-full w-12 justify-center">
+                <div class="flex flex-row">
+                  <div *ngIf="!reservation.confirmed" (click)="confirmReservation(reservation)" class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-gray-500 text-white"><i
+                      class="fas fa-calendar-check text-lg"></i></div>
+                  <div *ngIf="reservation.confirmed && !reservation.asisted" (click)="confirmAsistance(reservation)"
+                    class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-blue-500 text-white"><i class="fas fa-check text-lg"></i></div>
+                  <div *ngIf="reservation.confirmed && reservation.asisted" class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-green-500 text-white"><i
+                      class="fas fa-check-double text-lg"></i></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
