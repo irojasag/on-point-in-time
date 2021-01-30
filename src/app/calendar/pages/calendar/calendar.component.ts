@@ -19,7 +19,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { switchMap, map } from 'rxjs/operators';
 import { Purchase } from 'src/app/models/purchase.model';
 import { Product } from 'src/app/models/product.model';
-
+import { isDateInThisWeek } from '../../../helpers/general.helper';
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -302,24 +302,56 @@ export class CalendarComponent implements OnInit {
     schedule: ReservationScheduleDistribution & { date: Date },
     time: ReservationScheduleTime
   ): void {
-    this.afs
-      .collection('reservations')
-      .add({
-        reservationScheduleId: this.selectedSchedule.id,
-        date: schedule.date,
-        userId: this.user.uid,
-        hour: time.hour,
-        period: time.period,
-        confirmed: false,
-        asisted: false,
-      })
-      .then((success) => {
-        if (success) {
-          this.snackBar.open(`Se ha reservado la fecha`, '', {
-            duration: 2000,
-          });
+    const notExpiredProducts = this.selectedProducts.filter(
+      (product) =>
+        product.expirationDateDisplay.getTime() >= schedule.date.getTime()
+    );
+    const allReservationSpaces = notExpiredProducts.reduce(
+      (acc, curr) => acc + curr.reservationsPerWeek,
+      0
+    );
+
+    const currentWeekReservations = (this.reservations || []).filter(
+      (reservation) => {
+        return (
+          reservation.userId === this.user.uid &&
+          reservation.reservationScheduleId === this.selectedSchedule.id &&
+          isDateInThisWeek(reservation.dateToDisplay, new Date(schedule.date))
+        );
+      }
+    );
+
+    const availableReservationSpaces =
+      allReservationSpaces - currentWeekReservations.length;
+
+    if (availableReservationSpaces > 0) {
+      this.afs
+        .collection('reservations')
+        .add({
+          reservationScheduleId: this.selectedSchedule.id,
+          date: schedule.date,
+          userId: this.user.uid,
+          hour: time.hour,
+          period: time.period,
+          confirmed: false,
+          asisted: false,
+        })
+        .then((success) => {
+          if (success) {
+            this.snackBar.open(`Se ha reservado la fecha`, '', {
+              duration: 2000,
+            });
+          }
+        });
+    } else {
+      this.snackBar.open(
+        `Tus productos no permiten realizar esta reservación`,
+        '',
+        {
+          duration: 2000,
         }
-      });
+      );
+    }
   }
 
   public removeReservation(reservations: Reservation[]): void {
