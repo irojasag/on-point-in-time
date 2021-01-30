@@ -12,7 +12,12 @@ import { UsersChartComponent } from './components/users-chart/users-chart.compon
 import { PurchasesChartComponent } from './components/purchases-chart/purchases-chart.component';
 
 @NgModule({
-  declarations: [DashboardComponent, LayoutComponent, UsersChartComponent, PurchasesChartComponent],
+  declarations: [
+    DashboardComponent,
+    LayoutComponent,
+    UsersChartComponent,
+    PurchasesChartComponent,
+  ],
   imports: [
     CommonModule,
     LayoutRoutingModule,

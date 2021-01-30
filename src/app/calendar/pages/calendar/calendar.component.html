@@ -106,7 +106,7 @@
           </div>
           <div class="flex flex-col w-full justify-center">
             <div class="flex flex-row pl-2 justify-between w-full h-full">
-              <div class="flex flex-col w-full">
+              <div class="flex flex-col w-full" (click)="openBottomSheetForResearvations(reservation)">
                 <span class="font-medium">{{reservation.user.displayName || 'Nombre no especificado'}}</span>
                 <span class="text-xs leading-3">{{reservation.confirmed ? 'Reserva Confirmada' : 'Reserva Sin Confirmar'}}</span>
                 <span class="text-xs leading-3">{{reservation.asisted ? 'Asistencia Confirmada' : 'Asistencia Sin Asistencia'}}</span>
