@@ -11,7 +11,7 @@ export enum ProductExpirationFrequencies {
 
 export const ProductTypeOptions = [
   {
-    value: ProductTypes.MEMBERSHIP,
+    value: ProductTypes.MEMBERSHIP as string,
     displayName: 'Membresía',
   },
 ];

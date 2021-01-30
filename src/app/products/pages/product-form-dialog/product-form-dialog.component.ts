@@ -9,6 +9,7 @@ import {
 import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
+import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
 
 @Component({
   selector: 'app-product-form-dialog',
@@ -17,6 +18,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 })
 export class ProductFormDialogComponent implements OnInit {
   public form: FormGroup;
+  // Opciones desde los schedule
   public typeOptions = ProductTypeOptions;
   public expirationFrequencyOptions = ProductExpirationFrequencyOptions;
 
@@ -27,8 +29,28 @@ export class ProductFormDialogComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute
   ) {
+    this.generateForm();
+    this.afs
+      .collection<ReservationSchedule>('reservation-schedules')
+      .valueChanges({ idField: 'id' })
+      .subscribe((schedules) => {
+        schedules = schedules || [];
+        this.typeOptions = [];
+        schedules.forEach((schedule) => {
+          this.typeOptions.push({
+            value: schedule.id,
+            displayName: schedule.displayName,
+          });
+        });
+        if (!this.form.controls.type.value) {
+          this.form.controls.type.patchValue(this.typeOptions[0].value);
+        }
+      });
+  }
+
+  private generateForm(): void {
     this.form = this.formBuilder.group({
-      type: [ProductTypes.MEMBERSHIP, Validators.required],
+      type: [null, Validators.required],
       name: [null, Validators.required],
       price: [
         null,

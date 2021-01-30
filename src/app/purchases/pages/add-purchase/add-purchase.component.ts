@@ -115,6 +115,14 @@ export class AddPurchaseComponent implements OnInit {
   }
 
   public savePurchaseForm(): void {
+    this.productsToBuy.forEach((product) => {
+      const date = this.form.controls.purchasedAt.value;
+      const difference = date.getTime() - new Date().getTime();
+      const dayDifference = Math.trunc(difference / (1000 * 3600 * 24));
+      (product.expirationDate as any).setDate(
+        (product.expirationDate as any).getDate() + dayDifference
+      );
+    });
     const body = {
       ...this.form.getRawValue(),
       products: this.productsToBuy,

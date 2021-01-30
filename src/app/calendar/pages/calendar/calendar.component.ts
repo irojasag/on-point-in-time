@@ -17,6 +17,8 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/models/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { switchMap, map } from 'rxjs/operators';
+import { Purchase } from 'src/app/models/purchase.model';
+import { Product } from 'src/app/models/product.model';
 
 @Component({
   selector: 'app-calendar',
@@ -26,6 +28,10 @@ import { switchMap, map } from 'rxjs/operators';
 export class CalendarComponent implements OnInit {
   public schedules$: Observable<ReservationSchedule[]>;
   public reservations$: Observable<Reservation[]>;
+  public purchases$: Observable<Purchase[]>;
+  public products$: Observable<Product[]>;
+  public products: Product[] = [];
+  public selectedProducts: Product[] = [];
   public schedules: ReservationSchedule[];
   public reservations: Reservation[];
   public form: FormGroup;
@@ -98,6 +104,9 @@ export class CalendarComponent implements OnInit {
       );
 
       this.selectedSchedule = selectedSchedule;
+      this.selectedProducts = this.products.filter(
+        (product) => product.type === this.selectedSchedule.id
+      );
       this.updateNearByDates();
     });
 
@@ -131,6 +140,58 @@ export class CalendarComponent implements OnInit {
     this.handleReservationsSubscription();
     this.auth.user$.subscribe((user) => {
       this.user = user;
+      if (user) {
+        this.purchases$ = this.afs
+          .collection<Purchase>('purchases', (ref) => {
+            return ref.where('clientId', '==', this.user.uid);
+          })
+          .valueChanges({ idField: 'id' })
+          .pipe(
+            map((purchases) => {
+              return (purchases || []).map((purchase) => {
+                const products = [];
+                purchase.products.forEach((product) => {
+                  product.expirationDateDisplay = product.expirationDate.toDate();
+                  if (
+                    product.expirationDate.toDate().getTime() >=
+                    new Date().getTime()
+                  ) {
+                    const today = new Date();
+                    const difference =
+                      product.expirationDateDisplay.getTime() - today.getTime();
+                    const dayDiffence = Math.trunc(
+                      difference / (1000 * 3600 * 24)
+                    );
+                    products.push({ ...product, dayDiffence });
+                  }
+                });
+                return { ...purchase, products };
+              });
+            })
+          );
+        this.products$ = this.purchases$.pipe(
+          map((purchases) => {
+            const products = [];
+            (purchases || []).forEach((purchase) => {
+              if (purchase.products.length) {
+                products.push(...purchase.products);
+              }
+            });
+            products.sort((first, second) => {
+              return first.dayDiffence - second.dayDiffence;
+            });
+            return products;
+          })
+        );
+        this.products$.subscribe((products) => {
+          this.products = products;
+          if (this.selectedSchedule) {
+            this.selectedProducts = this.products.filter(
+              (product) => product.type === this.selectedSchedule.id
+            );
+          }
+        });
+      }
     });
   }
 
@@ -156,7 +217,9 @@ export class CalendarComponent implements OnInit {
         if (!this.selectedSchedule) {
           this.form.controls.schedule.patchValue(this.schedules[0].id);
           this.selectedSchedule = this.schedules[0];
-
+          this.selectedProducts = this.products.filter(
+            (product) => product.type === this.selectedSchedule.id
+          );
           this.updateNearByDates();
         }
       }
