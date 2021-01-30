@@ -25,8 +25,8 @@
             <div class="flex flex-col">
               <img class="rounded-full" aria-hidden [src]="user.photoURL" height="36" width="36">
             </div>
-            <div class="flex flex-col pl-1">
-              <span>{{user.displayName}}</span>
+            <div class="flex flex-col pl-1 w-44">
+              <span class="whitespace-nowrap overflow-hidden overflow-ellipsis">{{user.displayName}}</span>
             </div>
           </div>
         </mat-option>

@@ -9,9 +9,21 @@ import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AdminReservationBottomSheetComponent } from './components/admin-reservation-bottom-sheet/admin-reservation-bottom-sheet.component';
+import { MatListModule } from '@angular/material/list';
+import { MatDialogModule } from '@angular/material/dialog';
+import { AdminReservationDialogComponent } from './components/admin-reservation-dialog/admin-reservation-dialog.component';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
-  declarations: [CalendarComponent],
+  declarations: [
+    CalendarComponent,
+    AdminReservationBottomSheetComponent,
+    AdminReservationDialogComponent,
+  ],
   imports: [
     CommonModule,
     CalendarRoutingModule,
@@ -22,6 +34,12 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatRippleModule,
     MatSelectModule,
     MatSnackBarModule,
+    MatListModule,
+    MatDialogModule,
+    MatBottomSheetModule,
+    MatAutocompleteModule,
+    MatFormFieldModule,
+    MatButtonModule,
   ],
 })
 export class CalendarModule {}

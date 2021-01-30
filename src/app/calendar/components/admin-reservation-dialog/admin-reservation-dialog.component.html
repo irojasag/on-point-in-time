@@ -1,0 +1,37 @@
+<form [formGroup]="form">
+
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Usuario</mat-label>
+      <input matInput [matAutocomplete]="autoUser" formControlName="userId">
+      <mat-autocomplete #autoUser>
+        <mat-option *ngFor="let user of filteredUsers$ | async" [value]="user.displayName" class="shadow-sm" (onSelectionChange)="selectUser(user)" (click)="selectUser(user)">
+          <div class="flex flex-row items-center">
+            <div class="flex flex-col">
+              <img class="rounded-full h-9 w-9" aria-hidden [src]="user.photoURL">
+            </div>
+            <div class="flex flex-col pl-1 w-44">
+              <span class="whitespace-nowrap overflow-hidden overflow-ellipsis">{{user.displayName}}</span>
+            </div>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="!selectedUser">
+        El usuario <strong>requerido</strong>
+      </mat-error>
+      <mat-error *ngIf="form.controls.userId.hasError('required') && selectedUser">
+        El usuario <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+
+  </div>
+
+  <div class="flex flex-row justify-end items-center">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="saveReservation()">Guardar</button>
+    </div>
+  </div>
+</form>
