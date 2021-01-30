@@ -1,4 +1,4 @@
-<div class="flex items-center min-h-screen p-4 bg-gray-100 lg:justify-center" [formGroup]="form">
+<div class="flex items-center min-h-screen p-4 bg-gray-100 lg:justify-center" [formGroup]="form" (keyup.enter)="form.valid ? registerUser() : null">
   <div class="flex flex-col bg-white rounded-md shadow-lg max md:flex-row md:flex-1 lg:max-w-screen-md">
     <div class="p-4 py-6 text-white bg-blue-500 md:w-80 md:flex-shrink-0 md:flex md:flex-col md:items-center md:justify-evenly">
       <div class="my-3 text-4xl font-bold tracking-wider text-center">
@@ -9,12 +9,12 @@
         sapien in purus.
       </p>
       <p class="flex flex-col items-center justify-center mt-10 text-center">
-        <span>Don't have an account?</span>
-        <a href="#" class="underline">Get Started!</a>
+        <span>Ya tienes una cuenta?</span>
+        <a [routerLink]="['/login']" class="underline">Ingresa!</a>
       </p>
-      <p class="mt-6 text-sm text-center text-gray-300">
+      <!-- <p class="mt-6 text-sm text-center text-gray-300">
         Read our <a href="#" class="underline">terms</a> and <a href="#" class="underline">conditions</a>
-      </p>
+      </p> -->
     </div>
     <div class="p-5 bg-white md:flex-1">
       <h3 class="my-4 text-2xl font-semibold text-gray-700">Crea tu cuenta</h3>
