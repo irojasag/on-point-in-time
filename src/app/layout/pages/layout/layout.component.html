@@ -32,6 +32,20 @@
   <div class="w-full pt-12">
     <!-- Sidebar -->
     <div [hidden]="!isSidebarOpen" class="bg-gray-200 fixed max-w-xxs w-full h-full shadow-md z-10">
+      <div class="absolute right-2">
+        <i *ngIf="user.isAdmin" class="fas fa-shield-alt" alt="Usuario es administrador"></i>
+        <i *ngIf="user.isSuperAdmin" class="fas ml-1 fa-dungeon" alt="Usuario es super administrador"></i>
+      </div>
+      <div class="w-full h-20 bg-white flex flex-row items-center px-4">
+        <div class="bg-gray-300 rounded-full h-14 w-14 flex flex-row justify-center items-center focus:outline-none" [routerLink]="['profile']" (click)="isSidebarOpen = false">
+          <img class="h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Profile Photo">
+        </div>
+        <div class="flex fle x-col px-2">
+          <span class="text-md font-medium overflow-ellipsis overflow-hidden whitespace-nowrap w-32" [routerLink]="['profile']">
+            {{user.displayName}}
+          </span>
+        </div>
+      </div>
       <ul>
         <li class="menu-item" *ngIf="(auth.user$ | async)?.isAdmin" [routerLink]="'dashboard'" (click)="isSidebarOpen = false"><i class="fas fa-chart-line"></i>Estadísticas</li>
         <li class="menu-item" [routerLink]="'calendar'" (click)="isSidebarOpen = false"><i class="far fa-calendar"></i>Calendario</li>
