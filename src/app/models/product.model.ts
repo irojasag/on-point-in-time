@@ -14,5 +14,7 @@ export interface Product {
   createdAt?: firebase.firestore.Timestamp;
   createdDate?: Date;
   expirationDate: firebase.firestore.Timestamp;
+  expirationDateDisplay?: Date;
   isExpired?: boolean;
+  dayDiffence?: number;
 }

@@ -9,7 +9,7 @@
     </mat-form-field>
   </div>
 
-  <div class="flex flex-row justify-center items-center mb-4">
+  <div class="flex flex-row justify-center items-center mb-2">
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>Frecuencia</mat-label>
       <mat-select placeholder="Frecuencia" formControlName="frequency">
@@ -19,6 +19,10 @@
         La frecuencia es <strong>requerida</strong>
       </mat-error>
     </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-start items-center mb-6">
+    <mat-checkbox [color]="'primary'" formControlName="showPhotos">Mostrar fotos en las públicamente en las reservas</mat-checkbox>
   </div>
 
   <div class="flex flex-row justify-center items-center mb-4">

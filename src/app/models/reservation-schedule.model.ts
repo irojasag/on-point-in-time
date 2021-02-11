@@ -3,6 +3,7 @@ export interface ReservationSchedule {
   displayName: string;
   frequency: string;
   frequencyDisplayName: string;
+  showPhotos: boolean;
   distribution: ReservationScheduleDistribution[];
 }
 

@@ -17,7 +17,17 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/models/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { switchMap, map } from 'rxjs/operators';
-
+import { Purchase } from 'src/app/models/purchase.model';
+import { Product } from 'src/app/models/product.model';
+import {
+  isDateInThisWeek,
+  lessThanXHoursToTheFuture,
+} from '../../../helpers/general.helper';
+import { ReservationSchedulePeriod } from 'src/app/constants/reservation-schedule.constants';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { AdminReservationBottomSheetComponent } from '../../components/admin-reservation-bottom-sheet/admin-reservation-bottom-sheet.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AdminReservationDialogComponent } from '../../components/admin-reservation-dialog/admin-reservation-dialog.component';
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -26,6 +36,10 @@ import { switchMap, map } from 'rxjs/operators';
 export class CalendarComponent implements OnInit {
   public schedules$: Observable<ReservationSchedule[]>;
   public reservations$: Observable<Reservation[]>;
+  public purchases$: Observable<Purchase[]>;
+  public products$: Observable<Product[]>;
+  public products: Product[] = [];
+  public selectedProducts: Product[] = [];
   public schedules: ReservationSchedule[];
   public reservations: Reservation[];
   public form: FormGroup;
@@ -43,7 +57,9 @@ export class CalendarComponent implements OnInit {
     private afs: AngularFirestore,
     private formBuilder: FormBuilder,
     private auth: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog,
+    private bottomSheet: MatBottomSheet
   ) {
     this.form = this.formBuilder.group({
       schedule: [null, Validators.required],
@@ -98,6 +114,9 @@ export class CalendarComponent implements OnInit {
       );
 
       this.selectedSchedule = selectedSchedule;
+      this.selectedProducts = this.products.filter(
+        (product) => product.type === this.selectedSchedule.id
+      );
       this.updateNearByDates();
     });
 
@@ -131,6 +150,58 @@ export class CalendarComponent implements OnInit {
     this.handleReservationsSubscription();
     this.auth.user$.subscribe((user) => {
       this.user = user;
+      if (user) {
+        this.purchases$ = this.afs
+          .collection<Purchase>('purchases', (ref) => {
+            return ref.where('clientId', '==', this.user.uid);
+          })
+          .valueChanges({ idField: 'id' })
+          .pipe(
+            map((purchases) => {
+              return (purchases || []).map((purchase) => {
+                const products = [];
+                purchase.products.forEach((product) => {
+                  product.expirationDateDisplay = product.expirationDate.toDate();
+                  if (
+                    product.expirationDate.toDate().getTime() >=
+                    new Date().getTime()
+                  ) {
+                    const today = new Date();
+                    const difference =
+                      product.expirationDateDisplay.getTime() - today.getTime();
+                    const dayDiffence = Math.trunc(
+                      difference / (1000 * 3600 * 24)
+                    );
+                    products.push({ ...product, dayDiffence });
+                  }
+                });
+                return { ...purchase, products };
+              });
+            })
+          );
+        this.products$ = this.purchases$.pipe(
+          map((purchases) => {
+            const products = [];
+            (purchases || []).forEach((purchase) => {
+              if (purchase.products.length) {
+                products.push(...purchase.products);
+              }
+            });
+            products.sort((first, second) => {
+              return first.dayDiffence - second.dayDiffence;
+            });
+            return products;
+          })
+        );
+        this.products$.subscribe((products) => {
+          this.products = products;
+          if (this.selectedSchedule) {
+            this.selectedProducts = this.products.filter(
+              (product) => product.type === this.selectedSchedule.id
+            );
+          }
+        });
+      }
     });
   }
 
@@ -156,7 +227,9 @@ export class CalendarComponent implements OnInit {
         if (!this.selectedSchedule) {
           this.form.controls.schedule.patchValue(this.schedules[0].id);
           this.selectedSchedule = this.schedules[0];
-
+          this.selectedProducts = this.products.filter(
+            (product) => product.type === this.selectedSchedule.id
+          );
           this.updateNearByDates();
         }
       }
@@ -202,10 +275,34 @@ export class CalendarComponent implements OnInit {
               reservation.reservationScheduleId === this.selectedSchedule.id &&
               firstDate === secondDate &&
               reservation.time === time.time;
+
             if (condition && reservation.userId === this.user.uid) {
               time.booked = true;
               time.confirmed = reservation.confirmed;
               time.asisted = reservation.asisted;
+
+              let reservationHour = Number(reservation.hour.split(':')[0]);
+              if (
+                reservationHour === 12 &&
+                reservation.period === ReservationSchedulePeriod.AM
+              ) {
+                reservationHour = 0;
+              }
+              if (
+                reservation.period === ReservationSchedulePeriod.PM &&
+                reservationHour !== 12
+              ) {
+                reservationHour += 12;
+              }
+              const reservationTime = new Date(
+                reservation.dateToDisplay.getFullYear(),
+                reservation.dateToDisplay.getMonth(),
+                reservation.dateToDisplay.getDate(),
+                reservationHour,
+                Number(reservation.hour.split(':')[1]),
+                0
+              );
+              time.locked = lessThanXHoursToTheFuture(reservationTime, 1);
             }
             return condition;
           }
@@ -239,24 +336,72 @@ export class CalendarComponent implements OnInit {
     schedule: ReservationScheduleDistribution & { date: Date },
     time: ReservationScheduleTime
   ): void {
-    this.afs
-      .collection('reservations')
-      .add({
-        reservationScheduleId: this.selectedSchedule.id,
-        date: schedule.date,
-        userId: this.user.uid,
-        hour: time.hour,
-        period: time.period,
-        confirmed: false,
-        asisted: false,
-      })
-      .then((success) => {
-        if (success) {
-          this.snackBar.open(`Se ha reservado la fecha`, '', {
-            duration: 2000,
-          });
-        }
+    if (this.user.isAdmin || this.user.isSuperAdmin) {
+      this.dialog.open(AdminReservationDialogComponent, {
+        height: '180px',
+        width: '300px',
+        data: {
+          reservationScheduleId: this.selectedSchedule.id,
+          date: schedule.date,
+          userId: this.user.uid,
+          hour: time.hour,
+          period: time.period,
+          confirmed: false,
+          asisted: false,
+        },
       });
+    } else {
+      const notExpiredProducts = this.selectedProducts.filter(
+        (product) =>
+          product.expirationDateDisplay.getTime() >= schedule.date.getTime()
+      );
+      const allReservationSpaces = notExpiredProducts.reduce(
+        (acc, curr) => acc + curr.reservationsPerWeek,
+        0
+      );
+
+      const currentWeekReservations = (this.reservations || []).filter(
+        (reservation) => {
+          return (
+            reservation.userId === this.user.uid &&
+            reservation.reservationScheduleId === this.selectedSchedule.id &&
+            isDateInThisWeek(reservation.dateToDisplay, new Date(schedule.date))
+          );
+        }
+      );
+
+      const availableReservationSpaces =
+        allReservationSpaces - currentWeekReservations.length;
+
+      if (availableReservationSpaces > 0) {
+        this.afs
+          .collection('reservations')
+          .add({
+            reservationScheduleId: this.selectedSchedule.id,
+            date: schedule.date,
+            userId: this.user.uid,
+            hour: time.hour,
+            period: time.period,
+            confirmed: false,
+            asisted: false,
+          })
+          .then((success) => {
+            if (success) {
+              this.snackBar.open(`Se ha reservado la fecha`, '', {
+                duration: 2000,
+              });
+            }
+          });
+      } else {
+        this.snackBar.open(
+          `Tus productos no permiten realizar esta reservación`,
+          '',
+          {
+            duration: 2000,
+          }
+        );
+      }
+    }
   }
 
   public removeReservation(reservations: Reservation[]): void {
@@ -293,5 +438,11 @@ export class CalendarComponent implements OnInit {
           duration: 2000,
         });
       });
+  }
+
+  public openBottomSheetForResearvations(reservation: Reservation): void {
+    this.bottomSheet.open(AdminReservationBottomSheetComponent, {
+      data: reservation,
+    });
   }
 }

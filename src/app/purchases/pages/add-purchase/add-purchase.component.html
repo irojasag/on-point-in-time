@@ -25,8 +25,8 @@
             <div class="flex flex-col">
               <img class="rounded-full" aria-hidden [src]="user.photoURL" height="36" width="36">
             </div>
-            <div class="flex flex-col pl-1">
-              <span>{{user.displayName}}</span>
+            <div class="flex flex-col pl-1 w-44">
+              <span class="whitespace-nowrap overflow-hidden overflow-ellipsis">{{user.displayName}}</span>
             </div>
           </div>
         </mat-option>
@@ -56,7 +56,7 @@
 
   <div class="flex flex-row justify-between items-center mb-2">
     <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Productos</span>
-    <i (click)="openProductPurchaseAddDialog()" class="fas fa-plus-circle text-lg text-blue-600 mr-2 cursor-pointer"></i>
+    <button class="text-lg text-blue-600 mr-2 cursor-pointer" (click)="openProductPurchaseAddDialog()"><i class="fas fa-plus-circle"></i></button>
   </div>
 
   <div class="mb-14">

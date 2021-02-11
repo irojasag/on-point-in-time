@@ -17,6 +17,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ReservationScheduleBottomSheetComponent } from './components/reservation-schedule-bottom-sheet/reservation-schedule-bottom-sheet.component';
 import { MatListModule } from '@angular/material/list';
 import { ReservationScheduleDayTimesDialogComponent } from './components/reservation-schedule-day-times-dialog/reservation-schedule-day-times-dialog.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { ReservationScheduleDayTimesDialogComponent } from './components/reserva
     MatSelectModule,
     MatBottomSheetModule,
     MatListModule,
+    MatCheckboxModule,
   ],
 })
 export class ReservationScheduleModule {}
