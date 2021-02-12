@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { auth } from 'firebase/app';
+
 import { User } from '../../models/user.model';
 import { AngularFireAuth } from '@angular/fire/auth';
 import {
@@ -9,7 +10,7 @@ import {
 } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
-import * as firebase from 'firebase/auth';
+import * as firebase from 'firebase';
 
 @Injectable({
   providedIn: 'root',
@@ -49,26 +50,53 @@ export class AuthService {
   }
 
   public async googleSignin() {
-    const provider = new auth.GoogleAuthProvider();
-    const credential = await this.afAuth.signInWithPopup(provider);
-    await this.updateUserData(credential.user);
-    return this.router.navigate(['/app']);
+    this.afAuth
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(async () => {
+        const provider = new auth.GoogleAuthProvider();
+        const credential = await this.afAuth.signInWithPopup(provider);
+        await this.updateUserData(credential.user);
+        return this.router.navigate(['/app']);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error(errorCode, errorMessage);
+      });
   }
 
   public async facebookSignin() {
-    const provider = new auth.FacebookAuthProvider();
-    const credential = await this.afAuth.signInWithPopup(provider);
-    await this.updateUserData(credential.user);
-    return this.router.navigate(['/app']);
+    this.afAuth
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(async () => {
+        const provider = new auth.FacebookAuthProvider();
+        const credential = await this.afAuth.signInWithPopup(provider);
+        await this.updateUserData(credential.user);
+        return this.router.navigate(['/app']);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error(errorCode, errorMessage);
+      });
   }
 
   public async emailSignin(email, password) {
-    const credential = await this.afAuth.signInWithEmailAndPassword(
-      email,
-      password
-    );
-    await this.updateUserData(credential.user);
-    return this.router.navigate(['/app']);
+    this.afAuth
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(async () => {
+        const credential = await this.afAuth.signInWithEmailAndPassword(
+          email,
+          password
+        );
+        await this.updateUserData(credential.user);
+        return this.router.navigate(['/app']);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error(errorCode, errorMessage);
+      });
   }
 
   public async signOut() {
@@ -112,13 +140,22 @@ export class AuthService {
     displayName: string
   ) {
     this.afAuth
-      .createUserWithEmailAndPassword(email, password)
-      .then(async (credential) => {
-        await this.updateUserData({
-          ...credential.user,
-          displayName,
-        });
-        return this.router.navigate(['/app']);
+      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .then(async () => {
+        this.afAuth
+          .createUserWithEmailAndPassword(email, password)
+          .then(async (credential) => {
+            await this.updateUserData({
+              ...credential.user,
+              displayName,
+            });
+            return this.router.navigate(['/app']);
+          });
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error(errorCode, errorMessage);
       });
   }
 }
