@@ -51,7 +51,7 @@ export class AuthService {
 
   public async googleSignin() {
     this.afAuth
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       .then(async () => {
         const provider = new auth.GoogleAuthProvider();
         const credential = await this.afAuth.signInWithPopup(provider);
@@ -67,7 +67,7 @@ export class AuthService {
 
   public async facebookSignin() {
     this.afAuth
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       .then(async () => {
         const provider = new auth.FacebookAuthProvider();
         const credential = await this.afAuth.signInWithPopup(provider);
@@ -83,7 +83,7 @@ export class AuthService {
 
   public async emailSignin(email, password) {
     this.afAuth
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       .then(async () => {
         const credential = await this.afAuth.signInWithEmailAndPassword(
           email,
@@ -140,7 +140,7 @@ export class AuthService {
     displayName: string
   ) {
     this.afAuth
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
+      .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
       .then(async () => {
         this.afAuth
           .createUserWithEmailAndPassword(email, password)

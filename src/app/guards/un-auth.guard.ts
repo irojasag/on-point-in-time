@@ -13,7 +13,7 @@ import { take, map, tap } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthGuard implements CanActivate {
+export class UnAuthGuard implements CanActivate {
   constructor(private auth: AuthService, private router: Router) {}
   canActivate(
     next: ActivatedRouteSnapshot,
@@ -24,10 +24,11 @@ export class AuthGuard implements CanActivate {
     | boolean
     | UrlTree {
     return this.auth.user$.pipe(
+      take(1),
       map((user) => !!user),
-      tap((loggedIn) => {
-        if (!loggedIn) {
-          this.router.navigate(['/']);
+      map((loggedIn) => {
+        if (!!loggedIn) {
+          this.router.navigate(['/app']);
           return false;
         }
         return true;
