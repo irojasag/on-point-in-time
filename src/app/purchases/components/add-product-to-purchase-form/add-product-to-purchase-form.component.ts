@@ -69,6 +69,7 @@ export class AddProductToPurchaseFormComponent implements OnInit {
       createdAt: [new Date()],
       expirationDate: [new Date()],
     });
+    this.form.controls.expirationDate.disable();
 
     this.form.controls.expirationAmunt.valueChanges.subscribe(() => {
       setTimeout(() => {
