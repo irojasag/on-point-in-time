@@ -70,6 +70,17 @@ export class AddProductToPurchaseFormComponent implements OnInit {
       expirationDate: [new Date()],
     });
 
+    this.form.controls.expirationAmunt.valueChanges.subscribe(() => {
+      setTimeout(() => {
+        this.updateExpirationDate();
+      }, 300);
+    });
+    this.form.controls.expirationFrequency.valueChanges.subscribe(() => {
+      setTimeout(() => {
+        this.updateExpirationDate();
+      }, 300);
+    });
+
     this.products$ = this.afs
       .collection<Product>('products')
       .valueChanges({ idField: 'id' });
@@ -138,7 +149,6 @@ export class AddProductToPurchaseFormComponent implements OnInit {
   }
 
   public saveProduct(): void {
-    this.updateExpirationDate();
     this.form.controls.productId.patchValue(this.selectedProduct.id);
     this.dialogRef.close(this.form.value);
   }
