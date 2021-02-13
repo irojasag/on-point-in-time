@@ -10,7 +10,10 @@ import {
 } from '@angular/fire/firestore';
 import { Observable, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
-import * as firebase from 'firebase';
+
+import * as firebase from 'firebase/app';
+import 'firebase/analytics';
+const analytics = firebase.analytics;
 
 @Injectable({
   providedIn: 'root',
@@ -56,6 +59,9 @@ export class AuthService {
         const provider = new auth.GoogleAuthProvider();
         const credential = await this.afAuth.signInWithPopup(provider);
         await this.updateUserData(credential.user);
+        analytics().logEvent('login', {
+          method: 'Google',
+        });
         return this.router.navigate(['/app']);
       })
       .catch((error) => {
@@ -72,6 +78,9 @@ export class AuthService {
         const provider = new auth.FacebookAuthProvider();
         const credential = await this.afAuth.signInWithPopup(provider);
         await this.updateUserData(credential.user);
+        analytics().logEvent('login', {
+          method: 'Facebook',
+        });
         return this.router.navigate(['/app']);
       })
       .catch((error) => {
@@ -90,6 +99,9 @@ export class AuthService {
           password
         );
         await this.updateUserData(credential.user);
+        analytics().logEvent('login', {
+          method: 'Email',
+        });
         return this.router.navigate(['/app']);
       })
       .catch((error) => {
@@ -148,6 +160,9 @@ export class AuthService {
             await this.updateUserData({
               ...credential.user,
               displayName,
+            });
+            analytics().logEvent('sign_up', {
+              method: 'Create User',
             });
             return this.router.navigate(['/app']);
           });
