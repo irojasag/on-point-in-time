@@ -123,6 +123,7 @@ export class AddPurchaseComponent implements OnInit {
     //     (product.expirationDate as any).getDate() + dayDifference
     //   );
     // });
+    console.log(this.productsToBuy);
     const body = {
       ...this.form.getRawValue(),
       products: this.productsToBuy,

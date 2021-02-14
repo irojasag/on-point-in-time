@@ -151,6 +151,6 @@ export class AddProductToPurchaseFormComponent implements OnInit {
 
   public saveProduct(): void {
     this.form.controls.productId.patchValue(this.selectedProduct.id);
-    this.dialogRef.close(this.form.value);
+    this.dialogRef.close(this.form.getRawValue());
   }
 }
