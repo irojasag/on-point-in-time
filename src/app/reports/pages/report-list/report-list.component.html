@@ -1,0 +1,11 @@
+<div *ngFor="let report of reports" class="flex flex-row rounded-md h-16 mb-3 shadow items-center bg-white justify-between">
+  <div class="flex flex-col w-12 rounded-l-md h-full justify-center items-center border-r mr-4">
+    <span class="text-3xl"><i class="{{report.icon}}"></i></span>
+  </div>
+  <span>
+    {{report.displayName}}
+  </span>
+  <div class="flex flex-col w-12 rounded-r-md h-full justify-center items-center border-l ml-4">
+    <span class="text-3xl"><i class="fas fa-arrow-right"></i></span>
+  </div>
+</div>
