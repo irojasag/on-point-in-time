@@ -1,5 +1,4 @@
 <ng-container *ngIf="(auth.user$ | async); let user;">
-
   <div class="flex flex-row  items-center h-24 shadow-md mb-2 py-2 pl-2 rounded-md bg-white" *ngFor="let product of productInfo$ | async" [ngClass]="{'bg-red-300': product.isExpired}"
     (click)="openActions(product, user.isAdmin || user.isSuperAdmin)">
     <div class="flex flex-col">
@@ -17,7 +16,6 @@
         <span><strong>Reservaciones semanales:</strong> {{product.reservationsPerWeek | number}}</span>
       </div>
     </div>
-
   </div>
 
   <button *ngIf="user.isAdmin ||user.isSuperAdmin" class="bg-blue-500 fixed bottom-4 right-4 h-12 w-12 shadow-sm text-white rounded-full" [routerLink]="['add']"><i class="fas fa-plus"></i></button>

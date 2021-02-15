@@ -53,6 +53,10 @@ export class PurchasesComponent implements OnInit {
                   ...purchase,
                   purchasedDate: purchase.purchasedAt.toDate(),
                   client: users.find((a) => a.uid === purchase.clientId),
+                  products: (purchase.products || []).map((product) => ({
+                    ...product,
+                    expirationDateDisplay: product.expirationDate.toDate(),
+                  })),
                 };
               });
             })
