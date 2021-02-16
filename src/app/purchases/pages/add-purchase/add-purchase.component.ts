@@ -10,6 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddProductToPurchaseFormComponent } from '../../components/add-product-to-purchase-form/add-product-to-purchase-form.component';
 import { PaymentMethod } from 'src/app/models/payment-method.model';
 import { Router, ActivatedRoute } from '@angular/router';
+import { Purchase } from 'src/app/models/purchase.model';
 
 @Component({
   selector: 'app-add-purchase',
@@ -68,10 +69,16 @@ export class AddPurchaseComponent implements OnInit {
     );
 
     this.afs
-      .collection('purchases')
+      .collection<Purchase>('purchases')
       .valueChanges({ idField: 'id' })
       .subscribe((purchases) => {
-        this.form.controls.billNumber.patchValue((purchases || []).length);
+        let maxBill = 0;
+        (purchases || []).forEach((purchase) => {
+          if (purchase.billNumber > maxBill) {
+            maxBill = purchase.billNumber;
+          }
+        });
+        this.form.controls.billNumber.patchValue(maxBill + 1);
       });
   }
 
