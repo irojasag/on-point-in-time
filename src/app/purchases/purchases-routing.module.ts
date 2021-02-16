@@ -7,6 +7,11 @@ const routes: Routes = [
   { path: '', component: PurchasesComponent },
   { path: 'add', component: AddPurchaseComponent },
   {
+    path: 'edit/:id',
+    component: AddPurchaseComponent,
+    data: { editMode: true },
+  },
+  {
     path: '**',
     redirectTo: '',
   },

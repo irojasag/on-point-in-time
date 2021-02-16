@@ -2,7 +2,9 @@
   <div class="flex flex-row justify-center items-center">
     <span class="text-lg">Acciones para la factura <strong>#{{data.billNumber}}</strong></span>
   </div>
-
+  <a href="#" mat-list-item (click)="openLink($event)" [routerLink]="['/app/purchases/edit/' + data.id]">
+    <span mat-line><i class="text-xl mr-2 fas fa-edit"></i>Editar la factura <strong>#{{data.billNumber}}</strong></span>
+  </a>
   <a href="#" mat-list-item (click)="deleteData($event)">
     <span mat-line><i class="text-xl mr-2 fas fa-minus-square"></i>Eliminar la factura <strong>#{{data.billNumber}}</strong></span>
   </a>

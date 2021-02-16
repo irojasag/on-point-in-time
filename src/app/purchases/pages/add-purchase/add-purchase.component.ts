@@ -31,6 +31,9 @@ export class AddPurchaseComponent implements OnInit {
   public totalToPay: number;
 
   public form: FormGroup;
+  public editMode: boolean;
+  private purchaseId: string;
+
   constructor(
     private afs: AngularFirestore,
     private formBuilder: FormBuilder,
@@ -122,34 +125,79 @@ export class AddPurchaseComponent implements OnInit {
   }
 
   public savePurchaseForm(): void {
-    // this.productsToBuy.forEach((product) => {
-    //   const date = this.form.controls.purchasedAt.value;
-    //   const difference = date.getTime() - new Date().getTime();
-    //   const dayDifference = Math.trunc(difference / (1000 * 3600 * 24));
-    //   (product.expirationDate as any).setDate(
-    //     (product.expirationDate as any).getDate() + dayDifference
-    //   );
-    // });
-    console.log(this.productsToBuy);
     const body = {
       ...this.form.getRawValue(),
       products: this.productsToBuy,
       total: this.totalToPay,
       clientId: this.selectedClient.uid,
     };
-    this.afs
-      .collection('purchases')
-      .add(body)
-      .then(() => {
-        this.snackBar.open(`Se ha sido añadido una factura nueva`, '', {
-          duration: 2000,
+
+    if (this.editMode) {
+      this.afs
+        .doc(`purchases/${this.purchaseId}`)
+        .update(body)
+        .then(() => {
+          this.snackBar.open(
+            `Se ha actualizado la factura #${this.form.controls.billNumber.value}`,
+            '',
+            {
+              duration: 2000,
+            }
+          );
+          this.roter.navigate(['../../'], { relativeTo: this.activatedRoute });
+        })
+        .catch((err) => {
+          console.log('error', err);
         });
-        this.roter.navigate(['../'], { relativeTo: this.activatedRoute });
-      })
-      .catch((err) => {
-        console.log('error', err);
-      });
+    } else {
+      this.afs
+        .collection('purchases')
+        .add(body)
+        .then(() => {
+          this.snackBar.open(`Se ha sido añadido una factura nueva`, '', {
+            duration: 2000,
+          });
+          this.roter.navigate(['../'], { relativeTo: this.activatedRoute });
+        })
+        .catch((err) => {
+          console.log('error', err);
+        });
+    }
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    setTimeout(() => {
+      this.activatedRoute.data.subscribe((data) => {
+        if (data && data.editMode) {
+          const purchaseId: Observable<string> = this.activatedRoute.params.pipe(
+            map((p) => p.id)
+          );
+          purchaseId.subscribe((id) => {
+            if (id) {
+              this.purchaseId = id;
+              this.editMode = data.editMode;
+              this.afs
+                .doc<Purchase>(`purchases/${id}`)
+                .valueChanges({ idField: 'id' })
+                .subscribe((purchase) => {
+                  const user = this.users.find(
+                    (us) => us.uid === purchase.clientId
+                  );
+                  this.selectClient(user);
+                  this.productsToBuy = purchase.products.map((product) => ({
+                    ...product,
+                    expirationDate: product.expirationDate.toDate() as any,
+                  }));
+                  this.form.patchValue({
+                    ...purchase,
+                    purchasedAt: purchase.purchasedAt.toDate(),
+                    clientId: user.displayName,
+                  });
+                });
+            }
+          });
+        }
+      });
+    }, 300);
+  }
 }
