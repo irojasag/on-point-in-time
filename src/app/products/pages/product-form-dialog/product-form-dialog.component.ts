@@ -10,6 +10,9 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
+import { Product } from 'src/app/models/product.model';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-form-dialog',
@@ -21,6 +24,9 @@ export class ProductFormDialogComponent implements OnInit {
   // Opciones desde los schedule
   public typeOptions = ProductTypeOptions;
   public expirationFrequencyOptions = ProductExpirationFrequencyOptions;
+
+  public editMode: boolean;
+  private productId: string;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -89,22 +95,65 @@ export class ProductFormDialogComponent implements OnInit {
     this.form.controls.createdAt.patchValue(newDate);
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe((data) => {
+      if (data && data.editMode) {
+        const productId: Observable<string> = this.activatedRoute.params.pipe(
+          map((p) => p.id)
+        );
+        productId.subscribe((id) => {
+          if (id) {
+            this.productId = id;
+            this.editMode = data.editMode;
+            this.afs
+              .doc<Product>(`products/${id}`)
+              .valueChanges({ idField: 'id' })
+              .subscribe((product) => {
+                this.form.patchValue({
+                  ...product,
+                  expirationDate: product.expirationDate.toDate(),
+                  createdAt: product.createdAt.toDate(),
+                });
+              });
+          }
+        });
+      }
+    });
+  }
 
   public saveProductForm(): void {
     this.updateExpirationDate();
-    this.afs
-      .collection('products')
-      .add(this.form.value)
-      .then(() => {
-        this.snackBar.open(`${this.form.value.name} ha sido añadido`, '', {
-          duration: 2000,
+    if (this.editMode) {
+      this.afs
+        .doc(`products/${this.productId}`)
+        .update(this.form.getRawValue())
+        .then(() => {
+          this.snackBar.open(
+            `${this.form.value.name} ha sido actualizado`,
+            '',
+            {
+              duration: 2000,
+            }
+          );
+          this.router.navigate(['../../'], { relativeTo: this.activatedRoute });
+        })
+        .catch((err) => {
+          console.log('error', err);
         });
-        this.router.navigate(['../'], { relativeTo: this.activatedRoute });
-      })
-      .catch((err) => {
-        console.log('error', err);
-      });
+    } else {
+      this.afs
+        .collection('products')
+        .add(this.form.value)
+        .then(() => {
+          this.snackBar.open(`${this.form.value.name} ha sido añadido`, '', {
+            duration: 2000,
+          });
+          this.router.navigate(['../'], { relativeTo: this.activatedRoute });
+        })
+        .catch((err) => {
+          console.log('error', err);
+        });
+    }
   }
 
   private updateExpirationDate(): void {
