@@ -1,0 +1,19 @@
+:host {
+  ::ng-deep {
+    .mat-expansion-panel-header {
+      padding-left: 0;
+    }
+    .mat-expansion-panel {
+      box-shadow: none;
+      border-radius: 0.375rem;
+    }
+    .mat-accordion .mat-expansion-panel:not(.mat-expanded),
+    .mat-accordion .mat-expansion-panel:not(.mat-expansion-panel-spacing) {
+      border-radius: 0.375rem;
+    }
+    .mat-expansion-panel-body {
+      background-color: white;
+      border-radius: 0.375rem;
+    }
+  }
+}

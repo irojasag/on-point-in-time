@@ -5,11 +5,12 @@ import { ProductFormDialogComponent } from '../product-form-dialog/product-form-
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Product } from '../../../models/product.model';
 import { getTextForProductType } from '../../../helpers/product.helpers';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, combineLatest, of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import * as firebase from 'firebase/app';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ProductActionsBottomSheetComponent } from '../../components/product-actions-bottom-sheet/product-actions-bottom-sheet.component';
+import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
 
 @Component({
   selector: 'app-products',
@@ -31,17 +32,29 @@ export class ProductsComponent implements OnInit {
             .collection<Product>('products')
             .valueChanges({ idField: 'id' })
             .pipe(
-              map((productsCol) => {
-                return (productsCol || []).map((productDoc) => ({
-                  ...productDoc,
-                  type: getTextForProductType(productDoc.type),
-                  createdDate: productDoc.createdAt
-                    ? productDoc.createdAt.toDate()
-                    : null,
-                  isExpired:
-                    productDoc.expirationDate.toDate().getTime() <
-                    new Date().getTime(),
-                }));
+              switchMap((products) => {
+                return combineLatest([
+                  of(products),
+                  this.afs
+                    .collection<ReservationSchedule>('reservation-schedules')
+                    .valueChanges({ idField: 'id' }),
+                ]);
+              }),
+              map(([products, schedules]) => {
+                return products.map((product) => {
+                  return {
+                    ...product,
+                    type: schedules.find((s) => s.id === product.type)
+                      .displayName,
+                    createdDate: product.createdAt
+                      ? product.createdAt.toDate()
+                      : null,
+                    expirationDateDisplay: product.expirationDate.toDate(),
+                    isExpired:
+                      product.expirationDate.toDate().getTime() <
+                      new Date().getTime(),
+                  };
+                });
               })
             );
         } else {
@@ -57,14 +70,29 @@ export class ProductsComponent implements OnInit {
             )
             .valueChanges({ idField: 'id' })
             .pipe(
-              map((productsCol) => {
-                return (productsCol || []).map((productDoc) => ({
-                  ...productDoc,
-                  type: getTextForProductType(productDoc.type),
-                  createdDate: productDoc.createdAt
-                    ? productDoc.createdAt.toDate()
-                    : null,
-                }));
+              switchMap((products) => {
+                return combineLatest([
+                  of(products),
+                  this.afs
+                    .collection<ReservationSchedule>('reservation-schedules')
+                    .valueChanges({ idField: 'id' }),
+                ]);
+              }),
+              map(([products, schedules]) => {
+                return products.map((product) => {
+                  return {
+                    ...product,
+                    type: schedules.find((s) => s.id === product.type)
+                      .displayName,
+                    createdDate: product.createdAt
+                      ? product.createdAt.toDate()
+                      : null,
+                    expirationDateDisplay: product.expirationDate.toDate(),
+                    isExpired:
+                      product.expirationDate.toDate().getTime() <
+                      new Date().getTime(),
+                  };
+                });
               })
             );
         }
