@@ -15,14 +15,17 @@ import { PurchaseBottomSheetComponent } from '../../components/purchase-bottom-s
 })
 export class PurchasesComponent implements OnInit {
   public purchases$: Observable<Purchase[]>;
+  public isUserAdmin: boolean;
   constructor(
     public auth: AuthService,
     private afs: AngularFirestore,
     private bottomSheet: MatBottomSheet
   ) {
+    this.isUserAdmin = false;
     this.auth.user$.subscribe((user) => {
       if (user) {
-        const needsWhere = !(user.isAdmin || user.isSuperAdmin);
+        this.isUserAdmin = user.isAdmin || user.isSuperAdmin;
+        const needsWhere = !this.isUserAdmin;
         this.purchases$ = this.afs
           .collection<Purchase>('purchases', (ref) => {
             if (needsWhere) {

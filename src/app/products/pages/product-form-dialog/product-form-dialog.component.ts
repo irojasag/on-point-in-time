@@ -77,9 +77,12 @@ export class ProductFormDialogComponent implements OnInit {
       ],
       expirationFrequency: [null, Validators.required],
       categories: [],
-      needsReservationsPerWeek: [false],
+      reservationsPerDay: [
+        1,
+        Validators.compose([Validators.max(999999999999), Validators.min(1)]),
+      ],
       reservationsPerWeek: [
-        null,
+        1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
       needsPackages: [false],

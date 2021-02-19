@@ -60,11 +60,12 @@
   </div>
 
   <div class="mb-14">
-    <div *ngFor="let product of productsToBuy; let index= index;" class="flex flex-row rounded-md h-20 mb-3 shadow items-center bg-white justify-between">
+    <div *ngFor="let product of productsToBuy; let index= index;" class="flex flex-row rounded-md h-24 mb-3 shadow items-center bg-white justify-between">
       <div class="pl-2">
         <span class="font-medium text-md">{{product.name}}</span><br>
         <span class="font-normal text-md">Expira: {{product.expirationDate | date}}</span><br>
-        <span class="font-normal text-md" *ngIf="product.needsReservationsPerWeek"> {{ product.reservationsPerWeek }} reservaciones por semana</span><br>
+        <span class="font-normal text-md"> {{ product.reservationsPerWeek }} reservaciones por semana</span><br>
+        <span class="font-normal text-md"> {{ product.reservationsPerDay }} reservaciones por día</span><br>
         <span class="font-normal text-md">Precio: {{product.price | currency:'CRC'}}</span>
       </div>
       <div class="flex flex-col w-12 rounded-r-md h-full justify-center items-center border-l ml-4 bg-red-500" (click)="removeItem(index)">

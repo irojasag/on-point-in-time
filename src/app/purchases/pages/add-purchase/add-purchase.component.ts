@@ -133,6 +133,8 @@ export class AddPurchaseComponent implements OnInit {
     };
 
     if (this.editMode) {
+      console.log(`purchases/${this.purchaseId}`);
+      console.log(body);
       this.afs
         .doc(`purchases/${this.purchaseId}`)
         .update(body)
@@ -193,6 +195,7 @@ export class AddPurchaseComponent implements OnInit {
                     purchasedAt: purchase.purchasedAt.toDate(),
                     clientId: user.displayName,
                   });
+                  this.updateTotalToPay();
                 });
             }
           });

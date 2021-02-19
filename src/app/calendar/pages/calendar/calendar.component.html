@@ -25,9 +25,11 @@
 <div class="flex flex-row">
   <div class="flex flex-col w-full">
     <span class="font-medium text-lg">Tus productos disponibles:</span>
-    <div class="flex flex-row bg-white shadow-md mb-2 rounded-md h-12 w-full items-center" *ngFor="let product of selectedProducts">
+    <div class="flex flex-row bg-white shadow-md mb-2 rounded-md h-24 w-full items-center" *ngFor="let product of selectedProducts">
       <div class="pl-2">
         <span class="font-medium">{{product.name}}</span><br>
+        <span *ngIf="product.reservationsPerDay">Reservaciones máximas por día: {{product.reservationsPerDay}}</span><br>
+        <span *ngIf="product.reservationsPerWeek">Reservaciones máximas por semana: {{product.reservationsPerWeek}}</span><br>
         <span [ngClass]="{'text-red-500': product.dayDiffence <= 3, 'text-orange-500': product.dayDiffence <= 7}">Expira: {{product.expirationDateDisplay | date}} - {{product.dayDiffence | number}}
           días para expiración</span>
       </div>
@@ -39,7 +41,7 @@
     <span class="text-white">
       <!-- Mostrar Calendario -->
       <!-- <i class="fas fa-chevron-left" (click)="picker.open()"></i> -->
-      {{ currentDate.date | date}}
+      {{ currentDate.date | date:'fullDate'}}
       <!-- Saltar al día siguiente -->
       <!-- <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i> -->
     </span>

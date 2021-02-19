@@ -7,7 +7,7 @@ export interface Product {
   expirationAmunt: number;
   expirationFrequency: string;
   categories: string[];
-  needsReservationsPerWeek: boolean;
+  reservationsPerDay: number;
   reservationsPerWeek: number;
   needsPackages: boolean;
   packages: number;

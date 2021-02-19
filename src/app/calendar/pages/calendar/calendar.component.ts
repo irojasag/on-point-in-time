@@ -28,6 +28,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AdminReservationBottomSheetComponent } from '../../components/admin-reservation-bottom-sheet/admin-reservation-bottom-sheet.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AdminReservationDialogComponent } from '../../components/admin-reservation-dialog/admin-reservation-dialog.component';
+import { not } from '@angular/compiler/src/output/output_ast';
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -184,6 +185,10 @@ export class CalendarComponent implements OnInit {
             const products = [];
             (purchases || []).forEach((purchase) => {
               if (purchase.products.length) {
+                purchase.products.forEach((prod) => ({
+                  ...prod,
+                  reservationsPerDay: prod.reservationsPerDay || 1,
+                }));
                 products.push(...purchase.products);
               }
             });
@@ -337,29 +342,12 @@ export class CalendarComponent implements OnInit {
     time: ReservationScheduleTime
   ): void {
     if (this.user.isAdmin || this.user.isSuperAdmin) {
-      this.dialog.open(AdminReservationDialogComponent, {
-        height: '180px',
-        width: '300px',
-        data: {
-          reservationScheduleId: this.selectedSchedule.id,
-          date: schedule.date,
-          userId: this.user.uid,
-          hour: time.hour,
-          period: time.period,
-          confirmed: false,
-          asisted: false,
-        },
-      });
+      this.showAdminAddReservationDialog(schedule, time);
     } else {
       const notExpiredProducts = this.selectedProducts.filter(
         (product) =>
           product.expirationDateDisplay.getTime() >= schedule.date.getTime()
       );
-      const allReservationSpaces = notExpiredProducts.reduce(
-        (acc, curr) => acc + curr.reservationsPerWeek,
-        0
-      );
-
       const currentWeekReservations = (this.reservations || []).filter(
         (reservation) => {
           return (
@@ -370,10 +358,88 @@ export class CalendarComponent implements OnInit {
         }
       );
 
-      const availableReservationSpaces =
-        allReservationSpaces - currentWeekReservations.length;
+      const newReservDate = `${schedule.date.getFullYear()}-${
+        (schedule.date.getMonth() < 10 ? '0' : '') + schedule.date.getMonth()
+      }-${schedule.date.getDate()}`;
 
-      if (availableReservationSpaces > 0) {
+      const currentReservationDates = currentWeekReservations.map(
+        (reserv) =>
+          `${reserv.dateToDisplay.getFullYear()}-${
+            (reserv.dateToDisplay.getMonth() < 10 ? '0' : '') +
+            reserv.dateToDisplay.getMonth()
+          }-${reserv.dateToDisplay.getDate()}`
+      );
+      currentReservationDates.push(newReservDate);
+      currentReservationDates.sort();
+
+      let distributionForLimitedReservations = [0, 0, 0, 0, 0, 0, 0];
+      notExpiredProducts
+        .filter((prod) => prod.reservationsPerDay)
+        .forEach((prod) => {
+          let remainingReservPerWeek = 0 + prod.reservationsPerWeek;
+          let index = -1;
+          while (remainingReservPerWeek) {
+            index++;
+            if (remainingReservPerWeek - prod.reservationsPerDay >= 0) {
+              distributionForLimitedReservations[index] +=
+                prod.reservationsPerDay;
+              remainingReservPerWeek =
+                remainingReservPerWeek - prod.reservationsPerDay;
+            } else {
+              distributionForLimitedReservations[
+                index
+              ] += remainingReservPerWeek;
+              remainingReservPerWeek = 0;
+            }
+          }
+          return prod;
+        });
+
+      distributionForLimitedReservations = distributionForLimitedReservations.filter(
+        (reserv) => !!reserv
+      );
+
+      let allowReservation = true;
+      let pastDate = null;
+      let isNewDate = false;
+      let isFirst = true;
+      let lastAvailability = null;
+
+      currentReservationDates.forEach((date) => {
+        if (pastDate !== date) {
+          pastDate = date;
+          isNewDate = true;
+          if (isNewDate && !isFirst) {
+            distributionForLimitedReservations.push(
+              distributionForLimitedReservations.shift()
+            );
+            distributionForLimitedReservations = distributionForLimitedReservations.filter(
+              (reserv) => !!reserv
+            );
+          }
+          isFirst = false;
+        }
+
+        if (date === newReservDate) {
+          lastAvailability = distributionForLimitedReservations[0] || 0;
+        }
+        if (distributionForLimitedReservations.length) {
+          distributionForLimitedReservations[0]--;
+        }
+      });
+
+      if (
+        lastAvailability > 0 ||
+        (lastAvailability === null &&
+          distributionForLimitedReservations[1] &&
+          distributionForLimitedReservations[1] > 0)
+      ) {
+        allowReservation = true;
+      } else {
+        allowReservation = false;
+      }
+
+      if (allowReservation) {
         this.afs
           .collection('reservations')
           .add({
@@ -402,6 +468,25 @@ export class CalendarComponent implements OnInit {
         );
       }
     }
+  }
+
+  private showAdminAddReservationDialog(
+    schedule: ReservationScheduleDistribution & { date: Date },
+    time: ReservationScheduleTime
+  ) {
+    this.dialog.open(AdminReservationDialogComponent, {
+      height: '180px',
+      width: '300px',
+      data: {
+        reservationScheduleId: this.selectedSchedule.id,
+        date: schedule.date,
+        userId: this.user.uid,
+        hour: time.hour,
+        period: time.period,
+        confirmed: false,
+        asisted: false,
+      },
+    });
   }
 
   public removeReservation(reservations: Reservation[]): void {
