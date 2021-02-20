@@ -12,6 +12,11 @@ const routes: Routes = [
     path: 'add',
     component: ProductFormDialogComponent,
   },
+  {
+    path: 'edit/:id',
+    component: ProductFormDialogComponent,
+    data: { editMode: true },
+  },
   { path: '**', redirectTo: '' },
 ];
 

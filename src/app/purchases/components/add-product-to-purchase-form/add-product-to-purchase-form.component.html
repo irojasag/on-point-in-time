@@ -85,12 +85,7 @@
       </mat-expansion-panel-header>
 
 
-      <div class="flex flex-row justify-start items-center mb-4">
-        <mat-checkbox [color]="'primary'" formControlName="needsReservationsPerWeek">Reserva semanalmente</mat-checkbox>
-      </div>
-
-
-      <div class="flex flex-row justify-center items-center mb-2" *ngIf="form.controls.needsReservationsPerWeek.value">
+      <div class="flex flex-row justify-center items-center mb-2">
         <mat-form-field appearance="outline" class="w-full">
           <mat-label>Cantidad de reservaciones semanales</mat-label>
           <input matInput type="number" placeholder="Cantidad de reservaciones semanales" class="w-full" formControlName="reservationsPerWeek">
@@ -102,6 +97,23 @@
           </mat-error>
           <mat-error *ngIf="form.controls.reservationsPerWeek.hasError('min')">
             La cantidad de reservaciones debe ser mínimo <strong>{{form.controls.reservationsPerWeek.errors.min.min}}</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+
+      <div class="flex flex-row justify-center items-center mb-2">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Cantidad de reservaciones diarias</mat-label>
+          <input matInput type="number" placeholder="Cantidad de reservaciones diarias" class="w-full" formControlName="reservationsPerDay">
+          <mat-error *ngIf="form.controls.reservationsPerDay.hasError('required')">
+            La cantidad de reservaciones es <strong>requerido</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.reservationsPerDay.hasError('max')">
+            La cantidad de reservaciones debe ser menor que <strong>{{form.controls.reservationsPerDay.errors.max.max}}</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.reservationsPerDay.hasError('min')">
+            La cantidad de reservaciones debe ser mínimo <strong>{{form.controls.reservationsPerDay.errors.min.min}}</strong>
           </mat-error>
         </mat-form-field>
       </div>

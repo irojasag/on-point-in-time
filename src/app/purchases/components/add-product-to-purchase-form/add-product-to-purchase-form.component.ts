@@ -12,6 +12,7 @@ import {
   ProductExpirationFrequencies,
 } from 'src/app/constants/product.constants';
 import { MatDialogRef } from '@angular/material/dialog';
+import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
 
 @Component({
   selector: 'app-add-product-to-purchase-form',
@@ -56,9 +57,12 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         ]),
       ],
       expirationFrequency: [null, Validators.required],
-      needsReservationsPerWeek: [false],
+      reservationsPerDay: [
+        1,
+        Validators.compose([Validators.max(999999999999), Validators.min(1)]),
+      ],
       reservationsPerWeek: [
-        null,
+        1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
       needsPackages: [false],
@@ -94,6 +98,23 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         state ? this._filterProducts(state) : (this.products || []).slice()
       )
     );
+
+    this.afs
+      .collection<ReservationSchedule>('reservation-schedules')
+      .valueChanges({ idField: 'id' })
+      .subscribe((schedules) => {
+        schedules = schedules || [];
+        this.typeOptions = [];
+        schedules.forEach((schedule) => {
+          this.typeOptions.push({
+            value: schedule.id,
+            displayName: schedule.displayName,
+          });
+        });
+        if (!this.form.controls.type.value) {
+          this.form.controls.type.patchValue(this.typeOptions[0].value);
+        }
+      });
   }
 
   ngOnInit(): void {}
@@ -116,11 +137,11 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     this.form.controls.expirationFrequency.patchValue(
       ProductExpirationFrequencies.MONTHS
     );
-    this.form.controls.needsReservationsPerWeek.patchValue(
-      product.needsReservationsPerWeek
-    );
     this.form.controls.reservationsPerWeek.patchValue(
-      product.reservationsPerWeek
+      product.reservationsPerWeek || 1
+    );
+    this.form.controls.reservationsPerDay.patchValue(
+      product.reservationsPerDay || 1
     );
     this.form.controls.needsPackages.patchValue(product.needsPackages);
     this.form.controls.packages.patchValue(product.packages);

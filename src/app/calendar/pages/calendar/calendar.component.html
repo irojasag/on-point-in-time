@@ -24,10 +24,13 @@
 </div>
 <div class="flex flex-row">
   <div class="flex flex-col w-full">
-    <span class="font-medium text-lg">Tus productos disponibles:</span>
-    <div class="flex flex-row bg-white shadow-md mb-2 rounded-md h-12 w-full items-center" *ngFor="let product of selectedProducts">
+    <span class="font-medium text-lg" *ngIf="haveActiveProducts">Tus productos disponibles:</span>
+    <span class="font-medium text-lg" *ngIf="!haveActiveProducts">No tienes productos activos <br></span>
+    <div class="flex flex-row bg-white shadow-md mb-2 rounded-md h-24 w-full items-center" *ngFor="let product of selectedProducts">
       <div class="pl-2">
         <span class="font-medium">{{product.name}}</span><br>
+        <span *ngIf="product.reservationsPerDay">Reservaciones máximas por día: {{product.reservationsPerDay}}</span><br>
+        <span *ngIf="product.reservationsPerWeek">Reservaciones máximas por semana: {{product.reservationsPerWeek}}</span><br>
         <span [ngClass]="{'text-red-500': product.dayDiffence <= 3, 'text-orange-500': product.dayDiffence <= 7}">Expira: {{product.expirationDateDisplay | date}} - {{product.dayDiffence | number}}
           días para expiración</span>
       </div>
@@ -39,7 +42,7 @@
     <span class="text-white">
       <!-- Mostrar Calendario -->
       <!-- <i class="fas fa-chevron-left" (click)="picker.open()"></i> -->
-      {{ currentDate.date | date}}
+      {{ currentDate.date | date:'fullDate'}}
       <!-- Saltar al día siguiente -->
       <!-- <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i> -->
     </span>
@@ -63,17 +66,17 @@
       <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let reservation of hour.reservations">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
           <img class="h-full w-full rounded-full"
-            src="{{(selectedSchedule.showPhotos || (reservation.user.uid === user.uid) ? reservation.user.photoURL : null) || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+            src="{{((selectedSchedule.showPhotos && haveActiveProducts) || (reservation.user.uid === user.uid) || (user.isAdmin || user.isSuperAdmin) ? reservation.user.photoURL : null) || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
             alt="Profile Photo">
         </div>
       </div>
-      <div *ngIf="(user?.isAdmin || user?.isSuperAdmin) || (!hour.locked && (hour.reservations.length < hour.spaces || hour.booked))"
+      <div *ngIf="(user?.isAdmin || user?.isSuperAdmin) || ((!hour.locked && haveActiveProducts) && (hour.reservations.length < hour.spaces || hour.booked))"
         class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5" (click)="hour.booked ? removeReservation(hour.reservations) : addReservation(currentDate, hour)">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
           <i class="fas {{ hour.booked ? 'fa-minus' : 'fa-plus'}}"></i>
         </div>
       </div>
-      <div *ngIf="!(user?.isAdmin || user?.isSuperAdmin) && (hour.locked || (hour.reservations.length >= hour.spaces && !hour.booked))"
+      <div *ngIf="!(user?.isAdmin || user?.isSuperAdmin) && ((hour.locked || !haveActiveProducts) || (hour.reservations.length >= hour.spaces && !hour.booked))"
         class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
           <i class="fas fa-lock"></i>

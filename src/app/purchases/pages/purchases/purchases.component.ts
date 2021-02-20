@@ -5,6 +5,8 @@ import { Observable, combineLatest, of } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import { User } from 'src/app/models/user.model';
 import { Purchase } from 'src/app/models/purchase.model';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { PurchaseBottomSheetComponent } from '../../components/purchase-bottom-sheet/purchase-bottom-sheet.component';
 
 @Component({
   selector: 'app-purchases',
@@ -13,10 +15,17 @@ import { Purchase } from 'src/app/models/purchase.model';
 })
 export class PurchasesComponent implements OnInit {
   public purchases$: Observable<Purchase[]>;
-  constructor(public auth: AuthService, private afs: AngularFirestore) {
+  public isUserAdmin: boolean;
+  constructor(
+    public auth: AuthService,
+    private afs: AngularFirestore,
+    private bottomSheet: MatBottomSheet
+  ) {
+    this.isUserAdmin = false;
     this.auth.user$.subscribe((user) => {
       if (user) {
-        const needsWhere = !(user.isAdmin || user.isSuperAdmin);
+        this.isUserAdmin = user.isAdmin || user.isSuperAdmin;
+        const needsWhere = !this.isUserAdmin;
         this.purchases$ = this.afs
           .collection<Purchase>('purchases', (ref) => {
             if (needsWhere) {
@@ -62,6 +71,12 @@ export class PurchasesComponent implements OnInit {
             })
           );
       }
+    });
+  }
+
+  public openBottomSheet(purchase: Purchase): void {
+    this.bottomSheet.open(PurchaseBottomSheetComponent, {
+      data: purchase,
     });
   }
 

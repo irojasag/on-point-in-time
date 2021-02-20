@@ -17,12 +17,16 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { AddProductToPurchaseFormComponent } from './components/add-product-to-purchase-form/add-product-to-purchase-form.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { PurchaseBottomSheetComponent } from './components/purchase-bottom-sheet/purchase-bottom-sheet.component';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatListModule } from '@angular/material/list';
 
 @NgModule({
   declarations: [
     PurchasesComponent,
     AddPurchaseComponent,
     AddProductToPurchaseFormComponent,
+    PurchaseBottomSheetComponent,
   ],
   imports: [
     CommonModule,
@@ -40,6 +44,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatSnackBarModule,
     MatCheckboxModule,
     MatExpansionModule,
+    MatBottomSheetModule,
+    MatListModule,
   ],
 })
 export class PurchasesModule {}
