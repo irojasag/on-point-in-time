@@ -53,6 +53,8 @@ export class CalendarComponent implements OnInit {
 
   public user: User;
 
+  public haveActiveProducts: boolean;
+
   constructor(
     private renderer: Renderer2,
     private afs: AngularFirestore,
@@ -62,6 +64,7 @@ export class CalendarComponent implements OnInit {
     private dialog: MatDialog,
     private bottomSheet: MatBottomSheet
   ) {
+    this.haveActiveProducts = false;
     this.form = this.formBuilder.group({
       schedule: [null, Validators.required],
     });
@@ -118,6 +121,7 @@ export class CalendarComponent implements OnInit {
       this.selectedProducts = this.products.filter(
         (product) => product.type === this.selectedSchedule.id
       );
+      this.haveActiveProducts = !!this.selectedProducts.length;
       this.updateNearByDates();
     });
 
