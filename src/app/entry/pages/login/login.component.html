@@ -14,10 +14,10 @@
         <a [routerLink]="['register']" class="underline">Registrate!</a>
       </p>
       <!-- <p class="mt-6 text-sm text-center text-gray-300">
-        Read our <a href="#" class="underline">terms</a> and <a href="#" class="underline">conditions</a>
+        Read our <a  class="underline">terms</a> and <a  class="underline">conditions</a>
       </p> -->
     </div>
-    <!-- <a href="#" class="text-sm text-blue-600 hover:underline focus:text-blue-800">Forgot Password?</a> -->
+    <!-- <a  class="text-sm text-blue-600 hover:underline focus:text-blue-800">Forgot Password?</a> -->
     <div class="p-5 bg-white md:flex-1">
       <h3 class="my-4 text-2xl font-semibold text-gray-700">Ingresa</h3>
       <div class="flex flex-col space-y-2">
@@ -52,7 +52,7 @@
             <span class="h-px bg-gray-400 w-14"></span>
           </span>
           <div class="flex flex-col space-y-4">
-            <a href="#" (click)="auth.googleSignin()"
+            <a (click)="auth.googleSignin()"
               class="flex items-center justify-center px-4 py-2 space-x-2 transition-colors duration-300 border border-google-red rounded-md group hover:bg-google-red focus:outline-none">
               <span>
                 <svg class="w-5 h-5 text-google-red fill-current group-hover:text-white" viewBox="0 0 16 16" version="1.1" aria-hidden="true">
@@ -62,7 +62,7 @@
               </span>
               <span class="text-sm font-medium text-google-red group-hover:text-white">Google</span>
             </a>
-            <a href="#" (click)="auth.facebookSignin()"
+            <a (click)="auth.facebookSignin()"
               class="flex items-center justify-center px-4 py-2 space-x-2 transition-colors duration-300 border border-facebook-blue rounded-md group hover:bg-facebook-blue focus:outline-none">
               <span>
                 <svg class="w-5 h-5 text-facebook-blue border-facebook-blue group-hover:text-white fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
