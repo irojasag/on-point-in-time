@@ -208,6 +208,7 @@ export class CalendarComponent implements OnInit {
             this.selectedProducts = this.products.filter(
               (product) => product.type === this.selectedSchedule.id
             );
+            this.haveActiveProducts = !!this.selectedProducts.length;
           }
         });
       }
@@ -239,6 +240,7 @@ export class CalendarComponent implements OnInit {
           this.selectedProducts = this.products.filter(
             (product) => product.type === this.selectedSchedule.id
           );
+          this.haveActiveProducts = !!this.selectedProducts.length;
           this.updateNearByDates();
         }
       }
