@@ -5,7 +5,7 @@
         <div class="h-full w-full rounded-full bg-black absolute flex flex-col justify-center items-center hover:opacity-50 opacity-0" (click)="openProfilePhotoBottomSheet(user)">
           <i class="text-2xl text-white fas fa-camera opacity-100 "></i>
         </div>
-        <img *ngIf="user.photoURL" class="h-full w-full rounded-full " src="{{user.photoURL}}" alt="Profile Photo">
+        <img *ngIf="user.photoURL" class="object-cover h-full w-full rounded-full " src="{{user.photoURL}}" alt="Profile Photo">
       </div>
     </div>
   </div>
