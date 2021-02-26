@@ -8,7 +8,7 @@
         <mat-option *ngFor="let user of filteredUsers$ | async" [value]="user.displayName" class="shadow-sm" (onSelectionChange)="selectUser(user)" (click)="selectUser(user)">
           <div class="flex flex-row items-center">
             <div class="flex flex-col">
-              <img class="rounded-full h-9 w-9" aria-hidden [src]="user.photoURL">
+              <img class="rounded-full h-9 w-9 object-cover" aria-hidden [src]="user.photoURL">
             </div>
             <div class="flex flex-col pl-1 w-44">
               <span class="whitespace-nowrap overflow-hidden overflow-ellipsis">{{user.displayName}}</span>

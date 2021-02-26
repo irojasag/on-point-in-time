@@ -167,6 +167,8 @@ export class CalendarComponent implements OnInit {
                 const products = [];
                 purchase.products.forEach((product) => {
                   product.expirationDateDisplay = product.expirationDate.toDate();
+                  product.startDate = product.startDate || purchase.purchasedAt;
+                  product.startDateDisplay = product.startDate.toDate();
                   if (
                     product.expirationDate.toDate().getTime() >=
                     new Date().getTime()
@@ -352,6 +354,7 @@ export class CalendarComponent implements OnInit {
     } else {
       const notExpiredProducts = this.selectedProducts.filter(
         (product) =>
+          product.startDateDisplay.getTime() <= schedule.date.getTime() &&
           product.expirationDateDisplay.getTime() >= schedule.date.getTime()
       );
       const currentWeekReservations = (this.reservations || []).filter(

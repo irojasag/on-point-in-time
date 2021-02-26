@@ -6,7 +6,8 @@
   <mat-expansion-panel *ngFor="let purchase of purchases$ | async; let index= index;" class="bg-transparent shadow-none rounded-md">
     <mat-expansion-panel-header class="h-16 p-0 left-0 rounded-md bg-white mb-2 ">
       <div class="flex flex-col w-16">
-        <img class="h-16 w-16 rounded-l-md" src="{{purchase.client.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{purchase.client.displayName}}">
+        <img class="object-cover h-16 w-16 rounded-l-md" src="{{purchase.client.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+          alt="Foto de {{purchase.client.displayName}}">
       </div>
       <div class="flex flex-col justify-center">
         <div class="absolute right-2 top-2">
@@ -30,7 +31,7 @@
         <span class="flex flex-col w-1/2">{{product.name}}</span>
         <div class="flex flex-col w-1/2">
           <div class="flex flex-row justify-between">
-            <span class="flex flex-col items-start">Expira: {{product.expirationDateDisplay | date}}</span>
+            <span class="flex flex-col items-start">{{product.startDateDisplay | date}} - {{product.expirationDateDisplay | date}}</span>
             <span class="flex flex-col items-end">{{product.price | currency: 'CRC'}}</span>
           </div>
         </div>

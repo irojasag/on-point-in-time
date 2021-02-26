@@ -189,6 +189,9 @@ export class AddPurchaseComponent implements OnInit {
                   this.productsToBuy = purchase.products.map((product) => ({
                     ...product,
                     expirationDate: product.expirationDate.toDate() as any,
+                    startDate: (
+                      product.startDate || purchase.purchasedAt
+                    ).toDate() as any,
                   }));
                   this.form.patchValue({
                     ...purchase,

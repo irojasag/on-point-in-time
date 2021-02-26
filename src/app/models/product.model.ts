@@ -13,6 +13,8 @@ export interface Product {
   packages: number;
   createdAt?: firebase.firestore.Timestamp;
   createdDate?: Date;
+  startDate: firebase.firestore.Timestamp;
+  startDateDisplay?: Date;
   expirationDate: firebase.firestore.Timestamp;
   expirationDateDisplay?: Date;
   isExpired?: boolean;

@@ -67,10 +67,19 @@
 
   <div class="flex flex-row justify-center items-center mb-2" *ngIf="selectedProduct">
     <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Fecha de inicio {{form.controls.startDate.value | date}} </mat-label>
+      <input matInput [matDatepicker]="startDatePicker" placeholder="Fecha de inicio" class="w-full" formControlName="startDate">
+      <mat-datepicker-toggle matSuffix [for]="startDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #startDatePicker touchUi disabled="false"></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="flex flex-row justify-center items-center mb-2" *ngIf="selectedProduct">
+    <mat-form-field appearance="outline" class="w-full">
       <mat-label>Fecha de expiración</mat-label>
-      <input matInput [matDatepicker]="picker" placeholder="Fecha de expiración" class="w-full" formControlName="expirationDate">
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker touchUi disabled="false"></mat-datepicker>
+      <input matInput [matDatepicker]="expirationDatePicker" placeholder="Fecha de expiración" class="w-full" formControlName="expirationDate">
+      <mat-datepicker-toggle matSuffix [for]="expirationDatePicker"></mat-datepicker-toggle>
+      <mat-datepicker #expirationDatePicker touchUi disabled="false"></mat-datepicker>
     </mat-form-field>
   </div>
 

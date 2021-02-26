@@ -3,7 +3,7 @@
 
   <div *ngFor="let u of users$ | async" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
     <div class="flex flex-col w-14">
-      <img class="h-14 w-14 rounded-l-md" src="{{u.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{u.displayName}}">
+      <img class="object-cover h-14 w-14 rounded-l-md" src="{{u.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Foto de {{u.displayName}}">
     </div>
     <div class="flex flex-col">
       <div class="flex flex-row pl-2 justify-between w-full">

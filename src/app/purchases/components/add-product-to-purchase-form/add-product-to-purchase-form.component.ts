@@ -72,9 +72,16 @@ export class AddProductToPurchaseFormComponent implements OnInit {
       ],
       createdAt: [new Date()],
       expirationDate: [new Date()],
+      startDate: [new Date()],
     });
     this.form.controls.expirationDate.disable();
+    this.form.controls.startDate.disable();
 
+    this.form.controls.startDate.valueChanges.subscribe(() => {
+      setTimeout(() => {
+        this.updateExpirationDate();
+      }, 300);
+    });
     this.form.controls.expirationAmunt.valueChanges.subscribe(() => {
       setTimeout(() => {
         this.updateExpirationDate();
@@ -148,7 +155,7 @@ export class AddProductToPurchaseFormComponent implements OnInit {
   }
 
   private updateExpirationDate(): void {
-    const expirationDate = new Date();
+    const expirationDate = new Date(this.form.controls.startDate.value);
     const multiplier = this.form.value.expirationAmunt;
     const frequency = this.form.value.expirationFrequency;
     switch (frequency) {

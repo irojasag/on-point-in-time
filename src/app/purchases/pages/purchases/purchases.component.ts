@@ -65,6 +65,9 @@ export class PurchasesComponent implements OnInit {
                   products: (purchase.products || []).map((product) => ({
                     ...product,
                     expirationDateDisplay: product.expirationDate.toDate(),
+                    startDateDisplay: (
+                      product.startDate || purchase.purchasedAt
+                    ).toDate(),
                   })),
                 };
               });
