@@ -66,8 +66,6 @@ export class PurchasesChartComponent implements OnInit {
         })
       )
       .subscribe((purchases) => {
-        // console.log(purchases);
-
         const today = new Date();
         const newLineChartData = [];
 

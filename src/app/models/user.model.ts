@@ -3,6 +3,7 @@ export interface User {
   email: string;
   photoURL?: string;
   displayName?: string;
+  method?: string;
   createdAt?: firebase.firestore.Timestamp;
   createdDate?: Date;
   birthDateAt?: firebase.firestore.Timestamp;

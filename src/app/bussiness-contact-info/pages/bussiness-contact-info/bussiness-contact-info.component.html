@@ -1,3 +1,6 @@
+<div class="flex flex-row justify-between items-center my-2">
+  <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Información de contacto</span>
+</div>
 <div *ngIf="(auth.user$ | async) as user">
   <div *ngFor="let contactData of contactInfo$ | async; let index= index;" class="flex flex-row rounded-md h-16 mb-3 shadow items-center bg-white justify-between"
     (click)="(user.isAdmin || user.isSuperAdmin) ? openBottomSheet(contactData) : null">
