@@ -174,6 +174,7 @@ export class CalendarComponent implements OnInit {
                   product.expirationDateDisplay = product.expirationDate.toDate();
                   product.startDate = product.startDate || purchase.purchasedAt;
                   product.startDateDisplay = product.startDate.toDate();
+                  product.startDateDisplay.setHours(0, 0, 0, 0);
                   if (
                     product.expirationDate.toDate().getTime() >=
                     new Date().getTime()
@@ -357,6 +358,7 @@ export class CalendarComponent implements OnInit {
     schedule: ReservationScheduleDistribution & { date: Date },
     time: ReservationScheduleTime
   ): void {
+    schedule.date.setHours(0, 0, 0);
     if (this.loading) {
       return;
     }
@@ -365,11 +367,12 @@ export class CalendarComponent implements OnInit {
       this.showAdminAddReservationDialog(schedule, time);
     } else {
       this.loading = true;
-      const notExpiredProducts = this.selectedProducts.filter(
-        (product) =>
+      const notExpiredProducts = this.selectedProducts.filter((product) => {
+        return (
           product.startDateDisplay.getTime() <= schedule.date.getTime() &&
           product.expirationDateDisplay.getTime() >= schedule.date.getTime()
-      );
+        );
+      });
       const currentWeekReservations = (this.reservations || []).filter(
         (reservation) => {
           return (
