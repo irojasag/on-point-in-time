@@ -55,6 +55,8 @@ export class CalendarComponent implements OnInit {
 
   public haveActiveProducts: boolean;
 
+  public loading: boolean;
+
   constructor(
     private renderer: Renderer2,
     private afs: AngularFirestore,
@@ -64,6 +66,8 @@ export class CalendarComponent implements OnInit {
     private dialog: MatDialog,
     private bottomSheet: MatBottomSheet
   ) {
+    this.loading = true;
+
     this.haveActiveProducts = false;
     this.form = this.formBuilder.group({
       schedule: [null, Validators.required],
@@ -123,6 +127,7 @@ export class CalendarComponent implements OnInit {
       );
       this.haveActiveProducts = !!this.selectedProducts.length;
       this.updateNearByDates();
+      this.loading = false;
     });
 
     // this.dateControl.valueChanges.subscribe((newDate) => {
@@ -169,6 +174,7 @@ export class CalendarComponent implements OnInit {
                   product.expirationDateDisplay = product.expirationDate.toDate();
                   product.startDate = product.startDate || purchase.purchasedAt;
                   product.startDateDisplay = product.startDate.toDate();
+                  product.startDateDisplay.setHours(0, 0, 0, 0);
                   if (
                     product.expirationDate.toDate().getTime() >=
                     new Date().getTime()
@@ -212,6 +218,7 @@ export class CalendarComponent implements OnInit {
             );
             this.haveActiveProducts = !!this.selectedProducts.length;
           }
+          this.loading = false;
         });
       }
     });
@@ -244,6 +251,7 @@ export class CalendarComponent implements OnInit {
           );
           this.haveActiveProducts = !!this.selectedProducts.length;
           this.updateNearByDates();
+          this.loading = false;
         }
       }
     });
@@ -326,6 +334,7 @@ export class CalendarComponent implements OnInit {
       nearbyDate.displayName =
         distribution.displayName || this.selectedSchedule.displayName;
     });
+    this.loading = false;
   }
 
   private addNewDates(): void {
@@ -349,14 +358,21 @@ export class CalendarComponent implements OnInit {
     schedule: ReservationScheduleDistribution & { date: Date },
     time: ReservationScheduleTime
   ): void {
+    schedule.date.setHours(0, 0, 0);
+    if (this.loading) {
+      return;
+    }
+
     if (this.user.isAdmin || this.user.isSuperAdmin) {
       this.showAdminAddReservationDialog(schedule, time);
     } else {
-      const notExpiredProducts = this.selectedProducts.filter(
-        (product) =>
+      this.loading = true;
+      const notExpiredProducts = this.selectedProducts.filter((product) => {
+        return (
           product.startDateDisplay.getTime() <= schedule.date.getTime() &&
           product.expirationDateDisplay.getTime() >= schedule.date.getTime()
-      );
+        );
+      });
       const currentWeekReservations = (this.reservations || []).filter(
         (reservation) => {
           return (
@@ -449,6 +465,7 @@ export class CalendarComponent implements OnInit {
       }
 
       if (allowReservation) {
+        this.loading = true;
         this.afs
           .collection('reservations')
           .add({
@@ -468,6 +485,7 @@ export class CalendarComponent implements OnInit {
             }
           });
       } else {
+        this.loading = false;
         this.snackBar.open(
           `Tus productos no permiten realizar esta reservación`,
           '',
@@ -499,6 +517,11 @@ export class CalendarComponent implements OnInit {
   }
 
   public removeReservation(reservations: Reservation[]): void {
+    if (this.loading) {
+      return;
+    }
+    this.loading = true;
+
     const reservation = reservations.find(
       (reserv) => reserv.userId === this.user.uid
     );

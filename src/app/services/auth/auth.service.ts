@@ -58,7 +58,7 @@ export class AuthService {
       .then(async () => {
         const provider = new auth.GoogleAuthProvider();
         const credential = await this.afAuth.signInWithPopup(provider);
-        await this.updateUserData(credential.user);
+        await this.updateUserData({ ...credential.user, method: 'Google' });
         analytics().logEvent('login', {
           method: 'Google',
         });
@@ -77,7 +77,7 @@ export class AuthService {
       .then(async () => {
         const provider = new auth.FacebookAuthProvider();
         const credential = await this.afAuth.signInWithPopup(provider);
-        await this.updateUserData(credential.user);
+        await this.updateUserData({ ...credential.user, method: 'Facebook' });
         analytics().logEvent('login', {
           method: 'Facebook',
         });
@@ -98,7 +98,7 @@ export class AuthService {
           email,
           password
         );
-        await this.updateUserData(credential.user);
+        await this.updateUserData({ ...credential.user, method: 'Email' });
         analytics().logEvent('login', {
           method: 'Email',
         });
@@ -123,6 +123,7 @@ export class AuthService {
     const data = {
       uid: user.uid,
       email: user.email,
+      method: user.method,
     };
 
     try {
@@ -160,6 +161,7 @@ export class AuthService {
             await this.updateUserData({
               ...credential.user,
               displayName,
+              method: 'Email',
             });
             analytics().logEvent('sign_up', {
               method: 'Create User',
@@ -172,5 +174,9 @@ export class AuthService {
         const errorMessage = error.message;
         console.error(errorCode, errorMessage);
       });
+  }
+
+  public async sendForgotPasswordEmail(email: string) {
+    await this.afAuth.sendPasswordResetEmail(email);
   }
 }

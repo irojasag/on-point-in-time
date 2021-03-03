@@ -1,3 +1,6 @@
+<div class="flex flex-row justify-between items-center my-2">
+  <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Productos disponibles</span>
+</div>
 <ng-container *ngIf="(auth.user$ | async); let user;">
   <div class="flex flex-row  items-center h-28 shadow-md mb-2 py-2 pl-2 rounded-md bg-white" *ngFor="let product of productInfo$ | async" [ngClass]="{'bg-red-300': product.isExpired}"
     (click)="openActions(product, user.isAdmin || user.isSuperAdmin)">

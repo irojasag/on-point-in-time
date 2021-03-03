@@ -17,6 +17,7 @@ import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { MatButtonModule } from '@angular/material/button';
     MatAutocompleteModule,
     MatFormFieldModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
   ],
 })
 export class CalendarModule {}

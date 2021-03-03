@@ -8,9 +8,12 @@ import { RegisterComponent } from './pages/register/register.component';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
-  declarations: [LoginComponent, RegisterComponent],
+  declarations: [LoginComponent, RegisterComponent, ForgotPasswordComponent],
   imports: [
     CommonModule,
     EntryRoutingModule,
@@ -18,6 +21,8 @@ import { MatButtonModule } from '@angular/material/button';
     ReactiveFormsModule,
     MatInputModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
 })
 export class EntryModule {}

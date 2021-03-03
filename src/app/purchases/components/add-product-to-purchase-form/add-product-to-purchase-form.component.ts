@@ -76,6 +76,9 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     });
     this.form.controls.expirationDate.disable();
     this.form.controls.startDate.disable();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    this.form.controls.startDate.patchValue(today);
 
     this.form.controls.startDate.valueChanges.subscribe(() => {
       setTimeout(() => {

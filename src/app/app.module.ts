@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { AppFirebaseModule } from '../app/app-firebase/app-firebase.module';
 import { registerLocaleData } from '@angular/common';
 import localeCr from '@angular/common/locales/es-CR';
+import { NgxImageCompressService } from 'ngx-image-compress';
+
 registerLocaleData(localeCr, 'es');
 
 @NgModule({
@@ -28,7 +30,10 @@ registerLocaleData(localeCr, 'es');
     MatInputModule,
     MatIconModule,
   ],
-  providers: [{ provide: LOCALE_ID, useValue: 'es-CR' }],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'es-CR' },
+    NgxImageCompressService,
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -19,5 +19,18 @@ export class UsersComponent implements OnInit {
       .valueChanges({ idField: 'id' });
   }
 
+  public getSignInMethodIcon(method: string): string {
+    switch (method) {
+      case 'Google':
+        return 'fab fa-google text-google-red';
+      case 'Facebook':
+        return 'fab fa-facebook text-facebook-blue';
+      case 'Email':
+        return 'fas fa-at';
+      default:
+        return '';
+    }
+  }
+
   ngOnInit(): void {}
 }

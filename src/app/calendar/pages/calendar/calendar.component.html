@@ -1,3 +1,6 @@
+<div class="flex flex-row justify-between items-center my-2">
+  <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Calendario</span>
+</div>
 <div [hidden]="true">
   <mat-form-field>
     <input [formControl]="dateControl" matInput [matDatepicker]="picker">
@@ -135,4 +138,7 @@
 
   </div>
   <!-- <button class="bg-blue-500 text-white rounded-full fixed bottom-4 right-4 h-12 w-12 shadow-sm" (click)="picker.open()"><i class="fas fa-calendar"></i></button> -->
+</div>
+<div *ngIf="loading" class="bg-black opacity-20 fixed top-0 left-0 h-full w-full flex flex-row justify-center items-center z-20">
+  <mat-spinner [diameter]="64"></mat-spinner>
 </div>

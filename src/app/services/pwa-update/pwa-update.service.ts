@@ -9,6 +9,7 @@ export class PwaUpdateService {
   constructor(private readonly updates: SwUpdate) {
     this.updates.available.subscribe((event) => {
       console.log('update', event);
+      this.doAppUpdate();
     });
   }
 
