@@ -80,7 +80,7 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
         .then((result) => {
           this.imgResultAfterCompress = result;
           this.imageCompress
-            .compressFile(image, DOC_ORIENTATION.NotDefined)
+            .compressFile(image, DOC_ORIENTATION.NotDefined, 50, 30)
             .then((resUrl) => {
               fetch(resUrl)
                 .then((res) => res.blob())
