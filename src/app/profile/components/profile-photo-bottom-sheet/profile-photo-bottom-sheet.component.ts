@@ -8,6 +8,7 @@ import {
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { finalize } from 'rxjs/operators';
+import { NgxImageCompressService, DOC_ORIENTATION } from 'ngx-image-compress';
 
 @Component({
   selector: 'app-profile-photo-bottom-sheet',
@@ -17,33 +18,23 @@ import { finalize } from 'rxjs/operators';
 export class ProfilePhotoBottomSheetComponent implements OnInit {
   private files: Array<any> = [];
   public allowCapture: boolean;
+  imgResultBeforeCompress: string;
+  imgResultAfterCompress: string;
   constructor(
     private bottomSheetRef: MatBottomSheetRef<ProfilePhotoBottomSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: User,
     private afst: AngularFireStorage,
     private afs: AngularFirestore,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private imageCompress: NgxImageCompressService
   ) {}
   ngOnInit(): void {
     this.allowCapture =
       (document.createElement('input') as any).capture !== undefined;
 
     this.configureFileUploader();
-    this.configureFileUploaderWithCamera();
   }
 
-  private configureFileUploaderWithCamera(): void {
-    const fileUpload = document.getElementById(
-      'fileUploadWithCamera'
-    ) as HTMLInputElement;
-    fileUpload.onchange = (fileUploadEvent: MouseEvent) => {
-      const file = (fileUploadEvent.target as HTMLInputElement).files[0];
-      const refDir = `${this.data.uid}/profile-photos/${Date.now()}`;
-      const fileRef = this.afst.ref(refDir);
-
-      this.updateFileOnStorage(refDir, file, fileRef);
-    };
-  }
   private configureFileUploader(): void {
     const fileUpload = document.getElementById(
       'fileUpload'
@@ -57,7 +48,7 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
     };
   }
 
-  private updateFileOnStorage(refDir: string, file: File, fileRef): void {
+  private updateFileOnStorage(refDir: string, file: any, fileRef): void {
     this.afst
       .upload(refDir, file)
       .snapshotChanges()
@@ -76,24 +67,33 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
       )
       .subscribe((url) => {
         if (url) {
-          //console.log(url);
         }
       });
   }
 
   public uploadPhoto(event): void {
-    const fileUpload = document.getElementById(
-      'fileUpload'
-    ) as HTMLInputElement;
-    fileUpload.click();
     event.preventDefault();
-  }
-
-  public uploadCameraPhoto(event): void {
-    const fileUploadWithCamera = document.getElementById(
-      'fileUploadWithCamera'
-    ) as HTMLInputElement;
-    fileUploadWithCamera.click();
-    event.preventDefault();
+    this.imageCompress.uploadFile().then(({ image, orientation }) => {
+      this.imgResultBeforeCompress = image;
+      this.imageCompress
+        .compressFile(image, DOC_ORIENTATION.Up)
+        .then((result) => {
+          this.imgResultAfterCompress = result;
+          this.imageCompress
+            .compressFile(image, DOC_ORIENTATION.NotDefined)
+            .then((resUrl) => {
+              fetch(resUrl)
+                .then((res) => res.blob())
+                .then((blob) => {
+                  const file = new File([blob], 'nose', { type: 'image/png' });
+                  const refDir = `${
+                    this.data.uid
+                  }/profile-photos/${Date.now()}`;
+                  const fileRef = this.afst.ref(refDir);
+                  this.updateFileOnStorage(refDir, file, fileRef);
+                });
+            });
+        });
+    });
   }
 }
