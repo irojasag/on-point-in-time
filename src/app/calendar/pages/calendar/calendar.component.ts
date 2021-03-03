@@ -88,20 +88,9 @@ export class CalendarComponent implements OnInit {
       .valueChanges({ idField: 'id' })
       .pipe(
         switchMap((reservations) => {
-          const userIds = [...new Set(reservations.map((pur) => pur.userId))];
-
           return combineLatest([
             of(reservations),
-            combineLatest(
-              userIds.map((userId) =>
-                this.afs
-                  .collection<User>('users', (ref) =>
-                    ref.where('uid', '==', userId)
-                  )
-                  .valueChanges()
-                  .pipe(map((users) => users[0]))
-              )
-            ),
+            this.afs.collection<User>('users').valueChanges(),
           ]);
         }),
         map(([reservations, users]) => {
@@ -323,7 +312,7 @@ export class CalendarComponent implements OnInit {
                 Number(reservation.hour.split(':')[1]),
                 0
               );
-              time.locked = lessThanXHoursToTheFuture(reservationTime, 1);
+              time.locked = lessThanXHoursToTheFuture(reservationTime, 0.25); // 0.25 * 60 => 15 min
             }
             return condition;
           }

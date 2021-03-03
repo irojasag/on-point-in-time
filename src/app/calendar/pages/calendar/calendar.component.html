@@ -71,7 +71,7 @@
       <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let reservation of hour.reservations">
         <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
           <img class="object-cover h-full w-full rounded-full"
-            src="{{((selectedSchedule.showPhotos && haveActiveProducts) || (reservation.user.uid === user.uid) || (user.isAdmin || user.isSuperAdmin) ? reservation.user.photoURL : null) || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+            src="{{((selectedSchedule.showPhotos && haveActiveProducts) || (reservation.user?.uid === user?.uid) || (user.isAdmin || user.isSuperAdmin) ? reservation.user?.photoURL : null) || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
             alt="Profile Photo">
         </div>
       </div>
@@ -110,13 +110,13 @@
       <div class="flex flex-col w-full">
         <div *ngFor="let reservation of hour.reservations; let index= index;" class="bg-gray-50 rounded-md h-12 w-full flex flex-row shadow-md mb-2 relative">
           <div class="flex flex-col w-14" (click)="openBottomSheetForResearvations(reservation)">
-            <img class="object-cover h-12 w-14 rounded-l-md" src="{{reservation.user.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
-              alt="Foto de {{reservation.user.displayName}}">
+            <img class="object-cover h-12 w-14 rounded-l-md" src="{{reservation.user?.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+              alt="Foto de {{reservation.user?.displayName}}">
           </div>
           <div class="flex flex-col w-full justify-center">
             <div class="flex flex-row pl-2 justify-between w-full h-full">
               <div class="flex flex-col w-full" (click)="openBottomSheetForResearvations(reservation)">
-                <span class="font-medium">{{reservation.user.displayName || 'Nombre no especificado'}}</span>
+                <span class="font-medium">{{reservation.user?.displayName || 'Nombre no especificado'}}</span>
                 <span class="text-xs leading-3">{{reservation.confirmed ? 'Reserva Confirmada' : 'Reserva Sin Confirmar'}}</span>
                 <span class="text-xs leading-3">{{reservation.asisted ? 'Asistencia Confirmada' : 'Asistencia Sin Asistencia'}}</span>
               </div>

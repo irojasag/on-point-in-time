@@ -38,22 +38,9 @@ export class PurchasesComponent implements OnInit {
           .valueChanges({ idField: 'id' })
           .pipe(
             switchMap((purchases) => {
-              const clientIds = [
-                ...new Set(purchases.map((pur) => pur.clientId)),
-              ];
-
               return combineLatest([
                 of(purchases),
-                combineLatest(
-                  clientIds.map((clientId) =>
-                    this.afs
-                      .collection<User>('users', (ref) =>
-                        ref.where('uid', '==', clientId)
-                      )
-                      .valueChanges()
-                      .pipe(map((users) => users[0]))
-                  )
-                ),
+                this.afs.collection<User>('users').valueChanges(),
               ]);
             }),
             map(([purchases, users]) => {
