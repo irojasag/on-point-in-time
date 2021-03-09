@@ -30,7 +30,28 @@ export class UserService {
       })
       .valueChanges({ idField: 'id' })
       .subscribe((users) => {
+        if (users && users.length) {
+          users.forEach((user) => {
+            user.methodClass = this.getSignInMethodIcon(user.method);
+            user.photoURL =
+              user.photoURL ||
+              'https://style.anu.edu.au/_anu/4/images/placeholders/person.png';
+          });
+        }
         this.usersSubject$.next(users);
       });
+  }
+
+  public getSignInMethodIcon(method: string): string {
+    switch (method) {
+      case 'Google':
+        return 'fab fa-google text-google-red';
+      case 'Facebook':
+        return 'fab fa-facebook text-facebook-blue';
+      case 'Email':
+        return 'fas fa-at';
+      default:
+        return '';
+    }
   }
 }

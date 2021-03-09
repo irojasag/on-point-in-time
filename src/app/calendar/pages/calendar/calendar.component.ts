@@ -28,7 +28,8 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AdminReservationBottomSheetComponent } from '../../components/admin-reservation-bottom-sheet/admin-reservation-bottom-sheet.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AdminReservationDialogComponent } from '../../components/admin-reservation-dialog/admin-reservation-dialog.component';
-import { not } from '@angular/compiler/src/output/output_ast';
+import { UserService } from 'src/app/services/user/user.service';
+import { PurchaseService } from 'src/app/services/purchase/purchase.service';
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -64,7 +65,9 @@ export class CalendarComponent implements OnInit {
     private auth: AuthService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private userService: UserService,
+    private purchaseService: PurchaseService
   ) {
     this.dateControl = new FormControl(new Date());
     this.loading = true;
@@ -85,10 +88,7 @@ export class CalendarComponent implements OnInit {
       .valueChanges({ idField: 'id' })
       .pipe(
         switchMap((reservations) => {
-          return combineLatest([
-            of(reservations),
-            this.afs.collection<User>('users').valueChanges(),
-          ]);
+          return combineLatest([of(reservations), this.userService.users$]);
         }),
         map(([reservations, users]) => {
           return reservations.map((reservation) => {
@@ -147,37 +147,32 @@ export class CalendarComponent implements OnInit {
     this.auth.user$.subscribe((user) => {
       this.user = user;
       if (user) {
-        this.purchases$ = this.afs
-          .collection<Purchase>('purchases', (ref) => {
-            return ref.where('clientId', '==', this.user.uid);
-          })
-          .valueChanges({ idField: 'id' })
-          .pipe(
-            map((purchases) => {
-              return (purchases || []).map((purchase) => {
-                const products = [];
-                purchase.products.forEach((product) => {
-                  product.expirationDateDisplay = product.expirationDate.toDate();
-                  product.startDate = product.startDate || purchase.purchasedAt;
-                  product.startDateDisplay = product.startDate.toDate();
-                  product.startDateDisplay.setHours(0, 0, 0, 0);
-                  if (
-                    product.expirationDate.toDate().getTime() >=
-                    new Date().getTime()
-                  ) {
-                    const today = new Date();
-                    const difference =
-                      product.expirationDateDisplay.getTime() - today.getTime();
-                    const dayDiffence = Math.trunc(
-                      difference / (1000 * 3600 * 24)
-                    );
-                    products.push({ ...product, dayDiffence });
-                  }
-                });
-                return { ...purchase, products };
+        this.purchases$ = this.purchaseService.getUserPurchases$(user.uid).pipe(
+          map((purchases) => {
+            return (purchases || []).map((purchase) => {
+              const products = [];
+              purchase.products.forEach((product) => {
+                product.expirationDateDisplay = product.expirationDate.toDate();
+                product.startDate = product.startDate || purchase.purchasedAt;
+                product.startDateDisplay = product.startDate.toDate();
+                product.startDateDisplay.setHours(0, 0, 0, 0);
+                if (
+                  product.expirationDate.toDate().getTime() >=
+                  new Date().getTime()
+                ) {
+                  const today = new Date();
+                  const difference =
+                    product.expirationDateDisplay.getTime() - today.getTime();
+                  const dayDiffence = Math.trunc(
+                    difference / (1000 * 3600 * 24)
+                  );
+                  products.push({ ...product, dayDiffence });
+                }
               });
-            })
-          );
+              return { ...purchase, products };
+            });
+          })
+        );
         this.products$ = this.purchases$.pipe(
           map((purchases) => {
             const products = [];

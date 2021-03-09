@@ -12,6 +12,7 @@ import { PaymentMethod } from 'src/app/models/payment-method.model';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Purchase } from 'src/app/models/purchase.model';
 import { UserService } from '../../../services/user/user.service';
+import { PurchaseService } from '../../../services/purchase/purchase.service';
 
 @Component({
   selector: 'app-add-purchase',
@@ -43,7 +44,8 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private roter: Router,
     private activatedRoute: ActivatedRoute,
-    private usersService: UserService
+    private usersService: UserService,
+    private purchasesService: PurchaseService
   ) {
     this.subscriptions = new Subscription();
     this.productsToBuy = [];
@@ -197,18 +199,15 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
   }
 
   private handlePurchasesSubscription(): Subscription {
-    return this.afs
-      .collection<Purchase>('purchases')
-      .valueChanges({ idField: 'id' })
-      .subscribe((purchases) => {
-        let maxBill = 0;
-        (purchases || []).forEach((purchase) => {
-          if (purchase.billNumber > maxBill) {
-            maxBill = purchase.billNumber;
-          }
-        });
-        this.form.controls.billNumber.patchValue(maxBill + 1);
+    return this.purchasesService.purchases$.subscribe((purchases) => {
+      let maxBill = 0;
+      (purchases || []).forEach((purchase) => {
+        if (purchase.billNumber > maxBill) {
+          maxBill = purchase.billNumber;
+        }
       });
+      this.form.controls.billNumber.patchValue(maxBill + 1);
+    });
   }
 
   private handlePurchaseIdSubscription(

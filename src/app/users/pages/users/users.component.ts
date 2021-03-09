@@ -3,6 +3,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/models/user.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-users',
@@ -11,25 +12,8 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 })
 export class UsersComponent implements OnInit {
   public users$: Observable<User[]>;
-  constructor(public auth: AuthService, private afs: AngularFirestore) {
-    this.users$ = this.afs
-      .collection<User>('users', (ref) => {
-        return ref.orderBy('displayName', 'asc');
-      })
-      .valueChanges({ idField: 'id' });
-  }
-
-  public getSignInMethodIcon(method: string): string {
-    switch (method) {
-      case 'Google':
-        return 'fab fa-google text-google-red';
-      case 'Facebook':
-        return 'fab fa-facebook text-facebook-blue';
-      case 'Email':
-        return 'fas fa-at';
-      default:
-        return '';
-    }
+  constructor(public auth: AuthService, private userService: UserService) {
+    this.users$ = this.userService.users$;
   }
 
   ngOnInit(): void {}
