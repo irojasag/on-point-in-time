@@ -3,6 +3,7 @@ import { ChartOptions, ChartType } from 'chart.js';
 import { Label, SingleDataSet } from 'ng2-charts';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { User } from 'src/app/models/user.model';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-users-chart',
@@ -24,16 +25,13 @@ export class UsersChartComponent implements OnInit {
   public totalActiveUsers: number;
   public totalLockedUsers: number;
 
-  constructor(private afs: AngularFirestore) {
-    this.afs
-      .collection<User>('users')
-      .valueChanges()
-      .subscribe((users) => {
-        this.totalLockedUsers = users.filter((u) => u.locked).length;
-        this.totalActiveUsers = users.filter((u) => !u.locked).length;
-        this.totalUsers = users.length;
-        this.pieChartData = [this.totalActiveUsers, this.totalLockedUsers];
-      });
+  constructor(private usersService: UserService) {
+    this.usersService.users$.subscribe((users) => {
+      this.totalLockedUsers = users.filter((u) => u.locked).length;
+      this.totalActiveUsers = users.filter((u) => !u.locked).length;
+      this.totalUsers = users.length;
+      this.pieChartData = [this.totalActiveUsers, this.totalLockedUsers];
+    });
   }
 
   ngOnInit(): void {}
