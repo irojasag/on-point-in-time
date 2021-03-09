@@ -66,16 +66,13 @@ export class CalendarComponent implements OnInit {
     private dialog: MatDialog,
     private bottomSheet: MatBottomSheet
   ) {
+    this.dateControl = new FormControl(new Date());
     this.loading = true;
-
     this.haveActiveProducts = false;
     this.form = this.formBuilder.group({
       schedule: [null, Validators.required],
     });
-
     this.setObservables();
-
-    this.dateControl = new FormControl(new Date());
   }
 
   private setObservables(): void {
@@ -119,28 +116,28 @@ export class CalendarComponent implements OnInit {
       this.loading = false;
     });
 
-    // this.dateControl.valueChanges.subscribe((newDate) => {
-    //   let index = 0;
-    //   this.nearbyDates.find((currentDate, i) => {
-    //     let date = ('0' + currentDate.getDate()).slice(-2);
-    //     let month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
-    //     let year = currentDate.getFullYear();
+    this.dateControl.valueChanges.subscribe((newDate) => {
+      let index = 0;
+      this.nearbyDates.find((currentDate, i) => {
+        let date = ('0' + currentDate.date.getDate()).slice(-2);
+        let month = ('0' + (currentDate.date.getMonth() + 1)).slice(-2);
+        let year = currentDate.date.getFullYear();
 
-    //     currentDate = `${date}-${month}-${year}`;
+        const dateString = `${date}-${month}-${year}`;
 
-    //     date = ('0' + newDate.getDate()).slice(-2);
-    //     month = ('0' + (newDate.getMonth() + 1)).slice(-2);
-    //     year = year = newDate.getFullYear();
+        date = ('0' + newDate.getDate()).slice(-2);
+        month = ('0' + (newDate.getMonth() + 1)).slice(-2);
+        year = year = newDate.getFullYear();
 
-    //     const dateToSearch = `${date}-${month}-${year}`;
-    //     if (dateToSearch === currentDate) {
-    //       index = i;
-    //       return true;
-    //     }
-    //     return false;
-    //   });
-    //   this.scroll('date-' + index);
-    // });
+        const dateToSearch = `${date}-${month}-${year}`;
+        if (dateToSearch === dateString) {
+          index = i;
+          return true;
+        }
+        return false;
+      });
+      this.scroll('date-' + index);
+    });
   }
 
   ngOnInit(): void {
@@ -339,8 +336,10 @@ export class CalendarComponent implements OnInit {
   public scroll(id): void {
     setTimeout(() => {
       const element = this.renderer.selectRootElement(`#${id}`, true);
-      element.scrollIntoView({ behavior: 'smooth' });
-    }, 10);
+      element.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }, 300);
   }
 
   public addReservation(
