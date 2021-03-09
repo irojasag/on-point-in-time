@@ -13,6 +13,7 @@ import {
 } from 'src/app/constants/product.constants';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 
 @Component({
   selector: 'app-add-product-to-purchase-form',
@@ -32,8 +33,8 @@ export class AddProductToPurchaseFormComponent implements OnInit {
   constructor(
     private afs: AngularFirestore,
     private formBuilder: FormBuilder,
-    private snackBar: MatSnackBar,
-    public dialogRef: MatDialogRef<AddProductToPurchaseFormComponent>
+    public dialogRef: MatDialogRef<AddProductToPurchaseFormComponent>,
+    private reservationScheduleService: ReservatonScheduleService
   ) {
     this.form = this.formBuilder.group({
       productId: [null, Validators.required],
@@ -109,10 +110,8 @@ export class AddProductToPurchaseFormComponent implements OnInit {
       )
     );
 
-    this.afs
-      .collection<ReservationSchedule>('reservation-schedules')
-      .valueChanges({ idField: 'id' })
-      .subscribe((schedules) => {
+    this.reservationScheduleService.reservationSchedules$.subscribe(
+      (schedules) => {
         schedules = schedules || [];
         this.typeOptions = [];
         schedules.forEach((schedule) => {
@@ -124,7 +123,8 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         if (!this.form.controls.type.value) {
           this.form.controls.type.patchValue(this.typeOptions[0].value);
         }
-      });
+      }
+    );
   }
 
   ngOnInit(): void {}

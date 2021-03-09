@@ -47,7 +47,7 @@
     <span class="text-white">
       <!-- Mostrar Calendario -->
       <i class="fas fa-chevron-left" (click)="picker.open()"></i>
-      {{ind}}{{ currentDate.date | date:'fullDate'}}
+      {{ currentDate.date | date:'fullDate'}}
       <!-- Saltar al día siguiente -->
       <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i>
     </span>

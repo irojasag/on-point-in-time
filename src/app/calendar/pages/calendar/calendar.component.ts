@@ -30,6 +30,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { AdminReservationDialogComponent } from '../../components/admin-reservation-dialog/admin-reservation-dialog.component';
 import { UserService } from 'src/app/services/user/user.service';
 import { PurchaseService } from 'src/app/services/purchase/purchase.service';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
+import { ReservationService } from 'src/app/services/reservation/reservation.service';
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -67,7 +69,9 @@ export class CalendarComponent implements OnInit {
     private dialog: MatDialog,
     private bottomSheet: MatBottomSheet,
     private userService: UserService,
-    private purchaseService: PurchaseService
+    private purchaseService: PurchaseService,
+    private reservationSchedule: ReservatonScheduleService,
+    private reservationService: ReservationService
   ) {
     this.dateControl = new FormControl(new Date());
     this.loading = true;
@@ -79,28 +83,23 @@ export class CalendarComponent implements OnInit {
   }
 
   private setObservables(): void {
-    this.schedules$ = this.afs
-      .collection<ReservationSchedule>('reservation-schedules')
-      .valueChanges({ idField: 'id' });
+    this.schedules$ = this.reservationSchedule.reservationSchedules$;
 
-    this.reservations$ = this.afs
-      .collection<Reservation>('reservations')
-      .valueChanges({ idField: 'id' })
-      .pipe(
-        switchMap((reservations) => {
-          return combineLatest([of(reservations), this.userService.users$]);
-        }),
-        map(([reservations, users]) => {
-          return reservations.map((reservation) => {
-            return {
-              ...reservation,
-              dateToDisplay: reservation.date.toDate(),
-              time: reservation.hour + ' ' + reservation.period,
-              user: users.find((a) => a.uid === reservation.userId),
-            };
-          });
-        })
-      );
+    this.reservations$ = this.reservationService.reservations$.pipe(
+      switchMap((reservations) => {
+        return combineLatest([of(reservations), this.userService.users$]);
+      }),
+      map(([reservations, users]) => {
+        return reservations.map((reservation) => {
+          return {
+            ...reservation,
+            dateToDisplay: reservation.date.toDate(),
+            time: reservation.hour + ' ' + reservation.period,
+            user: users.find((a) => a.uid === reservation.userId),
+          };
+        });
+      })
+    );
 
     this.form.controls.schedule.valueChanges.subscribe((newValue) => {
       const selectedSchedule = this.schedules.find(

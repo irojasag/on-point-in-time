@@ -11,6 +11,7 @@ import * as firebase from 'firebase/app';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ProductActionsBottomSheetComponent } from '../../components/product-actions-bottom-sheet/product-actions-bottom-sheet.component';
 import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 
 @Component({
   selector: 'app-products',
@@ -23,7 +24,8 @@ export class ProductsComponent implements OnInit {
     public auth: AuthService,
     private dialog: MatDialog,
     private afs: AngularFirestore,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private reservationScheduleService: ReservatonScheduleService
   ) {
     this.auth.user$.subscribe((user) => {
       if (user) {
@@ -35,9 +37,7 @@ export class ProductsComponent implements OnInit {
               switchMap((products) => {
                 return combineLatest([
                   of(products),
-                  this.afs
-                    .collection<ReservationSchedule>('reservation-schedules')
-                    .valueChanges({ idField: 'id' }),
+                  this.reservationScheduleService.reservationSchedules$,
                 ]);
               }),
               map(([products, schedules]) => {
@@ -73,9 +73,7 @@ export class ProductsComponent implements OnInit {
               switchMap((products) => {
                 return combineLatest([
                   of(products),
-                  this.afs
-                    .collection<ReservationSchedule>('reservation-schedules')
-                    .valueChanges({ idField: 'id' }),
+                  this.reservationScheduleService.reservationSchedules$,
                 ]);
               }),
               map(([products, schedules]) => {

@@ -1,45 +1,36 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { User } from 'src/app/models/user.model';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  public usersSubject$: BehaviorSubject<User[]>;
-  private needToLoadUsers: boolean;
-
-  constructor(private afs: AngularFirestore) {
-    this.needToLoadUsers = true;
-    this.usersSubject$ = new BehaviorSubject([]);
-  }
+  constructor(private afs: AngularFirestore) {}
 
   public get users$(): Observable<User[]> {
-    if (this.needToLoadUsers) {
-      this.handleUsersSubscription();
-      this.needToLoadUsers = false;
-    }
-    return this.usersSubject$.asObservable();
-  }
-
-  private handleUsersSubscription(): void {
-    this.afs
+    return this.afs
       .collection<User>('users', (ref) => {
         return ref.orderBy('displayName', 'asc');
       })
       .valueChanges({ idField: 'id' })
-      .subscribe((users) => {
-        if (users && users.length) {
-          users.forEach((user) => {
-            user.methodClass = this.getSignInMethodIcon(user.method);
-            user.photoURL =
-              user.photoURL ||
-              'https://style.anu.edu.au/_anu/4/images/placeholders/person.png';
+      .pipe(
+        map((users) => {
+          console.log('MAP USERS');
+          users = users || [];
+          return users.map((user) => {
+            return {
+              ...user,
+              methodClass: this.getSignInMethodIcon(user.method),
+              photoURL:
+                user.photoURL ||
+                'https://style.anu.edu.au/_anu/4/images/placeholders/person.png',
+            };
           });
-        }
-        this.usersSubject$.next(users);
-      });
+        })
+      );
   }
 
   public getSignInMethodIcon(method: string): string {

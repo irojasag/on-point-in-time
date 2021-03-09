@@ -3,14 +3,9 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ReservationSchedule } from '../../../models/reservation-schedule.model';
-import {
-  ReservationScheduleFrequency,
-  ReservationScheduleFrequencyOptions,
-} from 'src/app/constants/reservation-schedule.constants';
-import { map } from 'rxjs/operators';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ReservationScheduleBottomSheetComponent } from '../../components/reservation-schedule-bottom-sheet/reservation-schedule-bottom-sheet.component';
-
+import { ReservatonScheduleService } from '../../../services/reservation-schedule/reservaton-schedule.service';
 @Component({
   selector: 'app-reservation-schedule',
   templateUrl: './reservation-schedule.component.html',
@@ -22,27 +17,10 @@ export class ReservationScheduleComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private afs: AngularFirestore,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private reservatonScheduleService: ReservatonScheduleService
   ) {
-    this.reservationSchedules$ = this.afs
-      .collection<ReservationSchedule>('reservation-schedules')
-      .valueChanges({ idField: 'id' })
-      .pipe(
-        map((reservationSchedule) =>
-          reservationSchedule.map((reservation) => ({
-            ...reservation,
-            frequencyDisplayName: this.getFrequencyDisplayName(
-              reservation.frequency
-            ),
-          }))
-        )
-      );
-  }
-
-  public getFrequencyDisplayName(frequencyValue: string): string {
-    return ReservationScheduleFrequencyOptions.find(
-      (option) => option.value === frequencyValue
-    ).displayName;
+    this.reservationSchedules$ = this.reservatonScheduleService.reservationSchedules$;
   }
 
   ngOnInit(): void {}

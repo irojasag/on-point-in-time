@@ -10,6 +10,7 @@ import { PaymentMethodFormComponent } from '../../component/payment-method-form/
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BankAccountFormComponent } from '../../component/bank-account-form/bank-account-form.component';
 import { PaymentContactFormComponent } from '../../component/payment-contact-form/payment-contact-form.component';
+import { copyToClipBoard } from 'src/app/helpers/utils.helpers';
 
 @Component({
   selector: 'app-payment-info',
@@ -143,20 +144,6 @@ export class PaymentInfoComponent implements OnInit {
   }
 
   public copy(val: string): void {
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = val;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
-
-    this.snackBar.open(`${val} ha sido copiado al portapapeles`, '', {
-      duration: 2000,
-    });
+    copyToClipBoard(val, this.snackBar);
   }
 }

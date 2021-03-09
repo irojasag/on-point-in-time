@@ -4,7 +4,6 @@ import {
   ReservationScheduleFrequency,
   ReservationScheduleFrequencyOptions,
   DefaultWeeklyDistribution,
-  ReservationSchedulePeriodOptions,
 } from '../../../constants/reservation-schedule.constants';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -17,6 +16,7 @@ import {
 } from '../../../helpers/reservation-schedule.helpers';
 import { ReservationScheduleDayTimesDialogComponent } from '../../components/reservation-schedule-day-times-dialog/reservation-schedule-day-times-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { ReservatonScheduleService } from '../../../services//reservation-schedule/reservaton-schedule.service';
 @Component({
   selector: 'app-reservation-schedule-form',
   templateUrl: './reservation-schedule-form.component.html',
@@ -38,7 +38,8 @@ export class ReservationScheduleFormComponent implements OnInit {
     private snackBar: MatSnackBar,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private reservationScheduleService: ReservatonScheduleService
   ) {
     this.form = this.formBuilder.group({
       displayName: [null, Validators.required],
@@ -47,6 +48,7 @@ export class ReservationScheduleFormComponent implements OnInit {
         JSON.parse(JSON.stringify(this.defaultWeeklyDistribution)),
       ],
       showPhotos: [true, Validators.required],
+      weight: [0],
     });
   }
 
@@ -70,6 +72,13 @@ export class ReservationScheduleFormComponent implements OnInit {
         });
       }
     });
+    this.reservationScheduleService.reservationSchedulesNextWeight$.subscribe(
+      (next) => {
+        if (next) {
+          this.form.controls.weight.patchValue(next);
+        }
+      }
+    );
   }
 
   public saveForm(): void {

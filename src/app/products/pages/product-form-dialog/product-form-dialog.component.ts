@@ -13,6 +13,7 @@ import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
 import { Product } from 'src/app/models/product.model';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 
 @Component({
   selector: 'app-product-form-dialog',
@@ -33,13 +34,12 @@ export class ProductFormDialogComponent implements OnInit {
     private afs: AngularFirestore,
     private snackBar: MatSnackBar,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private reservationScheduleService: ReservatonScheduleService
   ) {
     this.generateForm();
-    this.afs
-      .collection<ReservationSchedule>('reservation-schedules')
-      .valueChanges({ idField: 'id' })
-      .subscribe((schedules) => {
+    this.reservationScheduleService.reservationSchedules$.subscribe(
+      (schedules) => {
         schedules = schedules || [];
         this.typeOptions = [];
         schedules.forEach((schedule) => {
@@ -51,7 +51,8 @@ export class ProductFormDialogComponent implements OnInit {
         if (!this.form.controls.type.value) {
           this.form.controls.type.patchValue(this.typeOptions[0].value);
         }
-      });
+      }
+    );
   }
 
   private generateForm(): void {
