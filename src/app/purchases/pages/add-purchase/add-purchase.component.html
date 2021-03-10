@@ -65,6 +65,7 @@
         <span class="font-medium text-md">{{product.name}}</span><br>
         <span class="font-normal text-md">Inicia:&nbsp; {{product.startDate | date:'fullDate'}}</span><br>
         <span class="font-normal text-md">Expira: {{product.expirationDate | date:'fullDate'}}</span><br>
+        <span class="font-normal text-md"> {{ product.reservationsPerMonth }} reservaciones máximas por mes</span><br>
         <span class="font-normal text-md"> {{ product.reservationsPerWeek }} reservaciones por semana</span><br>
         <span class="font-normal text-md"> {{ product.reservationsPerDay }} reservaciones por día</span><br>
         <span class="font-normal text-md">Precio: {{product.price | currency:'CRC'}}</span>

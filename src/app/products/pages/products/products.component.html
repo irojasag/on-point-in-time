@@ -2,23 +2,26 @@
   <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Productos disponibles</span>
 </div>
 <ng-container *ngIf="(auth.user$ | async); let user;">
-  <div class="flex flex-row  items-center h-28 shadow-md mb-2 py-2 pl-2 rounded-md bg-white" *ngFor="let product of productInfo$ | async" [ngClass]="{'bg-red-300': product.isExpired}"
+  <div class="flex flex-row  items-center h-32 shadow-md mb-2 py-2 pl-2 rounded-md bg-white" *ngFor="let product of productInfo$ | async" [ngClass]="{'bg-red-300': product.isExpired}"
     (click)="openActions(product, user.isAdmin || user.isSuperAdmin)">
     <div class="flex flex-col">
-      <div class="flex flex-row mb-1 justify-items-start">
+      <div class="flex flex-row justify-items-start">
         <span *ngIf="user.isAdmin || user.isSuperAdmin"><i class="fas {{product.isPublic ? 'fa-eye' : 'fa-eye-slash'}} mr-1"></i></span>
         <span>{{product.isExpired ? '[EXPIRADO] ' : ''}}{{product.name}}</span>
       </div>
-      <div class="flex flex-row mb-1 justify-items-start">
+      <div class="flex flex-row justify-items-start">
         <span><strong>Tipo:</strong> {{product.type}}</span>
       </div>
-      <div class="flex flex-row mb-1 justify-items-start">
+      <div class="flex flex-row justify-items-start">
         <span><strong>Precio:</strong> {{product.price | currency:'CRC'}}</span>
       </div>
-      <div class="flex flex-row mb-1 justify-items-start">
+      <div class="flex flex-row justify-items-start">
+        <span><strong>Reservaciones mensuales:</strong> {{product.reservationsPerMonth | number}}</span>
+      </div>
+      <div class="flex flex-row justify-items-start">
         <span><strong>Reservaciones semanales:</strong> {{product.reservationsPerWeek | number}}</span>
       </div>
-      <div class="flex flex-row mb-1 justify-items-start">
+      <div class="flex flex-row justify-items-start">
         <span><strong>Reservaciones diarias:</strong> {{product.reservationsPerDay | number}}</span>
       </div>
     </div>

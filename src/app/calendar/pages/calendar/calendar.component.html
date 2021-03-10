@@ -33,6 +33,7 @@
       <div class="pl-2">
         <span class="font-medium">{{product.name}}</span><br>
         <span *ngIf="product.reservationsPerDay">Reservaciones máximas por día: {{product.reservationsPerDay}}</span><br>
+        <span *ngIf="product.reservationsPerMonth">Reservaciones máximas por mes: {{product.reservationsPerMonth}}</span><br>
         <span *ngIf="product.reservationsPerWeek">Reservaciones máximas por semana: {{product.reservationsPerWeek}}</span><br>
         <span>Inicia:&nbsp; {{product.startDateDisplay | date:'fullDate'}}</span><br>
         <span [ngClass]="{'text-red-500': product.dayDiffence <= 3, 'text-orange-500': product.dayDiffence <= 7}">Expira: {{product.expirationDateDisplay | date:'fullDate'}} - {{product.dayDiffence |
