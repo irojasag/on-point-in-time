@@ -1,12 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ContactInfo } from '../../../models/contact-info.model ';
-import {
-  getIconClassFromType,
-  getLinkTypeFromType,
-} from '../../../helpers/bussiness-contact.helpers';
-import { map } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { BussinessContactDialogComponent } from '../../component/bussiness-contact-dialog/bussiness-contact-dialog.component';

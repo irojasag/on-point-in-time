@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, combineLatest, of } from 'rxjs';
 import { Purchase } from 'src/app/models/purchase.model';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import * as firebase from 'firebase/app';
 import { UserService } from '../user/user.service';
 import { switchMap, map } from 'rxjs/operators';
@@ -26,6 +26,12 @@ export class PurchaseService {
       .collection<Purchase>('purchases', (ref) => {
         return ref.where('clientId', '==', userId);
       })
+      .valueChanges({ idField: 'id' });
+  }
+
+  public getPurchase$(id: string): Observable<Purchase> {
+    return this.afs
+      .doc<Purchase>(`purchases/${id}`)
       .valueChanges({ idField: 'id' });
   }
 
@@ -75,5 +81,17 @@ export class PurchaseService {
           .orderBy('purchasedAt', 'asc');
       })
       .valueChanges({ idField: 'id' });
+  }
+
+  public deletePurchase(id: string): Promise<void> {
+    return this.afs.doc(`purchases/${id}`).delete();
+  }
+
+  public updatePurchase(id: string, body: any): Promise<void> {
+    return this.afs.doc(`purchases/${id}`).update(body);
+  }
+
+  public addPurchase(body: any): Promise<DocumentReference> {
+    return this.afs.collection('purchases').add(body);
   }
 }

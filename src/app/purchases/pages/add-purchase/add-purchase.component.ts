@@ -3,14 +3,12 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Observable, Subscription } from 'rxjs';
 import { User } from 'src/app/models/user.model';
 import { Product } from 'src/app/models/product.model';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { startWith, map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddProductToPurchaseFormComponent } from '../../components/add-product-to-purchase-form/add-product-to-purchase-form.component';
 import { PaymentMethod } from 'src/app/models/payment-method.model';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Purchase } from 'src/app/models/purchase.model';
 import { UserService } from '../../../services/user/user.service';
 import { PurchaseService } from '../../../services/purchase/purchase.service';
 import { PaymentMethodsService } from 'src/app/services/payment-methods/payment-methods.service';
@@ -39,7 +37,6 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
   public subscriptions: Subscription;
 
   constructor(
-    private afs: AngularFirestore,
     private formBuilder: FormBuilder,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -128,9 +125,8 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
     };
 
     if (this.editMode) {
-      this.afs
-        .doc(`purchases/${this.purchaseId}`)
-        .update(body)
+      this.purchasesService
+        .updatePurchase(this.purchaseId, body)
         .then(() => {
           this.snackBar.open(
             `Se ha actualizado la factura #${this.form.controls.billNumber.value}`,
@@ -145,9 +141,8 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
           console.log('error', err);
         });
     } else {
-      this.afs
-        .collection('purchases')
-        .add(body)
+      this.purchasesService
+        .addPurchase(body)
         .then(() => {
           this.snackBar.open(`Se ha sido añadido una factura nueva`, '', {
             duration: 2000,
@@ -180,26 +175,21 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
   }
 
   private handleLoadPurchaseToEdit(id: string): Subscription {
-    return this.afs
-      .doc<Purchase>(`purchases/${id}`)
-      .valueChanges({ idField: 'id' })
-      .subscribe((purchase) => {
-        const user = this.users.find((us) => us.uid === purchase.clientId);
-        this.selectClient(user);
-        this.productsToBuy = purchase.products.map((product) => ({
-          ...product,
-          expirationDate: product.expirationDate.toDate() as any,
-          startDate: (
-            product.startDate || purchase.purchasedAt
-          ).toDate() as any,
-        }));
-        this.form.patchValue({
-          ...purchase,
-          purchasedAt: purchase.purchasedAt.toDate(),
-          clientId: user.displayName,
-        });
-        this.updateTotalToPay();
+    return this.purchasesService.getPurchase$(id).subscribe((purchase) => {
+      const user = this.users.find((us) => us.uid === purchase.clientId);
+      this.selectClient(user);
+      this.productsToBuy = purchase.products.map((product) => ({
+        ...product,
+        expirationDate: product.expirationDate.toDate() as any,
+        startDate: (product.startDate || purchase.purchasedAt).toDate() as any,
+      }));
+      this.form.patchValue({
+        ...purchase,
+        purchasedAt: purchase.purchasedAt.toDate(),
+        clientId: user.displayName,
       });
+      this.updateTotalToPay();
+    });
   }
 
   private handlePurchasesSubscription(): Subscription {

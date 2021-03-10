@@ -3,7 +3,6 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { PaymentContactsService } from 'src/app/services/payment-contacts/payment-contacts.service';
 import { BankAccountsService } from 'src/app/services/bank-accounts/bank-accounts.service';
 import { PaymentMethodsService } from 'src/app/services/payment-methods/payment-methods.service';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { PaymentMethod } from '../../../models/payment-method.model';
 import { BankAccount } from '../../../models/bank-account.model';

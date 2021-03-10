@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PaymentContact } from 'src/app/models/payment-contact.model';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -17,5 +17,9 @@ export class PaymentContactsService {
 
   public deletePaymentContact(id: string): Promise<void> {
     return this.afs.doc(`payment-contacts/${id}`).delete();
+  }
+
+  public addPaymentContact(body: any): Promise<DocumentReference> {
+    return this.afs.collection('payment-contacts').add(body);
   }
 }

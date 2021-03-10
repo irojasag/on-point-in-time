@@ -33,6 +33,10 @@ export class UserService {
       );
   }
 
+  public updateUser(id: string, body: any): Promise<void> {
+    return this.afs.doc(`users/${id}`).update(body);
+  }
+
   public getSignInMethodIcon(method: string): string {
     switch (method) {
       case 'Google':

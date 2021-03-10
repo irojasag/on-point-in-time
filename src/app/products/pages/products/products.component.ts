@@ -3,15 +3,11 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductFormDialogComponent } from '../product-form-dialog/product-form-dialog.component';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Product } from '../../../models/product.model';
-import { getTextForProductType } from '../../../helpers/product.helpers';
 import { Observable, combineLatest, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import * as firebase from 'firebase/app';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ProductActionsBottomSheetComponent } from '../../components/product-actions-bottom-sheet/product-actions-bottom-sheet.component';
-import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
 import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 
 @Component({

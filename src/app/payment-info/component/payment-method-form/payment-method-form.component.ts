@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef } from '@angular/material/dialog';
+import { PaymentMethodsService } from 'src/app/services/payment-methods/payment-methods.service';
 
 @Component({
   selector: 'app-payment-method-form',
@@ -14,9 +14,9 @@ export class PaymentMethodFormComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
     private snackBar: MatSnackBar,
-    public dialogRef: MatDialogRef<PaymentMethodFormComponent>
+    public dialogRef: MatDialogRef<PaymentMethodFormComponent>,
+    private paymentMethodsService: PaymentMethodsService
   ) {
     this.form = this.formBuilder.group({
       displayName: [null, Validators.required],
@@ -26,9 +26,8 @@ export class PaymentMethodFormComponent implements OnInit {
   ngOnInit(): void {}
 
   public savePaymentMethodForm(): void {
-    this.afs
-      .collection('payment-methods')
-      .add(this.form.value)
+    this.paymentMethodsService
+      .addPaymentMethod(this.form.getRawValue())
       .then(() => {
         this.snackBar.open(
           `${this.form.value.displayName} ha sido añadido`,

@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Product } from 'src/app/models/product.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { startWith, map } from 'rxjs/operators';
 import {
   ProductTypes,
@@ -12,7 +10,6 @@ import {
   ProductExpirationFrequencies,
 } from 'src/app/constants/product.constants';
 import { MatDialogRef } from '@angular/material/dialog';
-import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
 import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 import { ProductsService } from 'src/app/services/products/products.service';
 
@@ -32,7 +29,6 @@ export class AddProductToPurchaseFormComponent implements OnInit {
 
   public form: FormGroup;
   constructor(
-    private afs: AngularFirestore,
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AddProductToPurchaseFormComponent>,
     private reservationScheduleService: ReservatonScheduleService,

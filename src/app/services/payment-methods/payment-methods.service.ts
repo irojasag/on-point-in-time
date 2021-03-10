@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { PaymentMethod } from 'src/app/models/payment-method.model';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -17,5 +17,9 @@ export class PaymentMethodsService {
 
   public deletePaymentMethod(id: string): Promise<void> {
     return this.afs.doc(`payment-methods/${id}`).delete();
+  }
+
+  public addPaymentMethod(body: any): Promise<DocumentReference> {
+    return this.afs.collection('payment-methods').add(body);
   }
 }

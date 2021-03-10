@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BankAccount } from 'src/app/models/bank-account.model';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -17,5 +17,9 @@ export class BankAccountsService {
 
   public deleteBankAccount(id: string): Promise<void> {
     return this.afs.doc(`bank-account/${id}`).delete();
+  }
+
+  public addBankAccount(body: any): Promise<DocumentReference> {
+    return this.afs.collection('bank-accounts').add(body);
   }
 }

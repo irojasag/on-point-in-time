@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable, combineLatest, of } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
-import { User } from 'src/app/models/user.model';
+import { Observable } from 'rxjs';
 import { Purchase } from 'src/app/models/purchase.model';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { PurchaseBottomSheetComponent } from '../../components/purchase-bottom-sheet/purchase-bottom-sheet.component';
@@ -20,7 +17,6 @@ export class PurchasesComponent implements OnInit {
   public isUserAdmin: boolean;
   constructor(
     public auth: AuthService,
-    private afs: AngularFirestore,
     private bottomSheet: MatBottomSheet,
     private userService: UserService,
     private purchasesService: PurchaseService

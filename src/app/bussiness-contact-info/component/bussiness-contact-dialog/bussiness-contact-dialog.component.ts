@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { BussinessContactInfoComponent } from '../../pages/bussiness-contact-info/bussiness-contact-info.component';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BussinessContactTypeOptions } from '../../../constants/bussiness-contact.constants';
+import { ContactInfoService } from 'src/app/services/contact-info/contact-info.service';
 
 @Component({
   selector: 'app-bussiness-contact-dialog',
@@ -17,9 +17,9 @@ export class BussinessContactDialogComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
     public dialogRef: MatDialogRef<BussinessContactInfoComponent>,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private contactInfoService: ContactInfoService
   ) {
     this.createForm();
   }
@@ -34,9 +34,8 @@ export class BussinessContactDialogComponent implements OnInit {
   ngOnInit(): void {}
 
   public saveBussinessContact(): void {
-    this.afs
-      .collection('contact-info')
-      .add(this.form.value)
+    this.contactInfoService
+      .addContactInfo(this.form.getRawValue())
       .then(() => {
         this.dialogRef.close(this.form.value.value);
         this.snackBar.open(`${this.form.value.value} ha sido añadido`, '', {

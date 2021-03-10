@@ -5,7 +5,6 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable, combineLatest, of } from 'rxjs';
 import {
   ReservationSchedule,
@@ -62,7 +61,6 @@ export class CalendarComponent implements OnInit {
 
   constructor(
     private renderer: Renderer2,
-    private afs: AngularFirestore,
     private formBuilder: FormBuilder,
     private auth: AuthService,
     private snackBar: MatSnackBar,
@@ -448,9 +446,8 @@ export class CalendarComponent implements OnInit {
 
       if (allowReservation) {
         this.loading = true;
-        this.afs
-          .collection('reservations')
-          .add({
+        this.reservationService
+          .addReservation({
             reservationScheduleId: this.selectedSchedule.id,
             date: schedule.date,
             userId: this.user.uid,
@@ -482,7 +479,7 @@ export class CalendarComponent implements OnInit {
   private showAdminAddReservationDialog(
     schedule: ReservationScheduleDistribution & { date: Date },
     time: ReservationScheduleTime
-  ) {
+  ): void {
     this.dialog.open(AdminReservationDialogComponent, {
       height: '180px',
       width: '300px',
@@ -503,24 +500,19 @@ export class CalendarComponent implements OnInit {
       return;
     }
     this.loading = true;
-
     const reservation = reservations.find(
       (reserv) => reserv.userId === this.user.uid
     );
-    this.afs
-      .doc(`reservations/${reservation.id}`)
-      .delete()
-      .then(() => {
-        this.snackBar.open(`Se ha eliminado la reserva`, '', {
-          duration: 2000,
-        });
+    this.reservationService.deleteReservation(reservation.id).then(() => {
+      this.snackBar.open(`Se ha eliminado la reserva`, '', {
+        duration: 2000,
       });
+    });
   }
 
   public confirmReservation(reservation: Reservation): void {
-    this.afs
-      .doc(`reservations/${reservation.id}`)
-      .update({ ...reservation, confirmed: true })
+    this.reservationService
+      .updateReservation(reservation.id, { ...reservation, confirmed: true })
       .then(() => {
         this.snackBar.open(`Se ha confirmado la reserva`, '', {
           duration: 2000,
@@ -529,9 +521,8 @@ export class CalendarComponent implements OnInit {
   }
 
   public confirmAsistance(reservation: Reservation): void {
-    this.afs
-      .doc(`reservations/${reservation.id}`)
-      .update({ ...reservation, asisted: true })
+    this.reservationService
+      .updateReservation(reservation.id, { ...reservation, asisted: true })
       .then(() => {
         this.snackBar.open(`Se ha confirmado la reserva`, '', {
           duration: 2000,

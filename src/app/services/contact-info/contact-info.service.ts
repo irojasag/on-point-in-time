@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { AngularFirestore, DocumentReference } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ContactInfo } from 'src/app/models/contact-info.model ';
 import { map } from 'rxjs/operators';
@@ -29,5 +29,13 @@ export class ContactInfoService {
           });
         })
       );
+  }
+
+  public deleteContactInfo(id: string): Promise<void> {
+    return this.afs.doc(`contact-info/${id}`).delete();
+  }
+
+  public addContactInfo(body: any): Promise<DocumentReference> {
+    return this.afs.collection('contact-info').add(body);
   }
 }

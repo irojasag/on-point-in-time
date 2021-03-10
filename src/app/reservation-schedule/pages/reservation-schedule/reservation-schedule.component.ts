@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { ReservationSchedule } from '../../../models/reservation-schedule.model';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -16,7 +15,6 @@ export class ReservationScheduleComponent implements OnInit {
 
   constructor(
     public auth: AuthService,
-    private afs: AngularFirestore,
     private bottomSheet: MatBottomSheet,
     private reservatonScheduleService: ReservatonScheduleService
   ) {

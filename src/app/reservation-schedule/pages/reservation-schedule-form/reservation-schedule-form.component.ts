@@ -5,7 +5,6 @@ import {
   ReservationScheduleFrequencyOptions,
   DefaultWeeklyDistribution,
 } from '../../../constants/reservation-schedule.constants';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs/operators';
@@ -34,7 +33,6 @@ export class ReservationScheduleFormComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
     private snackBar: MatSnackBar,
     private router: Router,
     private activatedRoute: ActivatedRoute,
@@ -62,9 +60,8 @@ export class ReservationScheduleFormComponent implements OnInit {
           if (id) {
             this.reservationId = id;
             this.editMode = data.editMode;
-            this.afs
-              .doc(`reservation-schedules/${id}`)
-              .valueChanges({ idField: 'id' })
+            this.reservationScheduleService
+              .getReservationSchedule(id)
               .subscribe((reservation) => {
                 this.form.patchValue(reservation);
               });
@@ -83,9 +80,8 @@ export class ReservationScheduleFormComponent implements OnInit {
 
   public saveForm(): void {
     if (this.editMode) {
-      this.afs
-        .doc(`reservation-schedules/${this.reservationId}`)
-        .update(this.form.getRawValue())
+      this.reservationScheduleService
+        .updateReservationSchedule(this.reservationId, this.form.getRawValue())
         .then(() => {
           this.snackBar.open(
             `Se ha actualizado la plantilla ${this.form.value.displayName}`,
@@ -100,9 +96,8 @@ export class ReservationScheduleFormComponent implements OnInit {
           console.log('error', err);
         });
     } else {
-      this.afs
-        .collection('reservation-schedules')
-        .add(this.form.getRawValue())
+      this.reservationScheduleService
+        .addReservationSchedule(this.form.getRawValue())
         .then(() => {
           this.snackBar.open(
             `Se ha añadido la plantilla ${this.form.value.displayName}`,
