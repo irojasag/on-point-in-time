@@ -83,6 +83,10 @@ export class ProductFormDialogComponent implements OnInit {
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
+      reservationsPerMonth: [
+        1,
+        Validators.compose([Validators.max(999999999999), Validators.min(1)]),
+      ],
       needsPackages: [false],
       packages: [
         null,
@@ -94,6 +98,12 @@ export class ProductFormDialogComponent implements OnInit {
     const newDate = new Date();
     newDate.setDate(newDate.getDate() - 10);
     this.form.controls.createdAt.patchValue(newDate);
+
+    this.form.controls.reservationsPerWeek.valueChanges.subscribe(() => {
+      setTimeout(() => {
+        this.updateReservationsPerMonth();
+      }, 300);
+    });
   }
 
   ngOnInit(): void {
@@ -173,5 +183,12 @@ export class ProductFormDialogComponent implements OnInit {
         break;
     }
     this.form.controls.expirationDate.patchValue(expirationDate);
+  }
+
+  private updateReservationsPerMonth(): void {
+    // TODO: FIND A BETTER LOGIC
+    this.form.controls.reservationsPerMonth.patchValue(
+      this.form.controls.reservationsPerWeek.value * 4
+    );
   }
 }

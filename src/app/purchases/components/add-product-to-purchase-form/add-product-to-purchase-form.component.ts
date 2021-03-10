@@ -34,9 +34,39 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     private reservationScheduleService: ReservatonScheduleService,
     private productsService: ProductsService
   ) {
+    this.setUpForm();
+
+    this.products$ = this.productsService.products$;
+
+    this.products$.subscribe((products) => (this.products = products));
+
+    this.filteredProducts$ = this.form.controls.productId.valueChanges.pipe(
+      startWith(''),
+      map((state) =>
+        state ? this._filterProducts(state) : (this.products || []).slice()
+      )
+    );
+
+    this.reservationScheduleService.reservationSchedules$.subscribe(
+      (schedules) => {
+        schedules = schedules || [];
+        this.typeOptions = [];
+        schedules.forEach((schedule) => {
+          this.typeOptions.push({
+            value: schedule.id,
+            displayName: schedule.displayName,
+          });
+        });
+        if (!this.form.controls.type.value) {
+          this.form.controls.type.patchValue(this.typeOptions[0].value);
+        }
+      }
+    );
+  }
+
+  private setUpForm(): void {
     this.form = this.formBuilder.group({
       productId: [null, Validators.required],
-
       type: [ProductTypes.MEMBERSHIP, Validators.required],
       name: [null, Validators.required],
       price: [
@@ -61,6 +91,10 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
       reservationsPerWeek: [
+        1,
+        Validators.compose([Validators.max(999999999999), Validators.min(1)]),
+      ],
+      reservationsPerMonth: [
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
@@ -94,33 +128,11 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         this.updateExpirationDate();
       }, 300);
     });
-
-    this.products$ = this.productsService.products$;
-
-    this.products$.subscribe((products) => (this.products = products));
-
-    this.filteredProducts$ = this.form.controls.productId.valueChanges.pipe(
-      startWith(''),
-      map((state) =>
-        state ? this._filterProducts(state) : (this.products || []).slice()
-      )
-    );
-
-    this.reservationScheduleService.reservationSchedules$.subscribe(
-      (schedules) => {
-        schedules = schedules || [];
-        this.typeOptions = [];
-        schedules.forEach((schedule) => {
-          this.typeOptions.push({
-            value: schedule.id,
-            displayName: schedule.displayName,
-          });
-        });
-        if (!this.form.controls.type.value) {
-          this.form.controls.type.patchValue(this.typeOptions[0].value);
-        }
-      }
-    );
+    this.form.controls.reservationsPerWeek.valueChanges.subscribe(() => {
+      setTimeout(() => {
+        this.updateReservationsPerMonth();
+      }, 300);
+    });
   }
 
   ngOnInit(): void {}
@@ -142,6 +154,9 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     this.form.controls.expirationAmunt.patchValue(1);
     this.form.controls.expirationFrequency.patchValue(
       ProductExpirationFrequencies.MONTHS
+    );
+    this.form.controls.reservationsPerMonth.patchValue(
+      product.reservationsPerMonth || 1
     );
     this.form.controls.reservationsPerWeek.patchValue(
       product.reservationsPerWeek || 1
@@ -174,6 +189,13 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         break;
     }
     this.form.controls.expirationDate.patchValue(expirationDate);
+  }
+
+  private updateReservationsPerMonth(): void {
+    // TODO: FIND A BETTER LOGIC
+    this.form.controls.reservationsPerMonth.patchValue(
+      this.form.controls.reservationsPerWeek.value * 4
+    );
   }
 
   public saveProduct(): void {
