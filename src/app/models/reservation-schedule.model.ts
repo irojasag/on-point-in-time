@@ -5,6 +5,7 @@ export interface ReservationSchedule {
   frequencyDisplayName: string;
   showPhotos: boolean;
   distribution: ReservationScheduleDistribution[];
+  weight: number;
 }
 
 export interface ReservationScheduleDistribution {

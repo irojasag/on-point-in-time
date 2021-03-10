@@ -4,8 +4,8 @@ import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ProductsService } from 'src/app/services/products/products.service';
 
 @Component({
   selector: 'app-product-actions-bottom-sheet',
@@ -16,8 +16,8 @@ export class ProductActionsBottomSheetComponent implements OnInit {
   constructor(
     private bottomSheetRef: MatBottomSheetRef<ProductActionsBottomSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: Product,
-    private afs: AngularFirestore,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private productsService: ProductsService
   ) {}
   ngOnInit(): void {}
 
@@ -26,15 +26,12 @@ export class ProductActionsBottomSheetComponent implements OnInit {
   }
 
   public deleteData(event: MouseEvent): void {
-    this.afs
-      .doc(`products/${this.data.id}`)
-      .delete()
-      .then(() => {
-        this.bottomSheetRef.dismiss();
-        this.snackBar.open(`${this.data.name} ha sido eliminado`, '', {
-          duration: 2000,
-        });
+    this.productsService.deleteProduct(this.data.id).then(() => {
+      this.bottomSheetRef.dismiss();
+      this.snackBar.open(`${this.data.name} ha sido eliminado`, '', {
+        duration: 2000,
       });
+    });
 
     event.preventDefault();
   }

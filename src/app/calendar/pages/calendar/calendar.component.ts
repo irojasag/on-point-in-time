@@ -5,7 +5,6 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable, combineLatest, of } from 'rxjs';
 import {
   ReservationSchedule,
@@ -28,7 +27,10 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { AdminReservationBottomSheetComponent } from '../../components/admin-reservation-bottom-sheet/admin-reservation-bottom-sheet.component';
 import { MatDialog } from '@angular/material/dialog';
 import { AdminReservationDialogComponent } from '../../components/admin-reservation-dialog/admin-reservation-dialog.component';
-import { not } from '@angular/compiler/src/output/output_ast';
+import { UserService } from 'src/app/services/user/user.service';
+import { PurchaseService } from 'src/app/services/purchase/purchase.service';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
+import { ReservationService } from 'src/app/services/reservation/reservation.service';
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -59,51 +61,43 @@ export class CalendarComponent implements OnInit {
 
   constructor(
     private renderer: Renderer2,
-    private afs: AngularFirestore,
     private formBuilder: FormBuilder,
     private auth: AuthService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private userService: UserService,
+    private purchaseService: PurchaseService,
+    private reservationSchedule: ReservatonScheduleService,
+    private reservationService: ReservationService
   ) {
+    this.dateControl = new FormControl(new Date());
     this.loading = true;
-
     this.haveActiveProducts = false;
     this.form = this.formBuilder.group({
       schedule: [null, Validators.required],
     });
-
     this.setObservables();
-
-    this.dateControl = new FormControl(new Date());
   }
 
   private setObservables(): void {
-    this.schedules$ = this.afs
-      .collection<ReservationSchedule>('reservation-schedules')
-      .valueChanges({ idField: 'id' });
+    this.schedules$ = this.reservationSchedule.reservationSchedules$;
 
-    this.reservations$ = this.afs
-      .collection<Reservation>('reservations')
-      .valueChanges({ idField: 'id' })
-      .pipe(
-        switchMap((reservations) => {
-          return combineLatest([
-            of(reservations),
-            this.afs.collection<User>('users').valueChanges(),
-          ]);
-        }),
-        map(([reservations, users]) => {
-          return reservations.map((reservation) => {
-            return {
-              ...reservation,
-              dateToDisplay: reservation.date.toDate(),
-              time: reservation.hour + ' ' + reservation.period,
-              user: users.find((a) => a.uid === reservation.userId),
-            };
-          });
-        })
-      );
+    this.reservations$ = this.reservationService.reservations$.pipe(
+      switchMap((reservations) => {
+        return combineLatest([of(reservations), this.userService.users$]);
+      }),
+      map(([reservations, users]) => {
+        return reservations.map((reservation) => {
+          return {
+            ...reservation,
+            dateToDisplay: reservation.date.toDate(),
+            time: reservation.hour + ' ' + reservation.period,
+            user: users.find((a) => a.uid === reservation.userId),
+          };
+        });
+      })
+    );
 
     this.form.controls.schedule.valueChanges.subscribe((newValue) => {
       const selectedSchedule = this.schedules.find(
@@ -119,28 +113,28 @@ export class CalendarComponent implements OnInit {
       this.loading = false;
     });
 
-    // this.dateControl.valueChanges.subscribe((newDate) => {
-    //   let index = 0;
-    //   this.nearbyDates.find((currentDate, i) => {
-    //     let date = ('0' + currentDate.getDate()).slice(-2);
-    //     let month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
-    //     let year = currentDate.getFullYear();
+    this.dateControl.valueChanges.subscribe((newDate) => {
+      let index = 0;
+      this.nearbyDates.find((currentDate, i) => {
+        let date = ('0' + currentDate.date.getDate()).slice(-2);
+        let month = ('0' + (currentDate.date.getMonth() + 1)).slice(-2);
+        let year = currentDate.date.getFullYear();
 
-    //     currentDate = `${date}-${month}-${year}`;
+        const dateString = `${date}-${month}-${year}`;
 
-    //     date = ('0' + newDate.getDate()).slice(-2);
-    //     month = ('0' + (newDate.getMonth() + 1)).slice(-2);
-    //     year = year = newDate.getFullYear();
+        date = ('0' + newDate.getDate()).slice(-2);
+        month = ('0' + (newDate.getMonth() + 1)).slice(-2);
+        year = year = newDate.getFullYear();
 
-    //     const dateToSearch = `${date}-${month}-${year}`;
-    //     if (dateToSearch === currentDate) {
-    //       index = i;
-    //       return true;
-    //     }
-    //     return false;
-    //   });
-    //   this.scroll('date-' + index);
-    // });
+        const dateToSearch = `${date}-${month}-${year}`;
+        if (dateToSearch === dateString) {
+          index = i;
+          return true;
+        }
+        return false;
+      });
+      this.scroll('date-' + index);
+    });
   }
 
   ngOnInit(): void {
@@ -150,37 +144,32 @@ export class CalendarComponent implements OnInit {
     this.auth.user$.subscribe((user) => {
       this.user = user;
       if (user) {
-        this.purchases$ = this.afs
-          .collection<Purchase>('purchases', (ref) => {
-            return ref.where('clientId', '==', this.user.uid);
-          })
-          .valueChanges({ idField: 'id' })
-          .pipe(
-            map((purchases) => {
-              return (purchases || []).map((purchase) => {
-                const products = [];
-                purchase.products.forEach((product) => {
-                  product.expirationDateDisplay = product.expirationDate.toDate();
-                  product.startDate = product.startDate || purchase.purchasedAt;
-                  product.startDateDisplay = product.startDate.toDate();
-                  product.startDateDisplay.setHours(0, 0, 0, 0);
-                  if (
-                    product.expirationDate.toDate().getTime() >=
-                    new Date().getTime()
-                  ) {
-                    const today = new Date();
-                    const difference =
-                      product.expirationDateDisplay.getTime() - today.getTime();
-                    const dayDiffence = Math.trunc(
-                      difference / (1000 * 3600 * 24)
-                    );
-                    products.push({ ...product, dayDiffence });
-                  }
-                });
-                return { ...purchase, products };
+        this.purchases$ = this.purchaseService.getUserPurchases$(user.uid).pipe(
+          map((purchases) => {
+            return (purchases || []).map((purchase) => {
+              const products = [];
+              purchase.products.forEach((product) => {
+                product.expirationDateDisplay = product.expirationDate.toDate();
+                product.startDate = product.startDate || purchase.purchasedAt;
+                product.startDateDisplay = product.startDate.toDate();
+                product.startDateDisplay.setHours(0, 0, 0, 0);
+                if (
+                  product.expirationDate.toDate().getTime() >=
+                  new Date().getTime()
+                ) {
+                  const today = new Date();
+                  const difference =
+                    product.expirationDateDisplay.getTime() - today.getTime();
+                  const dayDiffence = Math.trunc(
+                    difference / (1000 * 3600 * 24)
+                  );
+                  products.push({ ...product, dayDiffence });
+                }
               });
-            })
-          );
+              return { ...purchase, products };
+            });
+          })
+        );
         this.products$ = this.purchases$.pipe(
           map((purchases) => {
             const products = [];
@@ -339,8 +328,10 @@ export class CalendarComponent implements OnInit {
   public scroll(id): void {
     setTimeout(() => {
       const element = this.renderer.selectRootElement(`#${id}`, true);
-      element.scrollIntoView({ behavior: 'smooth' });
-    }, 10);
+      element.scrollIntoView({
+        behavior: 'smooth',
+      });
+    }, 300);
   }
 
   public addReservation(
@@ -455,9 +446,8 @@ export class CalendarComponent implements OnInit {
 
       if (allowReservation) {
         this.loading = true;
-        this.afs
-          .collection('reservations')
-          .add({
+        this.reservationService
+          .addReservation({
             reservationScheduleId: this.selectedSchedule.id,
             date: schedule.date,
             userId: this.user.uid,
@@ -489,7 +479,7 @@ export class CalendarComponent implements OnInit {
   private showAdminAddReservationDialog(
     schedule: ReservationScheduleDistribution & { date: Date },
     time: ReservationScheduleTime
-  ) {
+  ): void {
     this.dialog.open(AdminReservationDialogComponent, {
       height: '180px',
       width: '300px',
@@ -510,24 +500,19 @@ export class CalendarComponent implements OnInit {
       return;
     }
     this.loading = true;
-
     const reservation = reservations.find(
       (reserv) => reserv.userId === this.user.uid
     );
-    this.afs
-      .doc(`reservations/${reservation.id}`)
-      .delete()
-      .then(() => {
-        this.snackBar.open(`Se ha eliminado la reserva`, '', {
-          duration: 2000,
-        });
+    this.reservationService.deleteReservation(reservation.id).then(() => {
+      this.snackBar.open(`Se ha eliminado la reserva`, '', {
+        duration: 2000,
       });
+    });
   }
 
   public confirmReservation(reservation: Reservation): void {
-    this.afs
-      .doc(`reservations/${reservation.id}`)
-      .update({ ...reservation, confirmed: true })
+    this.reservationService
+      .updateReservation(reservation.id, { ...reservation, confirmed: true })
       .then(() => {
         this.snackBar.open(`Se ha confirmado la reserva`, '', {
           duration: 2000,
@@ -536,9 +521,8 @@ export class CalendarComponent implements OnInit {
   }
 
   public confirmAsistance(reservation: Reservation): void {
-    this.afs
-      .doc(`reservations/${reservation.id}`)
-      .update({ ...reservation, asisted: true })
+    this.reservationService
+      .updateReservation(reservation.id, { ...reservation, asisted: true })
       .then(() => {
         this.snackBar.open(`Se ha confirmado la reserva`, '', {
           duration: 2000,

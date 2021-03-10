@@ -38,7 +38,7 @@
       </div>
       <div class="w-full h-20 bg-white flex flex-row items-center px-4">
         <div class="bg-gray-300 rounded-full h-14 w-14 flex flex-row justify-center items-center focus:outline-none" [routerLink]="['profile']" (click)="isSidebarOpen = false">
-          <img class="object-cover h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}" alt="Profile Photo">
+          <img class="object-cover h-full w-full rounded-full" src="{{(auth.user$ | async)?.photoURL}}" alt="Profile Photo">
         </div>
         <div class="flex flex-col px-2">
           <span class="text-md font-medium overflow-ellipsis overflow-hidden whitespace-nowrap w-32" [routerLink]="['profile']" (click)="isSidebarOpen = false">

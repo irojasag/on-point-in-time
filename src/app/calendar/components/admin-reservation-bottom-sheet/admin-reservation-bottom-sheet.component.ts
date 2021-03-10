@@ -4,8 +4,8 @@ import {
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
 import { Reservation } from 'src/app/models/reservation.model';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ReservationService } from 'src/app/services/reservation/reservation.service';
 
 @Component({
   selector: 'app-admin-reservation-bottom-sheet',
@@ -16,22 +16,19 @@ export class AdminReservationBottomSheetComponent implements OnInit {
   constructor(
     private bottomSheetRef: MatBottomSheetRef<AdminReservationBottomSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: Reservation,
-    private afs: AngularFirestore,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private reservationService: ReservationService
   ) {}
 
   ngOnInit(): void {}
 
   public removeReservation(event): void {
     event.preventDefault();
-    this.afs
-      .doc(`reservations/${this.data.id}`)
-      .delete()
-      .then(() => {
-        this.snackBar.open(`Se ha eliminado la reserva`, '', {
-          duration: 2000,
-        });
-        this.bottomSheetRef.dismiss();
+    this.reservationService.deleteReservation(this.data.id).then(() => {
+      this.snackBar.open(`Se ha eliminado la reserva`, '', {
+        duration: 2000,
       });
+      this.bottomSheetRef.dismiss();
+    });
   }
 }

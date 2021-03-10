@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, TemplateRef } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { AngularFirestore } from '@angular/fire/firestore';
+import { PaymentContactsService } from 'src/app/services/payment-contacts/payment-contacts.service';
+import { BankAccountsService } from 'src/app/services/bank-accounts/bank-accounts.service';
+import { PaymentMethodsService } from 'src/app/services/payment-methods/payment-methods.service';
 import { Observable } from 'rxjs';
 import { PaymentMethod } from '../../../models/payment-method.model';
 import { BankAccount } from '../../../models/bank-account.model';
@@ -10,6 +12,7 @@ import { PaymentMethodFormComponent } from '../../component/payment-method-form/
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { BankAccountFormComponent } from '../../component/bank-account-form/bank-account-form.component';
 import { PaymentContactFormComponent } from '../../component/payment-contact-form/payment-contact-form.component';
+import { copyToClipBoard } from 'src/app/helpers/utils.helpers';
 
 @Component({
   selector: 'app-payment-info',
@@ -29,21 +32,15 @@ export class PaymentInfoComponent implements OnInit {
 
   constructor(
     public auth: AuthService,
-    private afs: AngularFirestore,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private paymentContactsService: PaymentContactsService,
+    private bankAccountsService: BankAccountsService,
+    private paymentMethodsService: PaymentMethodsService
   ) {
-    this.paymentMethods$ = this.afs
-      .collection<PaymentMethod>('payment-methods')
-      .valueChanges({ idField: 'id' });
-
-    this.bankAccounts$ = this.afs
-      .collection<BankAccount>('bank-accounts')
-      .valueChanges({ idField: 'id' });
-
-    this.paymentContact$ = this.afs
-      .collection<PaymentContact>('payment-contacts')
-      .valueChanges({ idField: 'id' });
+    this.paymentMethods$ = this.paymentContactsService.paymentContacts$;
+    this.bankAccounts$ = this.bankAccountsService.bankAccounts$;
+    this.paymentContact$ = this.paymentMethodsService.paymentMethods$;
   }
 
   ngOnInit(): void {}
@@ -94,9 +91,8 @@ export class PaymentInfoComponent implements OnInit {
   }
 
   public deletePaymentMetod(paymentMethod: PaymentMethod): void {
-    this.afs
-      .doc(`payment-methods/${paymentMethod.id}`)
-      .delete()
+    this.paymentMethodsService
+      .deletePaymentMethod(paymentMethod.id)
       .then(() => {
         this.snackBar.open(
           `${paymentMethod.displayName} ha sido eliminado`,
@@ -109,20 +105,16 @@ export class PaymentInfoComponent implements OnInit {
   }
 
   public deleteBankAccount(bankAccount: BankAccount): void {
-    this.afs
-      .doc(`bank-accounts/${bankAccount.id}`)
-      .delete()
-      .then(() => {
-        this.snackBar.open(`${bankAccount.displayName} ha sido eliminado`, '', {
-          duration: 2000,
-        });
+    this.bankAccountsService.deleteBankAccount(bankAccount.id).then(() => {
+      this.snackBar.open(`${bankAccount.displayName} ha sido eliminado`, '', {
+        duration: 2000,
       });
+    });
   }
 
   public deletePaymentContact(paymentContact: PaymentContact): void {
-    this.afs
-      .doc(`payment-contacts/${paymentContact.id}`)
-      .delete()
+    this.paymentContactsService
+      .deletePaymentContact(paymentContact.id)
       .then(() => {
         this.snackBar.open(
           `${paymentContact.displayName} ha sido eliminado`,
@@ -143,20 +135,6 @@ export class PaymentInfoComponent implements OnInit {
   }
 
   public copy(val: string): void {
-    const selBox = document.createElement('textarea');
-    selBox.style.position = 'fixed';
-    selBox.style.left = '0';
-    selBox.style.top = '0';
-    selBox.style.opacity = '0';
-    selBox.value = val;
-    document.body.appendChild(selBox);
-    selBox.focus();
-    selBox.select();
-    document.execCommand('copy');
-    document.body.removeChild(selBox);
-
-    this.snackBar.open(`${val} ha sido copiado al portapapeles`, '', {
-      duration: 2000,
-    });
+    copyToClipBoard(val, this.snackBar);
   }
 }

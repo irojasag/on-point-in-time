@@ -1,16 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { ProductsService } from 'src/app/services/products/products.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductFormDialogComponent } from '../product-form-dialog/product-form-dialog.component';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { Product } from '../../../models/product.model';
-import { getTextForProductType } from '../../../helpers/product.helpers';
 import { Observable, combineLatest, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import * as firebase from 'firebase/app';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ProductActionsBottomSheetComponent } from '../../components/product-actions-bottom-sheet/product-actions-bottom-sheet.component';
-import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 
 @Component({
   selector: 'app-products',
@@ -22,79 +20,62 @@ export class ProductsComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private dialog: MatDialog,
-    private afs: AngularFirestore,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private reservationScheduleService: ReservatonScheduleService,
+    private productsService: ProductsService
   ) {
     this.auth.user$.subscribe((user) => {
       if (user) {
         if (user.isAdmin) {
-          this.productInfo$ = this.afs
-            .collection<Product>('products')
-            .valueChanges({ idField: 'id' })
-            .pipe(
-              switchMap((products) => {
-                return combineLatest([
-                  of(products),
-                  this.afs
-                    .collection<ReservationSchedule>('reservation-schedules')
-                    .valueChanges({ idField: 'id' }),
-                ]);
-              }),
-              map(([products, schedules]) => {
-                return products.map((product) => {
-                  return {
-                    ...product,
-                    type: schedules.find((s) => s.id === product.type)
-                      .displayName,
-                    createdDate: product.createdAt
-                      ? product.createdAt.toDate()
-                      : null,
-                    expirationDateDisplay: product.expirationDate.toDate(),
-                    isExpired:
-                      product.expirationDate.toDate().getTime() <
-                      new Date().getTime(),
-                  };
-                });
-              })
-            );
+          this.productInfo$ = this.productsService.products$.pipe(
+            switchMap((products) => {
+              return combineLatest([
+                of(products),
+                this.reservationScheduleService.reservationSchedules$,
+              ]);
+            }),
+            map(([products, schedules]) => {
+              return products.map((product) => {
+                return {
+                  ...product,
+                  type: schedules.find((s) => s.id === product.type)
+                    .displayName,
+                  createdDate: product.createdAt
+                    ? product.createdAt.toDate()
+                    : null,
+                  expirationDateDisplay: product.expirationDate.toDate(),
+                  isExpired:
+                    product.expirationDate.toDate().getTime() <
+                    new Date().getTime(),
+                };
+              });
+            })
+          );
         } else {
-          this.productInfo$ = this.afs
-            .collection<Product>('products', (ref) =>
-              ref
-                .where('isPublic', '==', true)
-                .where(
-                  'expirationDate',
-                  '>=',
-                  firebase.firestore.Timestamp.fromDate(new Date())
-                )
-            )
-            .valueChanges({ idField: 'id' })
-            .pipe(
-              switchMap((products) => {
-                return combineLatest([
-                  of(products),
-                  this.afs
-                    .collection<ReservationSchedule>('reservation-schedules')
-                    .valueChanges({ idField: 'id' }),
-                ]);
-              }),
-              map(([products, schedules]) => {
-                return products.map((product) => {
-                  return {
-                    ...product,
-                    type: schedules.find((s) => s.id === product.type)
-                      .displayName,
-                    createdDate: product.createdAt
-                      ? product.createdAt.toDate()
-                      : null,
-                    expirationDateDisplay: product.expirationDate.toDate(),
-                    isExpired:
-                      product.expirationDate.toDate().getTime() <
-                      new Date().getTime(),
-                  };
-                });
-              })
-            );
+          this.productInfo$ = this.productsService.getPurchasesFromToday$.pipe(
+            switchMap((products) => {
+              return combineLatest([
+                of(products),
+                this.reservationScheduleService.reservationSchedules$,
+              ]);
+            }),
+            map(([products, schedules]) => {
+              return products.map((product) => {
+                return {
+                  ...product,
+                  type: schedules.find((s) => s.id === product.type)
+                    .displayName,
+                  createdDate: product.createdAt
+                    ? product.createdAt.toDate()
+                    : null,
+                  expirationDateDisplay: product.expirationDate.toDate(),
+                  isExpired:
+                    product.expirationDate.toDate().getTime() <
+                    new Date().getTime(),
+                };
+              });
+            })
+          );
         }
       }
     });
@@ -108,6 +89,7 @@ export class ProductsComponent implements OnInit {
       width: '300px',
     });
   }
+
   public openActions(product: Product, isAdmin: boolean): void {
     if (isAdmin) {
       this.bottomSheet.open(ProductActionsBottomSheetComponent, {
