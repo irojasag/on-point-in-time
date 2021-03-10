@@ -7,6 +7,8 @@ import { User } from 'src/app/models/user.model';
 import { Purchase } from 'src/app/models/purchase.model';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { PurchaseBottomSheetComponent } from '../../components/purchase-bottom-sheet/purchase-bottom-sheet.component';
+import { UserService } from 'src/app/services/user/user.service';
+import { PurchaseService } from 'src/app/services/purchase/purchase.service';
 
 @Component({
   selector: 'app-purchases',
@@ -19,47 +21,18 @@ export class PurchasesComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private afs: AngularFirestore,
-    private bottomSheet: MatBottomSheet
+    private bottomSheet: MatBottomSheet,
+    private userService: UserService,
+    private purchasesService: PurchaseService
   ) {
     this.isUserAdmin = false;
     this.auth.user$.subscribe((user) => {
       if (user) {
         this.isUserAdmin = user.isAdmin || user.isSuperAdmin;
         const needsWhere = !this.isUserAdmin;
-        this.purchases$ = this.afs
-          .collection<Purchase>('purchases', (ref) => {
-            if (needsWhere) {
-              return ref
-                .where('clientId', '==', user.uid)
-                .orderBy('billNumber', 'desc');
-            }
-            return ref.orderBy('billNumber', 'desc');
-          })
-          .valueChanges({ idField: 'id' })
-          .pipe(
-            switchMap((purchases) => {
-              return combineLatest([
-                of(purchases),
-                this.afs.collection<User>('users').valueChanges(),
-              ]);
-            }),
-            map(([purchases, users]) => {
-              return purchases.map((purchase) => {
-                return {
-                  ...purchase,
-                  purchasedDate: purchase.purchasedAt.toDate(),
-                  client: users.find((a) => a.uid === purchase.clientId),
-                  products: (purchase.products || []).map((product) => ({
-                    ...product,
-                    expirationDateDisplay: product.expirationDate.toDate(),
-                    startDateDisplay: (
-                      product.startDate || purchase.purchasedAt
-                    ).toDate(),
-                  })),
-                };
-              });
-            })
-          );
+        this.purchases$ = this.purchasesService.getAllPurchases(
+          needsWhere ? user.uid : null
+        );
       }
     });
   }

@@ -13,6 +13,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Purchase } from 'src/app/models/purchase.model';
 import { UserService } from '../../../services/user/user.service';
 import { PurchaseService } from '../../../services/purchase/purchase.service';
+import { PaymentMethodsService } from 'src/app/services/payment-methods/payment-methods.service';
 
 @Component({
   selector: 'app-add-purchase',
@@ -45,22 +46,15 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
     private roter: Router,
     private activatedRoute: ActivatedRoute,
     private usersService: UserService,
-    private purchasesService: PurchaseService
+    private purchasesService: PurchaseService,
+    private paymentMethodsService: PaymentMethodsService
   ) {
     this.subscriptions = new Subscription();
     this.productsToBuy = [];
     this.totalToPay = 0;
-    this.form = this.formBuilder.group({
-      billNumber: [0],
-      clientId: [null, Validators.required],
-      purchasedAt: [new Date(), Validators.compose([Validators.required])],
-      paymentMethod: [null, Validators.required],
-    });
-    this.form.controls.purchasedAt.disable();
+    this.buildPurchaseForm();
 
-    this.paymentMethods$ = this.afs
-      .collection<PaymentMethod>('payment-methods')
-      .valueChanges({ idField: 'id' });
+    this.paymentMethods$ = this.paymentMethodsService.paymentMethods$;
 
     this.users$ = this.usersService.users$;
 
@@ -74,6 +68,16 @@ export class AddPurchaseComponent implements OnInit, OnDestroy {
     );
 
     this.subscriptions.add(this.handlePurchasesSubscription());
+  }
+
+  private buildPurchaseForm(): void {
+    this.form = this.formBuilder.group({
+      billNumber: [0],
+      clientId: [null, Validators.required],
+      purchasedAt: [new Date(), Validators.compose([Validators.required])],
+      paymentMethod: [null, Validators.required],
+    });
+    this.form.controls.purchasedAt.disable();
   }
 
   private _filterUsers(value: string): User[] {

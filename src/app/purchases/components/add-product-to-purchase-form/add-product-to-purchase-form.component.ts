@@ -14,6 +14,7 @@ import {
 import { MatDialogRef } from '@angular/material/dialog';
 import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
 import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
+import { ProductsService } from 'src/app/services/products/products.service';
 
 @Component({
   selector: 'app-add-product-to-purchase-form',
@@ -34,7 +35,8 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     private afs: AngularFirestore,
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AddProductToPurchaseFormComponent>,
-    private reservationScheduleService: ReservatonScheduleService
+    private reservationScheduleService: ReservatonScheduleService,
+    private productsService: ProductsService
   ) {
     this.form = this.formBuilder.group({
       productId: [null, Validators.required],
@@ -97,9 +99,7 @@ export class AddProductToPurchaseFormComponent implements OnInit {
       }, 300);
     });
 
-    this.products$ = this.afs
-      .collection<Product>('products')
-      .valueChanges({ idField: 'id' });
+    this.products$ = this.productsService.products$;
 
     this.products$.subscribe((products) => (this.products = products));
 
