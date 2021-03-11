@@ -9,6 +9,7 @@ import { Reservation } from 'src/app/models/reservation.model';
 export class ReservationService {
   constructor(private afs: AngularFirestore) {}
 
+  // TODO: Use base date for this or get a new method
   public get reservations$(): Observable<Reservation[]> {
     return this.afs
       .collection<Reservation>('reservations')

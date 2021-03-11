@@ -58,6 +58,8 @@ export class CalendarComponent implements OnInit {
   public haveActiveProducts: boolean;
 
   public loading: boolean;
+  public baseDate: Date;
+  public isBaseDateDefaut: boolean;
 
   constructor(
     private renderer: Renderer2,
@@ -71,18 +73,22 @@ export class CalendarComponent implements OnInit {
     private reservationSchedule: ReservatonScheduleService,
     private reservationService: ReservationService
   ) {
+    this.baseDate = new Date();
+    this.baseDate.setHours(0, 0, 0, 0);
+    this.isBaseDateDefaut = true;
+
     this.dateControl = new FormControl(new Date());
     this.loading = true;
     this.haveActiveProducts = false;
     this.form = this.formBuilder.group({
       schedule: [null, Validators.required],
     });
+
     this.setObservables();
   }
 
   private setObservables(): void {
     this.schedules$ = this.reservationSchedule.reservationSchedules$;
-
     this.reservations$ = this.reservationService.reservations$.pipe(
       switchMap((reservations) => {
         return combineLatest([of(reservations), this.userService.users$]);
@@ -114,6 +120,15 @@ export class CalendarComponent implements OnInit {
     });
 
     this.dateControl.valueChanges.subscribe((newDate) => {
+      const newDateToMove = new Date(newDate);
+      newDateToMove.setHours(0, 0, 0, 0);
+
+      this.baseDate = newDateToMove;
+      this.isBaseDateDefaut = false;
+      this.nearbyDates = [];
+      this.addNewDates();
+      this.updateNearByDates();
+
       let index = 0;
       this.nearbyDates.find((currentDate, i) => {
         let date = ('0' + currentDate.date.getDate()).slice(-2);
@@ -318,7 +333,7 @@ export class CalendarComponent implements OnInit {
   private addNewDates(): void {
     const length = this.nearbyDates.length;
     for (let i = 0; i < 20; i++) {
-      const newDate = new Date();
+      const newDate = new Date(this.baseDate);
       newDate.setDate(newDate.getDate() + i + length);
       newDate.setHours(0, 0, 0, 0);
       this.nearbyDates.push({ date: newDate });
