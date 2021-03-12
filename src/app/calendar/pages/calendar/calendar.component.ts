@@ -290,40 +290,47 @@ export class CalendarComponent implements OnInit {
               firstDate === secondDate &&
               reservation.time === time.time;
 
+            let reservationHour = Number(reservation.hour.split(':')[0]);
+            if (
+              reservationHour === 12 &&
+              reservation.period === ReservationSchedulePeriod.AM
+            ) {
+              reservationHour = 0;
+            }
+            if (
+              reservation.period === ReservationSchedulePeriod.PM &&
+              reservationHour !== 12
+            ) {
+              reservationHour += 12;
+            }
+            const reservationTime = new Date(
+              reservation.dateToDisplay.getFullYear(),
+              reservation.dateToDisplay.getMonth(),
+              reservation.dateToDisplay.getDate(),
+              reservationHour,
+              Number(reservation.hour.split(':')[1]),
+              0
+            );
+
             if (condition && reservation.userId === this.user.uid) {
               time.booked = true;
               time.confirmed = reservation.confirmed;
               time.asisted = reservation.asisted;
 
-              let reservationHour = Number(reservation.hour.split(':')[0]);
-              if (
-                reservationHour === 12 &&
-                reservation.period === ReservationSchedulePeriod.AM
-              ) {
-                reservationHour = 0;
-              }
-              if (
-                reservation.period === ReservationSchedulePeriod.PM &&
-                reservationHour !== 12
-              ) {
-                reservationHour += 12;
-              }
-              const reservationTime = new Date(
-                reservation.dateToDisplay.getFullYear(),
-                reservation.dateToDisplay.getMonth(),
-                reservation.dateToDisplay.getDate(),
-                reservationHour,
-                Number(reservation.hour.split(':')[1]),
-                0
-              );
               time.locked = lessThanXHoursToTheFuture(reservationTime, 0.25); // 0.25 * 60 => 15 min
             }
+
+            if (condition && this.isBaseDateDefaut) {
+              time.hidden = lessThanXHoursToTheFuture(reservationTime, 0.15); // 0.25 * 60 => 15 min
+            }
+
             return condition;
           }
         );
 
         time.reservations = timeReservations;
       });
+
       nearbyDate.displayName =
         distribution.displayName || this.selectedSchedule.displayName;
     });

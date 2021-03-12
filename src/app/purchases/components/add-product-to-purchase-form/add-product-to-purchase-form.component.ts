@@ -94,7 +94,7 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
-      reservationsPerMonth: [
+      maxReservations: [
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
@@ -130,7 +130,7 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     });
     this.form.controls.reservationsPerWeek.valueChanges.subscribe(() => {
       setTimeout(() => {
-        this.updateReservationsPerMonth();
+        this.updatemaxReservations();
       }, 300);
     });
   }
@@ -155,9 +155,7 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     this.form.controls.expirationFrequency.patchValue(
       ProductExpirationFrequencies.MONTHS
     );
-    this.form.controls.reservationsPerMonth.patchValue(
-      product.reservationsPerMonth || 1
-    );
+    this.form.controls.maxReservations.patchValue(product.maxReservations || 1);
     this.form.controls.reservationsPerWeek.patchValue(
       product.reservationsPerWeek || 1
     );
@@ -191,9 +189,11 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     this.form.controls.expirationDate.patchValue(expirationDate);
   }
 
-  private updateReservationsPerMonth(): void {
+  private updatemaxReservations(): void {
     // TODO: FIND A BETTER LOGIC
-    this.form.controls.reservationsPerMonth.patchValue(
+    // Cantidad de seamanas entre la fecha inicio y expiración
+    // Consigue fecha de expiración
+    this.form.controls.maxReservations.patchValue(
       this.form.controls.reservationsPerWeek.value * 4
     );
   }

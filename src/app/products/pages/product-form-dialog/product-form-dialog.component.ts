@@ -83,7 +83,7 @@ export class ProductFormDialogComponent implements OnInit {
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
-      reservationsPerMonth: [
+      maxReservations: [
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
@@ -101,7 +101,7 @@ export class ProductFormDialogComponent implements OnInit {
 
     this.form.controls.reservationsPerWeek.valueChanges.subscribe(() => {
       setTimeout(() => {
-        this.updateReservationsPerMonth();
+        this.updatemaxReservations();
       }, 300);
     });
   }
@@ -185,9 +185,9 @@ export class ProductFormDialogComponent implements OnInit {
     this.form.controls.expirationDate.patchValue(expirationDate);
   }
 
-  private updateReservationsPerMonth(): void {
+  private updatemaxReservations(): void {
     // TODO: FIND A BETTER LOGIC
-    this.form.controls.reservationsPerMonth.patchValue(
+    this.form.controls.maxReservations.patchValue(
       this.form.controls.reservationsPerWeek.value * 4
     );
   }

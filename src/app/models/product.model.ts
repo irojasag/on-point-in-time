@@ -9,7 +9,7 @@ export interface Product {
   categories: string[];
   reservationsPerDay: number;
   reservationsPerWeek: number;
-  reservationsPerMonth: number;
+  maxReservations: number;
   needsPackages: boolean;
   packages: number;
   createdAt?: firebase.firestore.Timestamp;
