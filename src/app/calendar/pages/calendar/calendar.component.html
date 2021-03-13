@@ -84,7 +84,7 @@
           </div>
         </div>
         <div *ngIf="!(user?.isAdmin || user?.isSuperAdmin) && ((hour.locked || !haveActiveProducts) || (hour.reservations.length >= hour.spaces && !hour.booked))"
-          class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
+          class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 z-20">
           <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
             <i class="fas fa-lock"></i>
           </div>

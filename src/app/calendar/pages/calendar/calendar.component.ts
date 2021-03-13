@@ -271,15 +271,16 @@ export class CalendarComponent implements OnInit {
       nearbyDate.times.forEach((time) => {
         time.reservations = [];
 
-        if (this.isBaseDateDefaut) {
-          const timeDate = this.calcDateFromSeparateDate(
-            nearbyDate.date,
-            time.hour,
-            time.period
-          );
+        const timeDate = this.calcDateFromSeparateDate(
+          nearbyDate.date,
+          time.hour,
+          time.period
+        );
 
-          time.hidden = lessThanXHoursToTheFuture(timeDate, 0.15); // 0.25 * 60 => 15 min
+        if (this.isBaseDateDefaut) {
+          time.hidden = lessThanXHoursToTheFuture(timeDate, 0.15);
         }
+        time.locked = lessThanXHoursToTheFuture(timeDate, 0.15);
         const timeReservations = (this.reservations || []).filter(
           (reservation) => {
             const firstDate = this.getStandardDateFormat(
@@ -376,6 +377,7 @@ export class CalendarComponent implements OnInit {
       const isWeeklyAvailable = this.validateWeekAvailability(schedule);
       // Check availability in general
       const notExpiredProducts = this.getNonExpiredProducts(schedule);
+      console.log(notExpiredProducts[0]);
 
       if (isWeeklyAvailable) {
         this.loading = true;
