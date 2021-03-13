@@ -449,7 +449,6 @@ export class CalendarComponent implements OnInit {
       (reserv) => !!reserv
     );
 
-    let allowReservation = true;
     let pastDate = null;
     let isNewDate = false;
     let isFirst = true;
@@ -494,7 +493,7 @@ export class CalendarComponent implements OnInit {
 
   private getWeekReservations(
     schedule: ReservationScheduleDistribution & { date: Date }
-  ) {
+  ): Reservation[] {
     return (this.reservations || []).filter((reservation) => {
       return (
         reservation.userId === this.user.uid &&
@@ -506,7 +505,7 @@ export class CalendarComponent implements OnInit {
 
   private getNonExpiredProducts(
     schedule: ReservationScheduleDistribution & { date: Date }
-  ) {
+  ): Product[] {
     return this.selectedProducts.filter((product) => {
       return (
         product.startDateDisplay.getTime() <= schedule.date.getTime() &&
