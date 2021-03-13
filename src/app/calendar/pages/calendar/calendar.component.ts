@@ -270,46 +270,36 @@ export class CalendarComponent implements OnInit {
       nearbyDate.times = JSON.parse(JSON.stringify(distribution.times));
       nearbyDate.times.forEach((time) => {
         time.reservations = [];
+        console.log('this.isBaseDateDefaut', this.isBaseDateDefaut);
+        console.log('time', time);
+        console.log('nearbyDate', nearbyDate);
+
+        if (this.isBaseDateDefaut) {
+          const timeDate = this.calcDateFromSeparateDate(
+            nearbyDate.date,
+            time.hour,
+            time.period
+          );
+
+          time.hidden = lessThanXHoursToTheFuture(timeDate, 0.15); // 0.25 * 60 => 15 min
+        }
         const timeReservations = (this.reservations || []).filter(
           (reservation) => {
-            const firstDate =
-              (nearbyDate.date as Date).getFullYear() +
-              '-' +
-              (nearbyDate.date as Date).getMonth() +
-              '-' +
-              (nearbyDate.date as Date).getDate();
-            const secondDate =
-              (reservation.dateToDisplay as Date).getFullYear() +
-              '-' +
-              (reservation.dateToDisplay as Date).getMonth() +
-              '-' +
-              (reservation.dateToDisplay as Date).getDate();
+            const firstDate = this.getStandardDateFormat(
+              nearbyDate.date as Date
+            );
+            const secondDate = this.getStandardDateFormat(
+              reservation.dateToDisplay as Date
+            );
 
             const condition =
               reservation.reservationScheduleId === this.selectedSchedule.id &&
               firstDate === secondDate &&
               reservation.time === time.time;
-
-            let reservationHour = Number(reservation.hour.split(':')[0]);
-            if (
-              reservationHour === 12 &&
-              reservation.period === ReservationSchedulePeriod.AM
-            ) {
-              reservationHour = 0;
-            }
-            if (
-              reservation.period === ReservationSchedulePeriod.PM &&
-              reservationHour !== 12
-            ) {
-              reservationHour += 12;
-            }
-            const reservationTime = new Date(
-              reservation.dateToDisplay.getFullYear(),
-              reservation.dateToDisplay.getMonth(),
-              reservation.dateToDisplay.getDate(),
-              reservationHour,
-              Number(reservation.hour.split(':')[1]),
-              0
+            const reservationTime = this.calcDateFromSeparateDate(
+              reservation.dateToDisplay,
+              reservation.hour,
+              reservation.period
             );
 
             if (condition && reservation.userId === this.user.uid) {
@@ -319,11 +309,6 @@ export class CalendarComponent implements OnInit {
 
               time.locked = lessThanXHoursToTheFuture(reservationTime, 0.25); // 0.25 * 60 => 15 min
             }
-
-            if (condition && this.isBaseDateDefaut) {
-              time.hidden = lessThanXHoursToTheFuture(reservationTime, 0.15); // 0.25 * 60 => 15 min
-            }
-
             return condition;
           }
         );
@@ -335,6 +320,29 @@ export class CalendarComponent implements OnInit {
         distribution.displayName || this.selectedSchedule.displayName;
     });
     this.loading = false;
+  }
+
+  private calcDateFromSeparateDate(
+    baseDate: Date,
+    hour: string,
+    period: string
+  ): Date {
+    let reservationHour = Number(hour.split(':')[0]);
+    if (reservationHour === 12 && period === ReservationSchedulePeriod.AM) {
+      reservationHour = 0;
+    }
+    if (period === ReservationSchedulePeriod.PM && reservationHour !== 12) {
+      reservationHour += 12;
+    }
+    const reservationTime = new Date(
+      baseDate.getFullYear(),
+      baseDate.getMonth(),
+      baseDate.getDate(),
+      reservationHour,
+      Number(hour.split(':')[1]),
+      0
+    );
+    return reservationTime;
   }
 
   private addNewDates(): void {
@@ -368,105 +376,11 @@ export class CalendarComponent implements OnInit {
     if (this.user.isAdmin || this.user.isSuperAdmin) {
       this.showAdminAddReservationDialog(schedule, time);
     } else {
-      this.loading = true;
-      const notExpiredProducts = this.selectedProducts.filter((product) => {
-        return (
-          product.startDateDisplay.getTime() <= schedule.date.getTime() &&
-          product.expirationDateDisplay.getTime() >= schedule.date.getTime()
-        );
-      });
-      const currentWeekReservations = (this.reservations || []).filter(
-        (reservation) => {
-          return (
-            reservation.userId === this.user.uid &&
-            reservation.reservationScheduleId === this.selectedSchedule.id &&
-            isDateInThisWeek(reservation.dateToDisplay, new Date(schedule.date))
-          );
-        }
-      );
+      const isWeeklyAvailable = this.validateWeekAvailability(schedule);
+      // Check availability in general
+      const notExpiredProducts = this.getNonExpiredProducts(schedule);
 
-      const newReservDate = `${schedule.date.getFullYear()}-${
-        (schedule.date.getMonth() < 10 ? '0' : '') + schedule.date.getMonth()
-      }-${schedule.date.getDate()}`;
-
-      const currentReservationDates = currentWeekReservations.map(
-        (reserv) =>
-          `${reserv.dateToDisplay.getFullYear()}-${
-            (reserv.dateToDisplay.getMonth() < 10 ? '0' : '') +
-            reserv.dateToDisplay.getMonth()
-          }-${reserv.dateToDisplay.getDate()}`
-      );
-      currentReservationDates.push(newReservDate);
-      currentReservationDates.sort();
-
-      let distributionForLimitedReservations = [0, 0, 0, 0, 0, 0, 0];
-      notExpiredProducts
-        .filter((prod) => prod.reservationsPerDay)
-        .forEach((prod) => {
-          let remainingReservPerWeek = 0 + prod.reservationsPerWeek;
-          let index = -1;
-          while (remainingReservPerWeek) {
-            index++;
-            if (remainingReservPerWeek - prod.reservationsPerDay >= 0) {
-              distributionForLimitedReservations[index] +=
-                prod.reservationsPerDay;
-              remainingReservPerWeek =
-                remainingReservPerWeek - prod.reservationsPerDay;
-            } else {
-              distributionForLimitedReservations[
-                index
-              ] += remainingReservPerWeek;
-              remainingReservPerWeek = 0;
-            }
-          }
-          return prod;
-        });
-
-      distributionForLimitedReservations = distributionForLimitedReservations.filter(
-        (reserv) => !!reserv
-      );
-
-      let allowReservation = true;
-      let pastDate = null;
-      let isNewDate = false;
-      let isFirst = true;
-      let lastAvailability = null;
-
-      currentReservationDates.forEach((date) => {
-        if (pastDate !== date) {
-          pastDate = date;
-          isNewDate = true;
-          if (isNewDate && !isFirst) {
-            distributionForLimitedReservations.push(
-              distributionForLimitedReservations.shift()
-            );
-            distributionForLimitedReservations = distributionForLimitedReservations.filter(
-              (reserv) => !!reserv
-            );
-          }
-          isFirst = false;
-        }
-
-        if (date === newReservDate) {
-          lastAvailability = distributionForLimitedReservations[0] || 0;
-        }
-        if (distributionForLimitedReservations.length) {
-          distributionForLimitedReservations[0]--;
-        }
-      });
-
-      if (
-        lastAvailability > 0 ||
-        (lastAvailability === null &&
-          distributionForLimitedReservations[1] &&
-          distributionForLimitedReservations[1] > 0)
-      ) {
-        allowReservation = true;
-      } else {
-        allowReservation = false;
-      }
-
-      if (allowReservation) {
+      if (isWeeklyAvailable) {
         this.loading = true;
         this.reservationService
           .addReservation({
@@ -496,6 +410,112 @@ export class CalendarComponent implements OnInit {
         );
       }
     }
+  }
+
+  private validateWeekAvailability(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ): boolean {
+    this.loading = true;
+    const notExpiredProducts = this.getNonExpiredProducts(schedule);
+    const currentWeekReservations = this.getWeekReservations(schedule);
+    const newReservDate = this.getStandardDateFormat(schedule.date);
+    const currentReservationDates = currentWeekReservations.map((reserv) =>
+      this.getStandardDateFormat(reserv.dateToDisplay)
+    );
+
+    currentReservationDates.push(newReservDate);
+    currentReservationDates.sort();
+
+    let distributionForLimitedReservations = [0, 0, 0, 0, 0, 0, 0];
+
+    notExpiredProducts
+      .filter((prod) => prod.reservationsPerDay)
+      .forEach((prod) => {
+        let remainingReservPerWeek = 0 + prod.reservationsPerWeek;
+        let index = -1;
+        while (remainingReservPerWeek) {
+          index++;
+          if (remainingReservPerWeek - prod.reservationsPerDay >= 0) {
+            distributionForLimitedReservations[index] +=
+              prod.reservationsPerDay;
+            remainingReservPerWeek =
+              remainingReservPerWeek - prod.reservationsPerDay;
+          } else {
+            distributionForLimitedReservations[index] += remainingReservPerWeek;
+            remainingReservPerWeek = 0;
+          }
+        }
+        return prod;
+      });
+
+    distributionForLimitedReservations = distributionForLimitedReservations.filter(
+      (reserv) => !!reserv
+    );
+
+    let allowReservation = true;
+    let pastDate = null;
+    let isNewDate = false;
+    let isFirst = true;
+    let lastAvailability = null;
+
+    currentReservationDates.forEach((date) => {
+      if (pastDate !== date) {
+        pastDate = date;
+        isNewDate = true;
+        if (isNewDate && !isFirst) {
+          distributionForLimitedReservations.push(
+            distributionForLimitedReservations.shift()
+          );
+          distributionForLimitedReservations = distributionForLimitedReservations.filter(
+            (reserv) => !!reserv
+          );
+        }
+        isFirst = false;
+      }
+
+      if (date === newReservDate) {
+        lastAvailability = distributionForLimitedReservations[0] || 0;
+      }
+      if (distributionForLimitedReservations.length) {
+        distributionForLimitedReservations[0]--;
+      }
+    });
+
+    const condition =
+      lastAvailability > 0 ||
+      (lastAvailability === null &&
+        distributionForLimitedReservations[1] &&
+        distributionForLimitedReservations[1] > 0);
+    return condition;
+  }
+
+  private getStandardDateFormat(date: Date): string {
+    return `${date.getFullYear()}-${
+      (date.getMonth() < 10 ? '0' : '') + date.getMonth()
+    }-${date.getDate()}`;
+  }
+
+  private getWeekReservations(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ) {
+    return (this.reservations || []).filter((reservation) => {
+      return (
+        reservation.userId === this.user.uid &&
+        reservation.reservationScheduleId === this.selectedSchedule.id &&
+        isDateInThisWeek(reservation.dateToDisplay, new Date(schedule.date))
+      );
+    });
+  }
+
+  private getNonExpiredProducts(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ) {
+    return this.selectedProducts.filter((product) => {
+      return (
+        product.startDateDisplay.getTime() <= schedule.date.getTime() &&
+        product.expirationDateDisplay.getTime() >= schedule.date.getTime()
+      );
+    });
   }
 
   private showAdminAddReservationDialog(
