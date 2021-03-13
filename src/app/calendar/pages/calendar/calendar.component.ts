@@ -270,9 +270,6 @@ export class CalendarComponent implements OnInit {
       nearbyDate.times = JSON.parse(JSON.stringify(distribution.times));
       nearbyDate.times.forEach((time) => {
         time.reservations = [];
-        console.log('this.isBaseDateDefaut', this.isBaseDateDefaut);
-        console.log('time', time);
-        console.log('nearbyDate', nearbyDate);
 
         if (this.isBaseDateDefaut) {
           const timeDate = this.calcDateFromSeparateDate(

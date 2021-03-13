@@ -17,9 +17,6 @@ export const lessThanXHoursToTheFuture = (
   const rhours = Math.floor(hours);
   const minutes = (hours - rhours) * 60;
   const rminutes = Math.round(minutes);
-  console.log(
-    num + ' minutes = ' + rhours + ' hour(s) and ' + rminutes + ' minute(s).'
-  );
   const anHourAgo = new Date();
   anHourAgo.setHours(
     new Date().getHours() + rhours,
