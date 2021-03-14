@@ -53,6 +53,16 @@
       <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i>
     </span>
   </div>
+  <div class="flex flex-row justify-center items-center mt-2" *ngIf="ind === 0 && isBaseDateDefaut">
+    <button mat-raised-button color="primary" (click)="loadAllDefaultDateHours()">Cargar horas anteriores</button>
+  </div>
+
+  <div class="flex flex-row justify-center items-center m-2" *ngIf="!currentDate?.times?.length">
+    <span class="text-lg">
+      No hay espacios disponibles para {{ currentDate.date | date:'fullDate'}}
+    </span>
+  </div>
+
   <ng-container *ngFor="let hour of currentDate.times; let i = index">
     <div class="relative min-h-32 max-h-58 w-full border my-2 p-4" [hidden]="hour.hidden">
       <div class="flex flex-row">

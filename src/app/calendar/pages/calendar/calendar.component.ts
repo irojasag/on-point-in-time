@@ -15,12 +15,13 @@ import { Reservation } from 'src/app/models/reservation.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/models/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, min } from 'rxjs/operators';
 import { Purchase } from 'src/app/models/purchase.model';
 import { Product } from 'src/app/models/product.model';
 import {
   isDateInThisWeek,
   lessThanXHoursToTheFuture,
+  isDateBetween,
 } from '../../../helpers/general.helper';
 import { ReservationSchedulePeriod } from 'src/app/constants/reservation-schedule.constants';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -85,6 +86,15 @@ export class CalendarComponent implements OnInit {
     });
 
     this.setObservables();
+    window.onscroll = (ev) => {
+      if (
+        window.innerHeight + window.pageYOffset >=
+        document.body.offsetHeight
+      ) {
+        this.addNewDates();
+        this.updateNearByDates();
+      }
+    };
   }
 
   private setObservables(): void {
@@ -278,9 +288,9 @@ export class CalendarComponent implements OnInit {
         );
 
         if (this.isBaseDateDefaut) {
-          time.hidden = lessThanXHoursToTheFuture(timeDate, 0.15);
+          time.hidden = lessThanXHoursToTheFuture(timeDate, 0);
         }
-        time.locked = lessThanXHoursToTheFuture(timeDate, 0.15);
+        time.locked = lessThanXHoursToTheFuture(timeDate, 0);
         const timeReservations = (this.reservations || []).filter(
           (reservation) => {
             const firstDate = this.getStandardDateFormat(
@@ -375,11 +385,10 @@ export class CalendarComponent implements OnInit {
       this.showAdminAddReservationDialog(schedule, time);
     } else {
       const isWeeklyAvailable = this.validateWeekAvailability(schedule);
-      // Check availability in general
-      const notExpiredProducts = this.getNonExpiredProducts(schedule);
-      console.log(notExpiredProducts[0]);
 
-      if (isWeeklyAvailable) {
+      const isGeneralAvailable = this.validateGeneralAvailability(schedule);
+
+      if (isWeeklyAvailable && isGeneralAvailable) {
         this.loading = true;
         this.reservationService
           .addReservation({
@@ -409,6 +418,51 @@ export class CalendarComponent implements OnInit {
         );
       }
     }
+  }
+
+  private validateGeneralAvailability(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ): boolean {
+    // TODO: do this depending on the rest of the reservations and products in past time.
+    const notExpiredProducts = this.getNonExpiredProducts(schedule);
+    const { minDate, maxDate } = this.getMinAndMaxDateFromNotExpiredProducts(
+      notExpiredProducts
+    );
+
+    const rangeReservations = this.getReservationsInRange(
+      schedule,
+      minDate,
+      maxDate
+    );
+
+    const notExpiredReservationSpaces = notExpiredProducts.reduce(
+      (sum, product) => sum + product.maxReservations,
+      0
+    );
+
+    const generalReservationsSpacesUsed = rangeReservations.length;
+    const isGeneralAvailable =
+      generalReservationsSpacesUsed < notExpiredReservationSpaces;
+
+    return isGeneralAvailable;
+  }
+
+  private getMinAndMaxDateFromNotExpiredProducts(
+    notExpiredProducts: Product[]
+  ): { minDate: Date; maxDate: Date } {
+    let minDate;
+    let maxDate;
+    notExpiredProducts.forEach((product) => {
+      if (!minDate || minDate > product.startDateDisplay) {
+        minDate = new Date(product.startDateDisplay);
+        minDate.setHours(0, 0, 0, 0);
+      }
+      if (!maxDate || maxDate < product.expirationDateDisplay) {
+        maxDate = new Date(product.expirationDateDisplay);
+        maxDate.setHours(0, 0, 0, 0);
+      }
+    });
+    return { minDate, maxDate };
   }
 
   private validateWeekAvailability(
@@ -505,6 +559,20 @@ export class CalendarComponent implements OnInit {
     });
   }
 
+  private getReservationsInRange(
+    schedule: ReservationScheduleDistribution & { date: Date },
+    startDate: Date,
+    endDate: Date
+  ): Reservation[] {
+    return (this.reservations || []).filter((reservation) => {
+      return (
+        reservation.userId === this.user.uid &&
+        reservation.reservationScheduleId === this.selectedSchedule.id &&
+        isDateBetween(reservation.dateToDisplay, startDate, endDate)
+      );
+    });
+  }
+
   private getNonExpiredProducts(
     schedule: ReservationScheduleDistribution & { date: Date }
   ): Product[] {
@@ -574,5 +642,9 @@ export class CalendarComponent implements OnInit {
     this.bottomSheet.open(AdminReservationBottomSheetComponent, {
       data: reservation,
     });
+  }
+
+  public loadAllDefaultDateHours(): void {
+    this.dateControl.patchValue(new Date());
   }
 }

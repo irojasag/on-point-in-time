@@ -8,6 +8,16 @@ export const isDateInThisWeek = (date: Date, baseDate?: Date) => {
   return date >= sunday && date <= saturday;
 };
 
+export const isDateBetween = (date: Date, minDate: Date, maxDate: Date) => {
+  date = new Date(date);
+  date.setHours(0, 0, 0, 0);
+  minDate = new Date(minDate);
+  minDate.setHours(0, 0, 0, 0);
+  maxDate = new Date(maxDate);
+  maxDate.setHours(0, 0, 0, 0);
+  return date >= minDate && date <= maxDate;
+};
+
 export const lessThanXHoursToTheFuture = (
   date: Date,
   amountOfHours: number
