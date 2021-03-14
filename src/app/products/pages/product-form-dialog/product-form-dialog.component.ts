@@ -186,7 +186,6 @@ export class ProductFormDialogComponent implements OnInit {
   }
 
   private updatemaxReservations(): void {
-    // TODO: FIND A BETTER LOGIC
     this.form.controls.maxReservations.patchValue(
       this.form.controls.reservationsPerWeek.value * 4
     );

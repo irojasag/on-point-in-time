@@ -34,3 +34,19 @@ export const lessThanXHoursToTheFuture = (
   );
   return date.getTime() < anHourAgo.getTime();
 };
+
+export const getSundayCountBetweenDates = (
+  startDate: Date,
+  endDate: Date
+): number => {
+  let totalSundays = 0;
+  if (startDate.getDay() !== 0) {
+    totalSundays += 1;
+  }
+  for (const i = startDate; i <= endDate; i.setDate(i.getDate() + 1)) {
+    if (i.getDay() === 0) {
+      totalSundays += 1;
+    }
+  }
+  return totalSundays;
+};

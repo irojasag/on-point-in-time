@@ -9,6 +9,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ProductActionsBottomSheetComponent } from '../../components/product-actions-bottom-sheet/product-actions-bottom-sheet.component';
 import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
+import { getSundayCountBetweenDates } from 'src/app/helpers/general.helper';
 
 @Component({
   selector: 'app-products',
@@ -38,6 +39,8 @@ export class ProductsComponent implements OnInit {
               return products.map((product) => {
                 return {
                   ...product,
+                  maxReservations:
+                    product.maxReservations || product.reservationsPerWeek * 4,
                   type: schedules.find((s) => s.id === product.type)
                     .displayName,
                   createdDate: product.createdAt
@@ -63,6 +66,8 @@ export class ProductsComponent implements OnInit {
               return products.map((product) => {
                 return {
                   ...product,
+                  maxReservations:
+                    product.maxReservations || product.reservationsPerWeek * 4,
                   type: schedules.find((s) => s.id === product.type)
                     .displayName,
                   createdDate: product.createdAt

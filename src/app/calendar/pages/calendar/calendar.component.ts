@@ -22,6 +22,7 @@ import {
   isDateInThisWeek,
   lessThanXHoursToTheFuture,
   isDateBetween,
+  getSundayCountBetweenDates,
 } from '../../../helpers/general.helper';
 import { ReservationSchedulePeriod } from 'src/app/constants/reservation-schedule.constants';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -178,6 +179,13 @@ export class CalendarComponent implements OnInit {
                 product.startDate = product.startDate || purchase.purchasedAt;
                 product.startDateDisplay = product.startDate.toDate();
                 product.startDateDisplay.setHours(0, 0, 0, 0);
+                product.maxReservations =
+                  product.maxReservations ||
+                  getSundayCountBetweenDates(
+                    product.startDate.toDate(),
+                    product.expirationDate.toDate()
+                  ) * product.reservationsPerWeek;
+
                 if (
                   product.expirationDate.toDate().getTime() >=
                   new Date().getTime()

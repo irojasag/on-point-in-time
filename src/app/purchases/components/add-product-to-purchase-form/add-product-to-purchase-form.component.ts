@@ -12,6 +12,7 @@ import {
 import { MatDialogRef } from '@angular/material/dialog';
 import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 import { ProductsService } from 'src/app/services/products/products.service';
+import { getSundayCountBetweenDates } from 'src/app/helpers/general.helper';
 
 @Component({
   selector: 'app-add-product-to-purchase-form',
@@ -186,15 +187,17 @@ export class AddProductToPurchaseFormComponent implements OnInit {
       default:
         break;
     }
+    expirationDate.setDate(expirationDate.getDate() - 1);
     this.form.controls.expirationDate.patchValue(expirationDate);
   }
 
   private updatemaxReservations(): void {
-    // TODO: FIND A BETTER LOGIC
-    // Cantidad de seamanas entre la fecha inicio y expiración
-    // Consigue fecha de expiración
+    const weeksCount = getSundayCountBetweenDates(
+      new Date(this.form.controls.startDate.value),
+      new Date(this.form.controls.expirationDate.value)
+    );
     this.form.controls.maxReservations.patchValue(
-      this.form.controls.reservationsPerWeek.value * 4
+      this.form.controls.reservationsPerWeek.value * weeksCount
     );
   }
 
