@@ -46,10 +46,8 @@
 <div *ngFor="let currentDate of nearbyDates; let ind = index;" class="min-h-full pb-2 bg-white border-b rounded-xl shadow-sm">
   <div id="date-{{ind}}" class="bg-blue-500 flex flex-row justify-between h-8 items-center px-4 rounded-t-xl">
     <span class="text-white">
-      <!-- Mostrar Calendario -->
       <i class="fas fa-chevron-left" (click)="picker.open()"></i>
       {{ currentDate.date | date:'fullDate'}}
-      <!-- Saltar al día siguiente -->
       <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i>
     </span>
   </div>
@@ -58,7 +56,7 @@
   </div>
 
   <div class="flex flex-row justify-center items-center m-2" *ngIf="!currentDate?.times?.length">
-    <span class="text-lg">
+    <span class="text-md">
       No hay espacios disponibles para {{ currentDate.date | date:'fullDate'}}
     </span>
   </div>
