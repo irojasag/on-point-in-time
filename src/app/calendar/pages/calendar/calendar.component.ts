@@ -33,6 +33,9 @@ import { UserService } from 'src/app/services/user/user.service';
 import { PurchaseService } from 'src/app/services/purchase/purchase.service';
 import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 import { ReservationService } from 'src/app/services/reservation/reservation.service';
+import { CalendarNotesService } from 'src/app/services/calendar-notes/calendar-notes.service';
+import { CalendarNote } from 'src/app/models/calendar-note.model';
+import { CalendarNoteFormComponent } from '../../components/calendar-note-form/calendar-note-form.component';
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
@@ -41,12 +44,14 @@ import { ReservationService } from 'src/app/services/reservation/reservation.ser
 export class CalendarComponent implements OnInit {
   public schedules$: Observable<ReservationSchedule[]>;
   public reservations$: Observable<Reservation[]>;
+  public calendarNotes$: Observable<CalendarNote[]>;
   public purchases$: Observable<Purchase[]>;
   public products$: Observable<Product[]>;
   public products: Product[] = [];
   public selectedProducts: Product[] = [];
   public schedules: ReservationSchedule[];
   public reservations: Reservation[];
+  public calendarNotes: CalendarNote[];
   public form: FormGroup;
 
   public selectedSchedule: ReservationSchedule;
@@ -73,7 +78,8 @@ export class CalendarComponent implements OnInit {
     private userService: UserService,
     private purchaseService: PurchaseService,
     private reservationSchedule: ReservatonScheduleService,
-    private reservationService: ReservationService
+    private reservationService: ReservationService,
+    private calendarNoteService: CalendarNotesService
   ) {
     this.baseDate = new Date();
     this.baseDate.setHours(0, 0, 0, 0);
@@ -111,6 +117,17 @@ export class CalendarComponent implements OnInit {
             dateToDisplay: reservation.date.toDate(),
             time: reservation.hour + ' ' + reservation.period,
             user: users.find((a) => a.uid === reservation.userId),
+          };
+        });
+      })
+    );
+    this.calendarNotes$ = this.calendarNoteService.calendarNotes$.pipe(
+      map((calendarNotes) => {
+        return calendarNotes.map((calendarNote) => {
+          return {
+            ...calendarNote,
+            dateToDisplay: calendarNote.date.toDate(),
+            time: calendarNote.hour + ' ' + calendarNote.period,
           };
         });
       })
@@ -167,6 +184,7 @@ export class CalendarComponent implements OnInit {
     this.addNewDates();
     this.handleSchedulesSubscription();
     this.handleReservationsSubscription();
+    this.handleCalendarNotesSubscription();
     this.auth.user$.subscribe((user) => {
       this.user = user;
       if (user) {
@@ -277,6 +295,15 @@ export class CalendarComponent implements OnInit {
     });
   }
 
+  private handleCalendarNotesSubscription(): void {
+    this.calendarNotes$.subscribe((calendarNotes) => {
+      this.calendarNotes = calendarNotes || [];
+      if (this.calendarNotes) {
+        this.updateNearByDates();
+      }
+    });
+  }
+
   private updateNearByDates(): void {
     this.nearbyDates.forEach((nearbyDate) => {
       const date = nearbyDate.date;
@@ -299,43 +326,73 @@ export class CalendarComponent implements OnInit {
           time.hidden = lessThanXHoursToTheFuture(timeDate, 0);
         }
         time.locked = lessThanXHoursToTheFuture(timeDate, 0);
-        const timeReservations = (this.reservations || []).filter(
-          (reservation) => {
-            const firstDate = this.getStandardDateFormat(
-              nearbyDate.date as Date
-            );
-            const secondDate = this.getStandardDateFormat(
-              reservation.dateToDisplay as Date
-            );
+        const timeReservations = this.findReservationsForNearByDate(
+          nearbyDate,
+          time
+        );
 
-            const condition =
-              reservation.reservationScheduleId === this.selectedSchedule.id &&
-              firstDate === secondDate &&
-              reservation.time === time.time;
-            const reservationTime = this.calcDateFromSeparateDate(
-              reservation.dateToDisplay,
-              reservation.hour,
-              reservation.period
-            );
-
-            if (condition && reservation.userId === this.user.uid) {
-              time.booked = true;
-              time.confirmed = reservation.confirmed;
-              time.asisted = reservation.asisted;
-
-              time.locked = lessThanXHoursToTheFuture(reservationTime, 0.25); // 0.25 * 60 => 15 min
-            }
-            return condition;
-          }
+        const calendarNotes = this.findCalendarNotesForNearByDate(
+          nearbyDate,
+          time
         );
 
         time.reservations = timeReservations;
+        time.calendarNotes = calendarNotes;
       });
 
       nearbyDate.displayName =
         distribution.displayName || this.selectedSchedule.displayName;
     });
     this.loading = false;
+  }
+
+  private findReservationsForNearByDate(
+    nearbyDate: any,
+    time: any
+  ): Reservation[] {
+    return (this.reservations || []).filter((reservation) => {
+      const firstDate = this.getStandardDateFormat(nearbyDate.date as Date);
+      const secondDate = this.getStandardDateFormat(
+        reservation.dateToDisplay as Date
+      );
+
+      const condition =
+        reservation.reservationScheduleId === this.selectedSchedule.id &&
+        firstDate === secondDate &&
+        reservation.time === time.time;
+      const reservationTime = this.calcDateFromSeparateDate(
+        reservation.dateToDisplay,
+        reservation.hour,
+        reservation.period
+      );
+
+      if (condition && reservation.userId === this.user.uid) {
+        time.booked = true;
+        time.confirmed = reservation.confirmed;
+        time.asisted = reservation.asisted;
+
+        time.locked = lessThanXHoursToTheFuture(reservationTime, 0.25); // 0.25 * 60 => 15 min
+      }
+      return condition;
+    });
+  }
+
+  private findCalendarNotesForNearByDate(
+    nearbyDate: any,
+    time: any
+  ): CalendarNote[] {
+    return (this.calendarNotes || []).filter((reservation) => {
+      const firstDate = this.getStandardDateFormat(nearbyDate.date as Date);
+      const secondDate = this.getStandardDateFormat(
+        reservation.dateToDisplay as Date
+      );
+
+      const condition =
+        reservation.reservationScheduleId === this.selectedSchedule.id &&
+        firstDate === secondDate &&
+        reservation.time === time.time;
+      return condition;
+    });
   }
 
   private calcDateFromSeparateDate(
@@ -611,6 +668,22 @@ export class CalendarComponent implements OnInit {
     });
   }
 
+  private showCalendarNoteDialog(
+    schedule: ReservationScheduleDistribution & { date: Date },
+    time: ReservationScheduleTime
+  ): void {
+    this.dialog.open(CalendarNoteFormComponent, {
+      height: '300px',
+      width: '300px',
+      data: {
+        reservationScheduleId: this.selectedSchedule.id,
+        date: schedule.date,
+        hour: time.hour,
+        period: time.period,
+      },
+    });
+  }
+
   public removeReservation(reservations: Reservation[]): void {
     if (this.loading) {
       return;
@@ -654,5 +727,42 @@ export class CalendarComponent implements OnInit {
 
   public loadAllDefaultDateHours(): void {
     this.dateControl.patchValue(new Date());
+  }
+
+  public deleteStikyNote(id: string): void {
+    this.loading = true;
+    this.calendarNoteService.deleteCalendarNote(id).then(() => {
+      this.snackBar.open(`Se ha eliminado la nota`, '', {
+        duration: 2000,
+      });
+    });
+  }
+
+  public editStickyNote(
+    schedule: ReservationScheduleDistribution & { date: Date },
+    time: ReservationScheduleTime
+  ): void {
+    this.showCalendarNoteDialog(schedule, time);
+    // this.loading = true;
+    // this.calendarNoteService
+    //   .addCalendarNote({
+    //     reservationScheduleId: this.selectedSchedule.id,
+    //     date: schedule.date,
+    //     hour: time.hour,
+    //     period: time.period,
+    //     content:
+    //       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+    //   })
+    //   .then((success) => {
+    //     if (success) {
+    //       this.snackBar.open(`Se añadido la nota`, '', {
+    //         duration: 2000,
+    //       });
+    //       this.loading = false;
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     this.loading = false;
+    //   });
   }
 }

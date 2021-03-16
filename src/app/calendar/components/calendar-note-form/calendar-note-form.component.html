@@ -1,0 +1,19 @@
+<form [formGroup]="form">
+  <div class="flex flex-row justify-center items-center mb-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>Contenido</mat-label>
+      <textarea class="resize-none" rows="9" matInput formControlName="content"></textarea>
+      <mat-error *ngIf="form.controls.content.hasError('required')">
+        El contenido es <strong>requerido</strong>
+      </mat-error>
+    </mat-form-field>
+  </div>
+  <div class="flex flex-row justify-end items-center">
+    <div>
+      <button mat-stroked-button color="warn" mat-dialog-close>Cancelar</button>
+    </div>
+    <div class="ml-2">
+      <button mat-raised-button color="primary" [disabled]="form.invalid" class="ml-4" (click)="saveNote()">Guardar</button>
+    </div>
+  </div>
+</form>

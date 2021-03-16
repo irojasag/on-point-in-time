@@ -72,11 +72,12 @@
           <span class="">{{hour.spaces - hour.reservations.length}} de {{hour.spaces}} espacios disponibles</span>
         </div>
       </div>
-      <!-- <div class="flex flex-row justify-center items-center" *ngIf="i > 1">
-        <div class="flex flex-col bg-yellow-300 h-20 w-48">
-          <span class="font-semibold">Texto de prueba</span>
+      <div class="flex flex-row justify-center items-center m-2" *ngFor="let calendarNote of hour.calendarNotes">
+        <div class="flex flex-col bg-yellow-300 min-h-20 min-w-48 p-4 relative">
+          <i *ngIf="user?.isAdmin || user?.isSuperAdmin" class="fas fa-trash text-red-500 absolute right-2 top-2 cursor-pointer" (click)="deleteStikyNote(calendarNote.id)"></i>
+          <span class="font-semibold">{{calendarNote.content}}</span>
         </div>
-      </div> -->
+      </div>
       <div class="flex flex-row justify-end items-center mr-5">
         <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let reservation of hour.reservations">
           <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
@@ -114,6 +115,13 @@
           </div>
         </div>
 
+        <!-- Notepad -->
+        <div class="absolute left-4 top-0 mt-16" *ngIf="user?.isAdmin || user?.isSuperAdmin">
+          <div class="flex flex-row justify-center items-center">
+            <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-yellow-500 text-white cursor-pointer" (click)="editStickyNote(currentDate, hour)"><i
+                class="fas fa-sticky-note text-lg"></i></div>
+          </div>
+        </div>
       </div>
 
       <div class="flex flex-row items-center mt-2 mr-5" *ngIf="user?.isAdmin || user?.isSuperAdmin">
