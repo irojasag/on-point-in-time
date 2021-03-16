@@ -12,6 +12,7 @@ import {
 import { MatDialogRef } from '@angular/material/dialog';
 import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 import { ProductsService } from 'src/app/services/products/products.service';
+import { getSundayCountBetweenDates } from 'src/app/helpers/general.helper';
 
 @Component({
   selector: 'app-add-product-to-purchase-form',
@@ -34,9 +35,39 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     private reservationScheduleService: ReservatonScheduleService,
     private productsService: ProductsService
   ) {
+    this.setUpForm();
+
+    this.products$ = this.productsService.products$;
+
+    this.products$.subscribe((products) => (this.products = products));
+
+    this.filteredProducts$ = this.form.controls.productId.valueChanges.pipe(
+      startWith(''),
+      map((state) =>
+        state ? this._filterProducts(state) : (this.products || []).slice()
+      )
+    );
+
+    this.reservationScheduleService.reservationSchedules$.subscribe(
+      (schedules) => {
+        schedules = schedules || [];
+        this.typeOptions = [];
+        schedules.forEach((schedule) => {
+          this.typeOptions.push({
+            value: schedule.id,
+            displayName: schedule.displayName,
+          });
+        });
+        if (!this.form.controls.type.value) {
+          this.form.controls.type.patchValue(this.typeOptions[0].value);
+        }
+      }
+    );
+  }
+
+  private setUpForm(): void {
     this.form = this.formBuilder.group({
       productId: [null, Validators.required],
-
       type: [ProductTypes.MEMBERSHIP, Validators.required],
       name: [null, Validators.required],
       price: [
@@ -61,6 +92,10 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
       reservationsPerWeek: [
+        1,
+        Validators.compose([Validators.max(999999999999), Validators.min(1)]),
+      ],
+      maxReservations: [
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
@@ -94,33 +129,11 @@ export class AddProductToPurchaseFormComponent implements OnInit {
         this.updateExpirationDate();
       }, 300);
     });
-
-    this.products$ = this.productsService.products$;
-
-    this.products$.subscribe((products) => (this.products = products));
-
-    this.filteredProducts$ = this.form.controls.productId.valueChanges.pipe(
-      startWith(''),
-      map((state) =>
-        state ? this._filterProducts(state) : (this.products || []).slice()
-      )
-    );
-
-    this.reservationScheduleService.reservationSchedules$.subscribe(
-      (schedules) => {
-        schedules = schedules || [];
-        this.typeOptions = [];
-        schedules.forEach((schedule) => {
-          this.typeOptions.push({
-            value: schedule.id,
-            displayName: schedule.displayName,
-          });
-        });
-        if (!this.form.controls.type.value) {
-          this.form.controls.type.patchValue(this.typeOptions[0].value);
-        }
-      }
-    );
+    this.form.controls.reservationsPerWeek.valueChanges.subscribe(() => {
+      setTimeout(() => {
+        this.updatemaxReservations();
+      }, 300);
+    });
   }
 
   ngOnInit(): void {}
@@ -143,6 +156,7 @@ export class AddProductToPurchaseFormComponent implements OnInit {
     this.form.controls.expirationFrequency.patchValue(
       ProductExpirationFrequencies.MONTHS
     );
+    this.form.controls.maxReservations.patchValue(product.maxReservations || 1);
     this.form.controls.reservationsPerWeek.patchValue(
       product.reservationsPerWeek || 1
     );
@@ -173,7 +187,18 @@ export class AddProductToPurchaseFormComponent implements OnInit {
       default:
         break;
     }
+    expirationDate.setDate(expirationDate.getDate() - 1);
     this.form.controls.expirationDate.patchValue(expirationDate);
+  }
+
+  private updatemaxReservations(): void {
+    const weeksCount = getSundayCountBetweenDates(
+      new Date(this.form.controls.startDate.value),
+      new Date(this.form.controls.expirationDate.value)
+    );
+    this.form.controls.maxReservations.patchValue(
+      this.form.controls.reservationsPerWeek.value * weeksCount
+    );
   }
 
   public saveProduct(): void {

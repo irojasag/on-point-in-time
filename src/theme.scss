@@ -2,6 +2,11 @@
 @include mat-core();
 
 /* ======== Angular material custom themes ======== */
+$custom-typography: mat-typography-config(
+  $font-family: '"Montserrat", sans-serif;',
+);
+@include mat-core($custom-typography);
+
 $custom-theme-primary: (
   50: #eff6ff,
   100: #dbeafe,

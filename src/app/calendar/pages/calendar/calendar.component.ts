@@ -15,12 +15,14 @@ import { Reservation } from 'src/app/models/reservation.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/models/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { switchMap, map } from 'rxjs/operators';
+import { switchMap, map, min } from 'rxjs/operators';
 import { Purchase } from 'src/app/models/purchase.model';
 import { Product } from 'src/app/models/product.model';
 import {
   isDateInThisWeek,
   lessThanXHoursToTheFuture,
+  isDateBetween,
+  getSundayCountBetweenDates,
 } from '../../../helpers/general.helper';
 import { ReservationSchedulePeriod } from 'src/app/constants/reservation-schedule.constants';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -58,6 +60,8 @@ export class CalendarComponent implements OnInit {
   public haveActiveProducts: boolean;
 
   public loading: boolean;
+  public baseDate: Date;
+  public isBaseDateDefaut: boolean;
 
   constructor(
     private renderer: Renderer2,
@@ -71,18 +75,31 @@ export class CalendarComponent implements OnInit {
     private reservationSchedule: ReservatonScheduleService,
     private reservationService: ReservationService
   ) {
+    this.baseDate = new Date();
+    this.baseDate.setHours(0, 0, 0, 0);
+    this.isBaseDateDefaut = true;
+
     this.dateControl = new FormControl(new Date());
     this.loading = true;
     this.haveActiveProducts = false;
     this.form = this.formBuilder.group({
       schedule: [null, Validators.required],
     });
+
     this.setObservables();
+    window.onscroll = (ev) => {
+      if (
+        window.innerHeight + window.pageYOffset >=
+        document.body.offsetHeight
+      ) {
+        this.addNewDates();
+        this.updateNearByDates();
+      }
+    };
   }
 
   private setObservables(): void {
     this.schedules$ = this.reservationSchedule.reservationSchedules$;
-
     this.reservations$ = this.reservationService.reservations$.pipe(
       switchMap((reservations) => {
         return combineLatest([of(reservations), this.userService.users$]);
@@ -114,6 +131,15 @@ export class CalendarComponent implements OnInit {
     });
 
     this.dateControl.valueChanges.subscribe((newDate) => {
+      const newDateToMove = new Date(newDate);
+      newDateToMove.setHours(0, 0, 0, 0);
+
+      this.baseDate = newDateToMove;
+      this.isBaseDateDefaut = false;
+      this.nearbyDates = [];
+      this.addNewDates();
+      this.updateNearByDates();
+
       let index = 0;
       this.nearbyDates.find((currentDate, i) => {
         let date = ('0' + currentDate.date.getDate()).slice(-2);
@@ -153,6 +179,13 @@ export class CalendarComponent implements OnInit {
                 product.startDate = product.startDate || purchase.purchasedAt;
                 product.startDateDisplay = product.startDate.toDate();
                 product.startDateDisplay.setHours(0, 0, 0, 0);
+                product.maxReservations =
+                  product.maxReservations ||
+                  getSundayCountBetweenDates(
+                    product.startDate.toDate(),
+                    product.expirationDate.toDate()
+                  ) * product.reservationsPerWeek;
+
                 if (
                   product.expirationDate.toDate().getTime() >=
                   new Date().getTime()
@@ -255,52 +288,41 @@ export class CalendarComponent implements OnInit {
       nearbyDate.times = JSON.parse(JSON.stringify(distribution.times));
       nearbyDate.times.forEach((time) => {
         time.reservations = [];
+
+        const timeDate = this.calcDateFromSeparateDate(
+          nearbyDate.date,
+          time.hour,
+          time.period
+        );
+
+        if (this.isBaseDateDefaut) {
+          time.hidden = lessThanXHoursToTheFuture(timeDate, 0);
+        }
+        time.locked = lessThanXHoursToTheFuture(timeDate, 0);
         const timeReservations = (this.reservations || []).filter(
           (reservation) => {
-            const firstDate =
-              (nearbyDate.date as Date).getFullYear() +
-              '-' +
-              (nearbyDate.date as Date).getMonth() +
-              '-' +
-              (nearbyDate.date as Date).getDate();
-            const secondDate =
-              (reservation.dateToDisplay as Date).getFullYear() +
-              '-' +
-              (reservation.dateToDisplay as Date).getMonth() +
-              '-' +
-              (reservation.dateToDisplay as Date).getDate();
+            const firstDate = this.getStandardDateFormat(
+              nearbyDate.date as Date
+            );
+            const secondDate = this.getStandardDateFormat(
+              reservation.dateToDisplay as Date
+            );
 
             const condition =
               reservation.reservationScheduleId === this.selectedSchedule.id &&
               firstDate === secondDate &&
               reservation.time === time.time;
+            const reservationTime = this.calcDateFromSeparateDate(
+              reservation.dateToDisplay,
+              reservation.hour,
+              reservation.period
+            );
 
             if (condition && reservation.userId === this.user.uid) {
               time.booked = true;
               time.confirmed = reservation.confirmed;
               time.asisted = reservation.asisted;
 
-              let reservationHour = Number(reservation.hour.split(':')[0]);
-              if (
-                reservationHour === 12 &&
-                reservation.period === ReservationSchedulePeriod.AM
-              ) {
-                reservationHour = 0;
-              }
-              if (
-                reservation.period === ReservationSchedulePeriod.PM &&
-                reservationHour !== 12
-              ) {
-                reservationHour += 12;
-              }
-              const reservationTime = new Date(
-                reservation.dateToDisplay.getFullYear(),
-                reservation.dateToDisplay.getMonth(),
-                reservation.dateToDisplay.getDate(),
-                reservationHour,
-                Number(reservation.hour.split(':')[1]),
-                0
-              );
               time.locked = lessThanXHoursToTheFuture(reservationTime, 0.25); // 0.25 * 60 => 15 min
             }
             return condition;
@@ -309,16 +331,40 @@ export class CalendarComponent implements OnInit {
 
         time.reservations = timeReservations;
       });
+
       nearbyDate.displayName =
         distribution.displayName || this.selectedSchedule.displayName;
     });
     this.loading = false;
   }
 
+  private calcDateFromSeparateDate(
+    baseDate: Date,
+    hour: string,
+    period: string
+  ): Date {
+    let reservationHour = Number(hour.split(':')[0]);
+    if (reservationHour === 12 && period === ReservationSchedulePeriod.AM) {
+      reservationHour = 0;
+    }
+    if (period === ReservationSchedulePeriod.PM && reservationHour !== 12) {
+      reservationHour += 12;
+    }
+    const reservationTime = new Date(
+      baseDate.getFullYear(),
+      baseDate.getMonth(),
+      baseDate.getDate(),
+      reservationHour,
+      Number(hour.split(':')[1]),
+      0
+    );
+    return reservationTime;
+  }
+
   private addNewDates(): void {
     const length = this.nearbyDates.length;
     for (let i = 0; i < 20; i++) {
-      const newDate = new Date();
+      const newDate = new Date(this.baseDate);
       newDate.setDate(newDate.getDate() + i + length);
       newDate.setHours(0, 0, 0, 0);
       this.nearbyDates.push({ date: newDate });
@@ -346,105 +392,11 @@ export class CalendarComponent implements OnInit {
     if (this.user.isAdmin || this.user.isSuperAdmin) {
       this.showAdminAddReservationDialog(schedule, time);
     } else {
-      this.loading = true;
-      const notExpiredProducts = this.selectedProducts.filter((product) => {
-        return (
-          product.startDateDisplay.getTime() <= schedule.date.getTime() &&
-          product.expirationDateDisplay.getTime() >= schedule.date.getTime()
-        );
-      });
-      const currentWeekReservations = (this.reservations || []).filter(
-        (reservation) => {
-          return (
-            reservation.userId === this.user.uid &&
-            reservation.reservationScheduleId === this.selectedSchedule.id &&
-            isDateInThisWeek(reservation.dateToDisplay, new Date(schedule.date))
-          );
-        }
-      );
+      const isWeeklyAvailable = this.validateWeekAvailability(schedule);
 
-      const newReservDate = `${schedule.date.getFullYear()}-${
-        (schedule.date.getMonth() < 10 ? '0' : '') + schedule.date.getMonth()
-      }-${schedule.date.getDate()}`;
+      const isGeneralAvailable = this.validateGeneralAvailability(schedule);
 
-      const currentReservationDates = currentWeekReservations.map(
-        (reserv) =>
-          `${reserv.dateToDisplay.getFullYear()}-${
-            (reserv.dateToDisplay.getMonth() < 10 ? '0' : '') +
-            reserv.dateToDisplay.getMonth()
-          }-${reserv.dateToDisplay.getDate()}`
-      );
-      currentReservationDates.push(newReservDate);
-      currentReservationDates.sort();
-
-      let distributionForLimitedReservations = [0, 0, 0, 0, 0, 0, 0];
-      notExpiredProducts
-        .filter((prod) => prod.reservationsPerDay)
-        .forEach((prod) => {
-          let remainingReservPerWeek = 0 + prod.reservationsPerWeek;
-          let index = -1;
-          while (remainingReservPerWeek) {
-            index++;
-            if (remainingReservPerWeek - prod.reservationsPerDay >= 0) {
-              distributionForLimitedReservations[index] +=
-                prod.reservationsPerDay;
-              remainingReservPerWeek =
-                remainingReservPerWeek - prod.reservationsPerDay;
-            } else {
-              distributionForLimitedReservations[
-                index
-              ] += remainingReservPerWeek;
-              remainingReservPerWeek = 0;
-            }
-          }
-          return prod;
-        });
-
-      distributionForLimitedReservations = distributionForLimitedReservations.filter(
-        (reserv) => !!reserv
-      );
-
-      let allowReservation = true;
-      let pastDate = null;
-      let isNewDate = false;
-      let isFirst = true;
-      let lastAvailability = null;
-
-      currentReservationDates.forEach((date) => {
-        if (pastDate !== date) {
-          pastDate = date;
-          isNewDate = true;
-          if (isNewDate && !isFirst) {
-            distributionForLimitedReservations.push(
-              distributionForLimitedReservations.shift()
-            );
-            distributionForLimitedReservations = distributionForLimitedReservations.filter(
-              (reserv) => !!reserv
-            );
-          }
-          isFirst = false;
-        }
-
-        if (date === newReservDate) {
-          lastAvailability = distributionForLimitedReservations[0] || 0;
-        }
-        if (distributionForLimitedReservations.length) {
-          distributionForLimitedReservations[0]--;
-        }
-      });
-
-      if (
-        lastAvailability > 0 ||
-        (lastAvailability === null &&
-          distributionForLimitedReservations[1] &&
-          distributionForLimitedReservations[1] > 0)
-      ) {
-        allowReservation = true;
-      } else {
-        allowReservation = false;
-      }
-
-      if (allowReservation) {
+      if (isWeeklyAvailable && isGeneralAvailable) {
         this.loading = true;
         this.reservationService
           .addReservation({
@@ -474,6 +426,170 @@ export class CalendarComponent implements OnInit {
         );
       }
     }
+  }
+
+  private validateGeneralAvailability(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ): boolean {
+    // TODO: do this depending on the rest of the reservations and products in past time.
+    const notExpiredProducts = this.getNonExpiredProducts(schedule);
+    const { minDate, maxDate } = this.getMinAndMaxDateFromNotExpiredProducts(
+      notExpiredProducts
+    );
+
+    const rangeReservations = this.getReservationsInRange(
+      schedule,
+      minDate,
+      maxDate
+    );
+
+    const notExpiredReservationSpaces = notExpiredProducts.reduce(
+      (sum, product) => sum + product.maxReservations,
+      0
+    );
+
+    const generalReservationsSpacesUsed = rangeReservations.length;
+    const isGeneralAvailable =
+      generalReservationsSpacesUsed < notExpiredReservationSpaces;
+
+    return isGeneralAvailable;
+  }
+
+  private getMinAndMaxDateFromNotExpiredProducts(
+    notExpiredProducts: Product[]
+  ): { minDate: Date; maxDate: Date } {
+    let minDate;
+    let maxDate;
+    notExpiredProducts.forEach((product) => {
+      if (!minDate || minDate > product.startDateDisplay) {
+        minDate = new Date(product.startDateDisplay);
+        minDate.setHours(0, 0, 0, 0);
+      }
+      if (!maxDate || maxDate < product.expirationDateDisplay) {
+        maxDate = new Date(product.expirationDateDisplay);
+        maxDate.setHours(0, 0, 0, 0);
+      }
+    });
+    return { minDate, maxDate };
+  }
+
+  private validateWeekAvailability(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ): boolean {
+    this.loading = true;
+    const notExpiredProducts = this.getNonExpiredProducts(schedule);
+    const currentWeekReservations = this.getWeekReservations(schedule);
+    const newReservDate = this.getStandardDateFormat(schedule.date);
+    const currentReservationDates = currentWeekReservations.map((reserv) =>
+      this.getStandardDateFormat(reserv.dateToDisplay)
+    );
+
+    currentReservationDates.push(newReservDate);
+    currentReservationDates.sort();
+
+    let distributionForLimitedReservations = [0, 0, 0, 0, 0, 0, 0];
+
+    notExpiredProducts
+      .filter((prod) => prod.reservationsPerDay)
+      .forEach((prod) => {
+        let remainingReservPerWeek = 0 + prod.reservationsPerWeek;
+        let index = -1;
+        while (remainingReservPerWeek) {
+          index++;
+          if (remainingReservPerWeek - prod.reservationsPerDay >= 0) {
+            distributionForLimitedReservations[index] +=
+              prod.reservationsPerDay;
+            remainingReservPerWeek =
+              remainingReservPerWeek - prod.reservationsPerDay;
+          } else {
+            distributionForLimitedReservations[index] += remainingReservPerWeek;
+            remainingReservPerWeek = 0;
+          }
+        }
+        return prod;
+      });
+
+    distributionForLimitedReservations = distributionForLimitedReservations.filter(
+      (reserv) => !!reserv
+    );
+
+    let pastDate = null;
+    let isNewDate = false;
+    let isFirst = true;
+    let lastAvailability = null;
+
+    currentReservationDates.forEach((date) => {
+      if (pastDate !== date) {
+        pastDate = date;
+        isNewDate = true;
+        if (isNewDate && !isFirst) {
+          distributionForLimitedReservations.push(
+            distributionForLimitedReservations.shift()
+          );
+          distributionForLimitedReservations = distributionForLimitedReservations.filter(
+            (reserv) => !!reserv
+          );
+        }
+        isFirst = false;
+      }
+
+      if (date === newReservDate) {
+        lastAvailability = distributionForLimitedReservations[0] || 0;
+      }
+      if (distributionForLimitedReservations.length) {
+        distributionForLimitedReservations[0]--;
+      }
+    });
+
+    const condition =
+      lastAvailability > 0 ||
+      (lastAvailability === null &&
+        distributionForLimitedReservations[1] &&
+        distributionForLimitedReservations[1] > 0);
+    return condition;
+  }
+
+  private getStandardDateFormat(date: Date): string {
+    return `${date.getFullYear()}-${
+      (date.getMonth() < 10 ? '0' : '') + date.getMonth()
+    }-${date.getDate()}`;
+  }
+
+  private getWeekReservations(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ): Reservation[] {
+    return (this.reservations || []).filter((reservation) => {
+      return (
+        reservation.userId === this.user.uid &&
+        reservation.reservationScheduleId === this.selectedSchedule.id &&
+        isDateInThisWeek(reservation.dateToDisplay, new Date(schedule.date))
+      );
+    });
+  }
+
+  private getReservationsInRange(
+    schedule: ReservationScheduleDistribution & { date: Date },
+    startDate: Date,
+    endDate: Date
+  ): Reservation[] {
+    return (this.reservations || []).filter((reservation) => {
+      return (
+        reservation.userId === this.user.uid &&
+        reservation.reservationScheduleId === this.selectedSchedule.id &&
+        isDateBetween(reservation.dateToDisplay, startDate, endDate)
+      );
+    });
+  }
+
+  private getNonExpiredProducts(
+    schedule: ReservationScheduleDistribution & { date: Date }
+  ): Product[] {
+    return this.selectedProducts.filter((product) => {
+      return (
+        product.startDateDisplay.getTime() <= schedule.date.getTime() &&
+        product.expirationDateDisplay.getTime() >= schedule.date.getTime()
+      );
+    });
   }
 
   private showAdminAddReservationDialog(
@@ -534,5 +650,9 @@ export class CalendarComponent implements OnInit {
     this.bottomSheet.open(AdminReservationBottomSheetComponent, {
       data: reservation,
     });
+  }
+
+  public loadAllDefaultDateHours(): void {
+    this.dateControl.patchValue(new Date());
   }
 }

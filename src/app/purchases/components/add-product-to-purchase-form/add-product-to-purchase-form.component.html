@@ -110,6 +110,22 @@
         </mat-form-field>
       </div>
 
+      <div class="flex flex-row justify-center items-center mb-2">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Cantidad máxima de reservaciones</mat-label>
+          <input matInput type="number" placeholder="Cantidad máxima de reservaciones" class="w-full" formControlName="maxReservations">
+          <mat-error *ngIf="form.controls.maxReservations.hasError('required')">
+            La cantidad de reservaciones es <strong>requerido</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.maxReservations.hasError('max')">
+            La cantidad de reservaciones debe ser menor que <strong>{{form.controls.maxReservations.errors.max.max}}</strong>
+          </mat-error>
+          <mat-error *ngIf="form.controls.maxReservations.hasError('min')">
+            La cantidad de reservaciones debe ser mínimo <strong>{{form.controls.maxReservations.errors.min.min}}</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+
 
       <div class="flex flex-row justify-center items-center mb-2">
         <mat-form-field appearance="outline" class="w-full">

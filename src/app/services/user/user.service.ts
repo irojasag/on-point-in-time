@@ -18,7 +18,6 @@ export class UserService {
       .valueChanges({ idField: 'id' })
       .pipe(
         map((users) => {
-          console.log('MAP USERS');
           users = users || [];
           return users.map((user) => {
             return {

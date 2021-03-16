@@ -11,7 +11,7 @@ export class PaymentMethodsService {
 
   public get paymentMethods$(): Observable<PaymentMethod[]> {
     return this.afs
-      .collection<PaymentMethod>('payment-method')
+      .collection<PaymentMethod>('payment-methods')
       .valueChanges({ idField: 'id' });
   }
 

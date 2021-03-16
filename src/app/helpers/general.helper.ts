@@ -8,6 +8,16 @@ export const isDateInThisWeek = (date: Date, baseDate?: Date) => {
   return date >= sunday && date <= saturday;
 };
 
+export const isDateBetween = (date: Date, minDate: Date, maxDate: Date) => {
+  date = new Date(date);
+  date.setHours(0, 0, 0, 0);
+  minDate = new Date(minDate);
+  minDate.setHours(0, 0, 0, 0);
+  maxDate = new Date(maxDate);
+  maxDate.setHours(0, 0, 0, 0);
+  return date >= minDate && date <= maxDate;
+};
+
 export const lessThanXHoursToTheFuture = (
   date: Date,
   amountOfHours: number
@@ -17,13 +27,26 @@ export const lessThanXHoursToTheFuture = (
   const rhours = Math.floor(hours);
   const minutes = (hours - rhours) * 60;
   const rminutes = Math.round(minutes);
-  console.log(
-    num + ' minutes = ' + rhours + ' hour(s) and ' + rminutes + ' minute(s).'
-  );
   const anHourAgo = new Date();
   anHourAgo.setHours(
     new Date().getHours() + rhours,
     new Date().getMinutes() + rminutes
   );
   return date.getTime() < anHourAgo.getTime();
+};
+
+export const getSundayCountBetweenDates = (
+  startDate: Date,
+  endDate: Date
+): number => {
+  let totalSundays = 0;
+  if (startDate.getDay() !== 0) {
+    totalSundays += 1;
+  }
+  for (const i = startDate; i <= endDate; i.setDate(i.getDate() + 1)) {
+    if (i.getDay() === 0) {
+      totalSundays += 1;
+    }
+  }
+  return totalSundays;
 };
