@@ -4,8 +4,8 @@ import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { PurchaseService } from 'src/app/services/purchase/purchase.service';
 
 @Component({
   selector: 'app-purchase-bottom-sheet',
@@ -16,8 +16,8 @@ export class PurchaseBottomSheetComponent implements OnInit {
   constructor(
     private bottomSheetRef: MatBottomSheetRef<PurchaseBottomSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: Purchase,
-    private afs: AngularFirestore,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private purchasesService: PurchaseService
   ) {}
 
   ngOnInit(): void {}
@@ -27,15 +27,12 @@ export class PurchaseBottomSheetComponent implements OnInit {
   }
 
   public deleteData(event: MouseEvent): void {
-    this.afs
-      .doc(`purchases/${this.data.id}`)
-      .delete()
-      .then(() => {
-        this.bottomSheetRef.dismiss();
-        this.snackBar.open(`#${this.data.billNumber} ha sido eliminado`, '', {
-          duration: 2000,
-        });
+    this.purchasesService.deletePurchase(this.data.id).then(() => {
+      this.bottomSheetRef.dismiss();
+      this.snackBar.open(`#${this.data.billNumber} ha sido eliminado`, '', {
+        duration: 2000,
       });
+    });
 
     event.preventDefault();
   }

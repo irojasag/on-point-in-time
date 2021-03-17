@@ -1,9 +1,9 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { User } from '../../../models/user.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-profile-user-data-dialog',
@@ -18,8 +18,8 @@ export class ProfileUserDataDialogComponent implements OnInit {
     public dialogRef: MatDialogRef<ProfileUserDataDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: User,
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private usersService: UserService
   ) {
     this.form = this.formBuilder.group({
       displayName: ['', Validators.required],
@@ -34,9 +34,8 @@ export class ProfileUserDataDialogComponent implements OnInit {
   ngOnInit(): void {}
 
   public saveProfileData(): void {
-    this.afs
-      .doc(`users/${this.data.uid}`)
-      .update(this.form.value)
+    this.usersService
+      .updateUser(this.data.uid, this.form.getRawValue())
       .then(() => {
         this.dialogRef.close(this.form.value.value);
         this.snackBar.open('Tu información se ha actualizado', '', {

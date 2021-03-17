@@ -2,10 +2,11 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { User } from '../../../models/user.model';
 import { Observable } from 'rxjs';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { startWith, map } from 'rxjs/operators';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserService } from 'src/app/services/user/user.service';
+import { ReservationService } from 'src/app/services/reservation/reservation.service';
 
 @Component({
   selector: 'app-admin-reservation-dialog',
@@ -22,21 +23,17 @@ export class AdminReservationDialogComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
     public dialogRef: MatDialogRef<AdminReservationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private userService: UserService,
+    private reservationService: ReservationService
   ) {
     this.form = this.formBuilder.group({
       userId: [null, Validators.required],
     });
 
-    this.users$ = this.afs
-      .collection<User>('users', (ref) => {
-        return ref.orderBy('displayName', 'asc');
-      })
-      .valueChanges({ idField: 'id' });
-
+    this.users$ = this.userService.users$;
     this.users$.subscribe((users) => (this.users = users));
 
     this.filteredUsers$ = this.form.controls.userId.valueChanges.pipe(
@@ -60,9 +57,8 @@ export class AdminReservationDialogComponent implements OnInit {
   }
 
   saveReservation(): void {
-    this.afs
-      .collection('reservations')
-      .add({
+    this.reservationService
+      .addReservation({
         ...this.data,
         userId: this.selectedUser.uid,
       })

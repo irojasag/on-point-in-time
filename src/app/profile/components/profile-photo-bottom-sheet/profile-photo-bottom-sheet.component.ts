@@ -6,9 +6,9 @@ import {
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { finalize } from 'rxjs/operators';
 import { NgxImageCompressService, DOC_ORIENTATION } from 'ngx-image-compress';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-profile-photo-bottom-sheet',
@@ -24,9 +24,9 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
     private bottomSheetRef: MatBottomSheetRef<ProfilePhotoBottomSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: User,
     private afst: AngularFireStorage,
-    private afs: AngularFirestore,
     private snackBar: MatSnackBar,
-    private imageCompress: NgxImageCompressService
+    private imageCompress: NgxImageCompressService,
+    private usersService: UserService
   ) {}
   ngOnInit(): void {
     this.allowCapture =
@@ -56,7 +56,7 @@ export class ProfilePhotoBottomSheetComponent implements OnInit {
         finalize(() => {
           fileRef.getDownloadURL().subscribe((photoURL) => {
             if (photoURL) {
-              this.afs.doc(`users/${this.data.uid}`).update({ photoURL });
+              this.usersService.updateUser(this.data.uid, { photoURL });
             }
           });
           this.snackBar.open('Tu foto de perfil ha sido actualizada!', '', {

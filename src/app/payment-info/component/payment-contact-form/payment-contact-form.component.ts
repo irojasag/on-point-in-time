@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef } from '@angular/material/dialog';
+import { PaymentContactsService } from 'src/app/services/payment-contacts/payment-contacts.service';
 
 @Component({
   selector: 'app-payment-contact-form',
@@ -14,9 +14,9 @@ export class PaymentContactFormComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
     private snackBar: MatSnackBar,
-    public dialogRef: MatDialogRef<PaymentContactFormComponent>
+    public dialogRef: MatDialogRef<PaymentContactFormComponent>,
+    private paymentContactsService: PaymentContactsService
   ) {
     this.form = this.formBuilder.group({
       displayName: [
@@ -29,9 +29,8 @@ export class PaymentContactFormComponent implements OnInit {
   ngOnInit(): void {}
 
   public savePaymentContactForm(): void {
-    this.afs
-      .collection('payment-contacts')
-      .add(this.form.value)
+    this.paymentContactsService
+      .addPaymentContact(this.form.getRawValue())
       .then(() => {
         this.snackBar.open(
           `${this.form.value.displayName} ha sido añadido`,

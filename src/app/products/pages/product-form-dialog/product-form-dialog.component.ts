@@ -4,15 +4,13 @@ import {
   ProductTypeOptions,
   ProductExpirationFrequencyOptions,
   ProductExpirationFrequencies,
-  ProductTypes,
 } from '../../../constants/product.constants';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, ActivatedRoute } from '@angular/router';
-import { ReservationSchedule } from 'src/app/models/reservation-schedule.model';
-import { Product } from 'src/app/models/product.model';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
+import { ProductsService } from 'src/app/services/products/products.service';
 
 @Component({
   selector: 'app-product-form-dialog',
@@ -30,16 +28,15 @@ export class ProductFormDialogComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
     private snackBar: MatSnackBar,
     private router: Router,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private reservationScheduleService: ReservatonScheduleService,
+    private productsService: ProductsService
   ) {
     this.generateForm();
-    this.afs
-      .collection<ReservationSchedule>('reservation-schedules')
-      .valueChanges({ idField: 'id' })
-      .subscribe((schedules) => {
+    this.reservationScheduleService.reservationSchedules$.subscribe(
+      (schedules) => {
         schedules = schedules || [];
         this.typeOptions = [];
         schedules.forEach((schedule) => {
@@ -51,7 +48,8 @@ export class ProductFormDialogComponent implements OnInit {
         if (!this.form.controls.type.value) {
           this.form.controls.type.patchValue(this.typeOptions[0].value);
         }
-      });
+      }
+    );
   }
 
   private generateForm(): void {
@@ -85,6 +83,10 @@ export class ProductFormDialogComponent implements OnInit {
         1,
         Validators.compose([Validators.max(999999999999), Validators.min(1)]),
       ],
+      maxReservations: [
+        1,
+        Validators.compose([Validators.max(999999999999), Validators.min(1)]),
+      ],
       needsPackages: [false],
       packages: [
         null,
@@ -96,6 +98,12 @@ export class ProductFormDialogComponent implements OnInit {
     const newDate = new Date();
     newDate.setDate(newDate.getDate() - 10);
     this.form.controls.createdAt.patchValue(newDate);
+
+    this.form.controls.reservationsPerWeek.valueChanges.subscribe(() => {
+      setTimeout(() => {
+        this.updatemaxReservations();
+      }, 300);
+    });
   }
 
   ngOnInit(): void {
@@ -108,16 +116,13 @@ export class ProductFormDialogComponent implements OnInit {
           if (id) {
             this.productId = id;
             this.editMode = data.editMode;
-            this.afs
-              .doc<Product>(`products/${id}`)
-              .valueChanges({ idField: 'id' })
-              .subscribe((product) => {
-                this.form.patchValue({
-                  ...product,
-                  expirationDate: product.expirationDate.toDate(),
-                  createdAt: product.createdAt.toDate(),
-                });
+            this.productsService.getProduct(id).subscribe((product) => {
+              this.form.patchValue({
+                ...product,
+                expirationDate: product.expirationDate.toDate(),
+                createdAt: product.createdAt.toDate(),
               });
+            });
           }
         });
       }
@@ -127,9 +132,8 @@ export class ProductFormDialogComponent implements OnInit {
   public saveProductForm(): void {
     this.updateExpirationDate();
     if (this.editMode) {
-      this.afs
-        .doc(`products/${this.productId}`)
-        .update(this.form.getRawValue())
+      this.productsService
+        .updateProduct(this.productId, this.form.getRawValue())
         .then(() => {
           this.snackBar.open(
             `${this.form.value.name} ha sido actualizado`,
@@ -144,9 +148,8 @@ export class ProductFormDialogComponent implements OnInit {
           console.log('error', err);
         });
     } else {
-      this.afs
-        .collection('products')
-        .add(this.form.value)
+      this.productsService
+        .addProduct(this.form.getRawValue())
         .then(() => {
           this.snackBar.open(`${this.form.value.name} ha sido añadido`, '', {
             duration: 2000,
@@ -180,5 +183,11 @@ export class ProductFormDialogComponent implements OnInit {
         break;
     }
     this.form.controls.expirationDate.patchValue(expirationDate);
+  }
+
+  private updatemaxReservations(): void {
+    this.form.controls.maxReservations.patchValue(
+      this.form.controls.reservationsPerWeek.value * 4
+    );
   }
 }

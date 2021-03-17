@@ -42,6 +42,9 @@ export class AuthService {
                   birthDate: userDoc.birthDateAt
                     ? userDoc.birthDateAt.toDate()
                     : null,
+                  photoURL:
+                    userDoc.photoURL ||
+                    'https://style.anu.edu.au/_anu/4/images/placeholders/person.png',
                 };
               })
             );

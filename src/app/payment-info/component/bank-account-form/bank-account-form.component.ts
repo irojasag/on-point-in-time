@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialogRef } from '@angular/material/dialog';
+import { BankAccountsService } from 'src/app/services/bank-accounts/bank-accounts.service';
 
 @Component({
   selector: 'app-bank-account-form',
@@ -14,9 +14,9 @@ export class BankAccountFormComponent implements OnInit {
 
   constructor(
     private formBuilder: FormBuilder,
-    private afs: AngularFirestore,
     private snackBar: MatSnackBar,
-    public dialogRef: MatDialogRef<BankAccountFormComponent>
+    public dialogRef: MatDialogRef<BankAccountFormComponent>,
+    private bankAccountsService: BankAccountsService
   ) {
     this.form = this.formBuilder.group({
       displayName: [null, Validators.required],
@@ -30,9 +30,8 @@ export class BankAccountFormComponent implements OnInit {
   ngOnInit(): void {}
 
   public saveBankAccountForm(): void {
-    this.afs
-      .collection('bank-accounts')
-      .add(this.form.value)
+    this.bankAccountsService
+      .addBankAccount(this.form.getRawValue())
       .then(() => {
         this.snackBar.open(
           `${this.form.value.displayName} ha sido añadido`,

@@ -4,8 +4,8 @@ import {
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
 import { ContactInfo } from 'src/app/models/contact-info.model ';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ContactInfoService } from 'src/app/services/contact-info/contact-info.service';
 
 @Component({
   selector: 'app-bussiness-contact-bottom-sheet',
@@ -16,8 +16,8 @@ export class BussinessContactBottomSheetComponent implements OnInit {
   constructor(
     private bottomSheetRef: MatBottomSheetRef<BussinessContactBottomSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: ContactInfo,
-    private afs: AngularFirestore,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private contactInfoService: ContactInfoService
   ) {}
   ngOnInit(): void {}
 
@@ -26,15 +26,12 @@ export class BussinessContactBottomSheetComponent implements OnInit {
   }
 
   public deleteData(event: MouseEvent): void {
-    this.afs
-      .doc(`contact-info/${this.data.id}`)
-      .delete()
-      .then(() => {
-        this.bottomSheetRef.dismiss();
-        this.snackBar.open(`${this.data.value} ha sido eliminado`, '', {
-          duration: 2000,
-        });
+    this.contactInfoService.deleteContactInfo(this.data.id).then(() => {
+      this.bottomSheetRef.dismiss();
+      this.snackBar.open(`${this.data.value} ha sido eliminado`, '', {
+        duration: 2000,
       });
+    });
 
     event.preventDefault();
   }

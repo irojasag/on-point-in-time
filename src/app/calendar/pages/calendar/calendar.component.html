@@ -34,6 +34,7 @@
         <span class="font-medium">{{product.name}}</span><br>
         <span *ngIf="product.reservationsPerDay">Reservaciones máximas por día: {{product.reservationsPerDay}}</span><br>
         <span *ngIf="product.reservationsPerWeek">Reservaciones máximas por semana: {{product.reservationsPerWeek}}</span><br>
+        <span *ngIf="product.maxReservations">Reservaciones máximas: {{product.maxReservations}}</span><br>
         <span>Inicia:&nbsp; {{product.startDateDisplay | date:'fullDate'}}</span><br>
         <span [ngClass]="{'text-red-500': product.dayDiffence <= 3, 'text-orange-500': product.dayDiffence <= 7}">Expira: {{product.expirationDateDisplay | date:'fullDate'}} - {{product.dayDiffence |
           number}}
@@ -45,99 +46,117 @@
 <div *ngFor="let currentDate of nearbyDates; let ind = index;" class="min-h-full pb-2 bg-white border-b rounded-xl shadow-sm">
   <div id="date-{{ind}}" class="bg-blue-500 flex flex-row justify-between h-8 items-center px-4 rounded-t-xl">
     <span class="text-white">
-      <!-- Mostrar Calendario -->
-      <!-- <i class="fas fa-chevron-left" (click)="picker.open()"></i> -->
+      <i class="fas fa-chevron-left" (click)="picker.open()"></i>
       {{ currentDate.date | date:'fullDate'}}
-      <!-- Saltar al día siguiente -->
-      <!-- <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i> -->
+      <i class="fas fa-chevron-right" (click)="scroll('date-' + (1 + ind))"></i>
     </span>
   </div>
-  <div class="relative min-h-32 max-h-58 w-full border my-2 p-4" *ngFor="let hour of currentDate.times; let i = index">
-    <div class="flex flex-row">
-      <div class="flex flex-col mr-4 items-center">
-        <span class="font-semibold mb-2">{{hour.time}}</span>
-      </div>
-      <div class="flex flex-col">
-        <span class="font-semibold mb-2">{{hour.displayName}}</span>
-        <span class="">{{hour.spaces - hour.reservations.length}} de {{hour.spaces}} espacios disponibles</span>
-      </div>
-    </div>
-    <!-- <div class="flex flex-row justify-center items-center" *ngIf="i > 1">
-      <div class="flex flex-col bg-yellow-300 h-20 w-48">
-        <span class="font-semibold">Texto de prueba</span>
-      </div>
-    </div> -->
-    <div class="flex flex-row justify-end items-center mr-5">
-      <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let reservation of hour.reservations">
-        <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
-          <img class="object-cover h-full w-full rounded-full"
-            src="{{((selectedSchedule.showPhotos && haveActiveProducts) || (reservation.user?.uid === user?.uid) || (user.isAdmin || user.isSuperAdmin) ? reservation.user?.photoURL : null) || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
-            alt="Profile Photo">
-        </div>
-      </div>
-      <div *ngIf="(user?.isAdmin || user?.isSuperAdmin) || ((!hour.locked && haveActiveProducts) && (hour.reservations.length < hour.spaces || hour.booked))"
-        class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5" (click)="hour.booked ? removeReservation(hour.reservations) : addReservation(currentDate, hour)">
-        <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
-          <i class="fas {{ hour.booked ? 'fa-minus' : 'fa-plus'}}"></i>
-        </div>
-      </div>
-      <div *ngIf="!(user?.isAdmin || user?.isSuperAdmin) && ((hour.locked || !haveActiveProducts) || (hour.reservations.length >= hour.spaces && !hour.booked))"
-        class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5">
-        <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
-          <i class="fas fa-lock"></i>
-        </div>
-      </div>
+  <div class="flex flex-row justify-center items-center mt-2" *ngIf="ind === 0 && isBaseDateDefaut">
+    <button mat-raised-button color="primary" (click)="loadAllDefaultDateHours()">Cargar horas anteriores</button>
+  </div>
 
-      <!-- Badges -->
-      <div class="absolute right-4 top-0 mb-28" *ngIf="hour.booked">
-        <div *ngIf="!hour.confirmed" class="flex flex-row justify-center items-center">
-          Reservada
-          <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-gray-500 text-white"><i class="fas fa-calendar-check text-lg"></i></div>
+  <div class="flex flex-row justify-center items-center m-2" *ngIf="!currentDate?.times?.length">
+    <span class="text-md">
+      No hay espacios disponibles para {{ currentDate.date | date:'fullDate'}}
+    </span>
+  </div>
+
+  <ng-container *ngFor="let hour of currentDate.times; let i = index">
+    <div class="relative min-h-32 max-h-58 w-full border my-2 p-4" [hidden]="hour.hidden">
+      <div class="flex flex-row">
+        <div class="flex flex-col mr-4 items-center">
+          <span class="font-semibold mb-2">{{hour.time}}</span>
         </div>
-        <div *ngIf="hour.confirmed && !hour.asisted" class="flex flex-row justify-center items-center">
-          Confirmada
-          <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-blue-500 text-white"><i class="fas fa-check text-lg"></i></div>
-        </div>
-        <div *ngIf="hour.confirmed && hour.asisted" class="flex flex-row justify-center items-center">
-          Asistido
-          <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-green-500 text-white"><i class="fas fa-check-double text-lg"></i></div>
+        <div class="flex flex-col">
+          <span class="font-semibold mb-2">{{hour.displayName}}</span>
+          <span class="">{{hour.spaces - hour.reservations.length}} de {{hour.spaces}} espacios disponibles</span>
         </div>
       </div>
-
-    </div>
-
-    <div class="flex flex-row items-center mt-2 mr-5" *ngIf="user?.isAdmin || user?.isSuperAdmin">
-      <div class="flex flex-col w-full">
-        <div *ngFor="let reservation of hour.reservations; let index= index;" class="bg-gray-50 rounded-md h-12 w-full flex flex-row shadow-md mb-2 relative">
-          <div class="flex flex-col w-14" (click)="openBottomSheetForResearvations(reservation)">
-            <img class="object-cover h-12 w-14 rounded-l-md" src="{{reservation.user?.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
-              alt="Foto de {{reservation.user?.displayName}}">
+      <div class="flex flex-row justify-center items-center m-2" *ngFor="let calendarNote of hour.calendarNotes">
+        <div class="flex flex-col bg-yellow-300 min-h-20 min-w-48 p-4 relative">
+          <i *ngIf="user?.isAdmin || user?.isSuperAdmin" class="fas fa-trash text-red-500 absolute right-2 top-2 cursor-pointer" (click)="deleteStikyNote(calendarNote.id)"></i>
+          <span class="font-semibold">{{calendarNote.content}}</span>
+        </div>
+      </div>
+      <div class="flex flex-row justify-end items-center mr-5">
+        <div class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 shadow-sm" *ngFor="let reservation of hour.reservations">
+          <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+            <img class="object-cover h-full w-full rounded-full"
+              src="{{((selectedSchedule.showPhotos && haveActiveProducts) || (reservation.user?.uid === user?.uid) || (user.isAdmin || user.isSuperAdmin) ? reservation.user?.photoURL : null) || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+              alt="Profile Photo">
           </div>
-          <div class="flex flex-col w-full justify-center">
-            <div class="flex flex-row pl-2 justify-between w-full h-full">
-              <div class="flex flex-col w-full" (click)="openBottomSheetForResearvations(reservation)">
-                <span class="font-medium">{{reservation.user?.displayName || 'Nombre no especificado'}}</span>
-                <span class="text-xs leading-3">{{reservation.confirmed ? 'Reserva Confirmada' : 'Reserva Sin Confirmar'}}</span>
-                <span class="text-xs leading-3">{{reservation.asisted ? 'Asistencia Confirmada' : 'Asistencia Sin Asistencia'}}</span>
-              </div>
-              <div class="flex flex-col h-full w-12 justify-center">
-                <div class="flex flex-row">
-                  <div *ngIf="!reservation.confirmed" (click)="confirmReservation(reservation)" class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-gray-500 text-white"><i
-                      class="fas fa-calendar-check text-lg"></i></div>
-                  <div *ngIf="reservation.confirmed && !reservation.asisted" (click)="confirmAsistance(reservation)"
-                    class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-blue-500 text-white"><i class="fas fa-check text-lg"></i></div>
-                  <div *ngIf="reservation.confirmed && reservation.asisted" class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-green-500 text-white"><i
-                      class="fas fa-check-double text-lg"></i></div>
+        </div>
+        <div *ngIf="(user?.isAdmin || user?.isSuperAdmin) || ((!hour.locked && haveActiveProducts) && (hour.reservations.length < hour.spaces || hour.booked))"
+          class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5" (click)="hour.booked ? removeReservation(hour.reservations) : addReservation(currentDate, hour)">
+          <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+            <i class="fas {{ hour.booked ? 'fa-minus' : 'fa-plus'}}"></i>
+          </div>
+        </div>
+        <div *ngIf="!(user?.isAdmin || user?.isSuperAdmin) && ((hour.locked || !haveActiveProducts) || (hour.reservations.length >= hour.spaces && !hour.booked))"
+          class="bg-white rounded-full h-10 w-10 flex flex-col justify-center items-center -mr-5 z-20">
+          <div class="bg-gray-300 rounded-full h-9 w-9 flex flex-row justify-center items-center">
+            <i class="fas fa-lock"></i>
+          </div>
+        </div>
+
+        <!-- Badges -->
+        <div class="absolute right-4 top-0 mb-28" *ngIf="hour.booked">
+          <div *ngIf="!hour.confirmed" class="flex flex-row justify-center items-center">
+            Reservada
+            <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-gray-500 text-white"><i class="fas fa-calendar-check text-lg"></i></div>
+          </div>
+          <div *ngIf="hour.confirmed && !hour.asisted" class="flex flex-row justify-center items-center">
+            Confirmada
+            <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-blue-500 text-white"><i class="fas fa-check text-lg"></i></div>
+          </div>
+          <div *ngIf="hour.confirmed && hour.asisted" class="flex flex-row justify-center items-center">
+            Asistido
+            <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-green-500 text-white"><i class="fas fa-check-double text-lg"></i></div>
+          </div>
+        </div>
+
+        <!-- Notepad -->
+        <div class="absolute left-4 top-0 mt-16" *ngIf="user?.isAdmin || user?.isSuperAdmin">
+          <div class="flex flex-row justify-center items-center">
+            <div class="flex flex-col ml-1 h-9 w-9 justify-center items-center rounded-full bg-yellow-500 text-white cursor-pointer" (click)="editStickyNote(currentDate, hour)"><i
+                class="fas fa-sticky-note text-lg"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-row items-center mt-2 mr-5" *ngIf="user?.isAdmin || user?.isSuperAdmin">
+        <div class="flex flex-col w-full">
+          <div *ngFor="let reservation of hour.reservations; let index= index;" class="bg-gray-50 rounded-md h-12 w-full flex flex-row shadow-md mb-2 relative">
+            <div class="flex flex-col w-14" (click)="openBottomSheetForResearvations(reservation)">
+              <img class="object-cover h-12 w-14 rounded-l-md" src="{{reservation.user?.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+                alt="Foto de {{reservation.user?.displayName}}">
+            </div>
+            <div class="flex flex-col w-full justify-center">
+              <div class="flex flex-row pl-2 justify-between w-full h-full">
+                <div class="flex flex-col w-full" (click)="openBottomSheetForResearvations(reservation)">
+                  <span class="font-medium">{{reservation.user?.displayName || 'Nombre no especificado'}}</span>
+                  <span class="text-xs leading-3">{{reservation.confirmed ? 'Reserva Confirmada' : 'Reserva Sin Confirmar'}}</span>
+                  <span class="text-xs leading-3">{{reservation.asisted ? 'Asistencia Confirmada' : 'Asistencia Sin Asistencia'}}</span>
+                </div>
+                <div class="flex flex-col h-full w-12 justify-center">
+                  <div class="flex flex-row">
+                    <div *ngIf="!reservation.confirmed" (click)="confirmReservation(reservation)" class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-gray-500 text-white"><i
+                        class="fas fa-calendar-check text-lg"></i></div>
+                    <div *ngIf="reservation.confirmed && !reservation.asisted" (click)="confirmAsistance(reservation)"
+                      class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-blue-500 text-white"><i class="fas fa-check text-lg"></i></div>
+                    <div *ngIf="reservation.confirmed && reservation.asisted" class="flex flex-col h-12 w-12 justify-center items-center rounded-r-md bg-green-500 text-white"><i
+                        class="fas fa-check-double text-lg"></i></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-  </div>
-  <!-- <button class="bg-blue-500 text-white rounded-full fixed bottom-4 right-4 h-12 w-12 shadow-sm" (click)="picker.open()"><i class="fas fa-calendar"></i></button> -->
+    </div>
+  </ng-container>
+  <button class="bg-blue-500 text-white rounded-full fixed bottom-4 right-4 h-12 w-12 shadow-sm" (click)="picker.open()"><i class="fas fa-calendar"></i></button>
 </div>
 <div *ngIf="loading" class="bg-black opacity-20 fixed top-0 left-0 h-full w-full flex flex-row justify-center items-center z-20">
   <mat-spinner [diameter]="64"></mat-spinner>

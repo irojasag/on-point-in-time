@@ -6,15 +6,15 @@
   <mat-expansion-panel *ngFor="let purchase of purchases$ | async; let index= index;" class="bg-transparent shadow-none rounded-md">
     <mat-expansion-panel-header class="h-16 p-0 left-0 rounded-md bg-white mb-2 ">
       <div class="flex flex-col w-16">
-        <img class="object-cover h-16 w-16 rounded-l-md" src="{{purchase.client.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
-          alt="Foto de {{purchase.client.displayName}}">
+        <img class="object-cover h-16 w-16 rounded-l-md" src="{{purchase?.client?.photoURL || 'https://style.anu.edu.au/_anu/4/images/placeholders/person.png'}}"
+          alt="Foto de {{purchase?.client?.displayName}}">
       </div>
       <div class="flex flex-col justify-center">
         <div class="absolute right-2 top-2">
           <span class="font-medium">Factura: #{{purchase.billNumber}}</span>
         </div>
         <div class="flex flex-row pl-2 justify-between w-full">
-          <span>{{purchase.client.displayName || 'Nombre no especificado'}}</span>
+          <span>{{purchase.client?.displayName || 'Nombre no especificado'}}</span>
         </div>
         <div class="flex flex-row pl-2 justify-between w-full h-4">
           <span>Fecha de compra: {{purchase.purchasedDate | date}}</span>

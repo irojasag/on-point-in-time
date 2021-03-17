@@ -4,8 +4,8 @@ import {
   MatBottomSheetRef,
   MAT_BOTTOM_SHEET_DATA,
 } from '@angular/material/bottom-sheet';
-import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ReservatonScheduleService } from 'src/app/services/reservation-schedule/reservaton-schedule.service';
 
 @Component({
   selector: 'app-reservation-schedule-bottom-sheet',
@@ -16,8 +16,8 @@ export class ReservationScheduleBottomSheetComponent implements OnInit {
   constructor(
     private bottomSheetRef: MatBottomSheetRef<ReservationScheduleBottomSheetComponent>,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: ReservationSchedule,
-    private afs: AngularFirestore,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private reservationSchedulesService: ReservatonScheduleService
   ) {}
 
   ngOnInit(): void {}
@@ -27,9 +27,8 @@ export class ReservationScheduleBottomSheetComponent implements OnInit {
   }
 
   public deleteData(event: MouseEvent): void {
-    this.afs
-      .doc(`reservation-schedules/${this.data.id}`)
-      .delete()
+    this.reservationSchedulesService
+      .deleteReservationSchedule(this.data.id)
       .then(() => {
         this.bottomSheetRef.dismiss();
         this.snackBar.open(`${this.data.displayName} ha sido eliminado`, '', {

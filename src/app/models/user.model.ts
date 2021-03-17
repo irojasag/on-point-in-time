@@ -4,6 +4,7 @@ export interface User {
   photoURL?: string;
   displayName?: string;
   method?: string;
+  methodClass?: string;
   createdAt?: firebase.firestore.Timestamp;
   createdDate?: Date;
   birthDateAt?: firebase.firestore.Timestamp;
