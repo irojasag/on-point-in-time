@@ -32,14 +32,25 @@ export class UserService {
       );
   }
 
-  public updateAdminRole(id: string, isAdmin: boolean): Promise<void>{
-    return this.afs.doc(`users/${id}`).set({ isAdmin: isAdmin ? false : true },
-      { merge: true });
+  public updateLock(id: string, locked: boolean): Promise<void> {
+    return this.afs
+      .doc(`users/${id}`)
+      .set({ locked: locked ? false : true }, { merge: true });
   }
 
-  public updateSuperAdminRole(id: string, isSuperAdmin: boolean): Promise<void> {
-    return this.afs.doc(`users/${id}`).set({ isSuperAdmin: isSuperAdmin ? false : true },
-      { merge: true });
+  public updateAdminRole(id: string, isAdmin: boolean): Promise<void> {
+    return this.afs
+      .doc(`users/${id}`)
+      .set({ isAdmin: isAdmin ? false : true }, { merge: true });
+  }
+
+  public updateSuperAdminRole(
+    id: string,
+    isSuperAdmin: boolean
+  ): Promise<void> {
+    return this.afs
+      .doc(`users/${id}`)
+      .set({ isSuperAdmin: isSuperAdmin ? false : true }, { merge: true });
   }
 
   public updateUser(id: string, body: any): Promise<void> {

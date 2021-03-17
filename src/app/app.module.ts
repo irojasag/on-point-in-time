@@ -13,6 +13,7 @@ import { AppFirebaseModule } from '../app/app-firebase/app-firebase.module';
 import { registerLocaleData } from '@angular/common';
 import localeCr from '@angular/common/locales/es-CR';
 import { NgxImageCompressService } from 'ngx-image-compress';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 registerLocaleData(localeCr, 'es');
 
@@ -29,6 +30,7 @@ registerLocaleData(localeCr, 'es');
     MatButtonModule,
     MatInputModule,
     MatIconModule,
+    MatSnackBarModule,
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'es-CR' },

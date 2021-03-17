@@ -3,6 +3,10 @@
     <span class="text-lg">Acciones para <strong>{{data.displayName}}</strong></span>
   </div>
 
+  <a href="#" target="_blank" mat-list-item (click)="updateLock($event, data)">
+    <span mat-line><i class="text-xl mr-2 fas {{data.locked ? 'fa-lock-open' : 'fa-lock'}}"></i>{{data.locked ? "Desbloquear" : "Bloquear"}} al usuario</span>
+  </a>
+
   <a href="#" target="_blank" mat-list-item (click)="updateAdminRole($event, data)">
     <span mat-line><i class="text-xl mr-2 fas {{data.isAdmin ? 'fa-times' : 'fa-shield-alt'}}"></i>{{data.isAdmin ? "Remover" : "Otorgar"}} rol admin al usuario</span>
   </a>
