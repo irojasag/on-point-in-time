@@ -4,6 +4,7 @@ import { User } from 'src/app/models/user.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { UserUpdateBottomSheetComponent } from '../user-update-bottom-sheet/user-update-bottom-sheet.component';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-users',

@@ -1,9 +1,8 @@
 <div class="flex flex-row justify-between items-center my-2">
   <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Usuarios</span>
 </div>
-<div *ngIf="auth.user$ | async; let user" 
-(click)="openBottomSheet(user)">
-  <div *ngFor="let u of users$ | async" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
+<div *ngIf="auth.user$ | async; let user">
+  <div *ngFor="let u of users$ | async" (click)="openBottomSheet(u)" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
     <div class="flex flex-col w-14">
       <img class="object-cover h-14 w-14 rounded-l-md" src="{{u.photoURL}}" alt="Foto de {{u.displayName}}">
     </div>
