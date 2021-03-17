@@ -20,7 +20,7 @@ export class UserUpdateBottomSheetComponent implements OnInit {
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: User,
     private afs: AngularFirestore,
     private snackBar: MatSnackBar,
-    private userService: UserService,
+    private userService: UserService
   ) {}
   ngOnInit(): void {}
 
@@ -28,26 +28,43 @@ export class UserUpdateBottomSheetComponent implements OnInit {
     this.bottomSheetRef.dismiss();
   }
 
+  updateLock(event: MouseEvent, data: any): void {
+    this.userService.updateLock(data.uid, data.locked).then(() => {
+      this.bottomSheetRef.dismiss();
+      this.snackBar.open(`Se actualizó a ${data.displayName}`, '', {
+        duration: 2000,
+      });
+    });
+    event.preventDefault();
+  }
+
   updateAdminRole(event: MouseEvent, data: any): void {
     this.userService.updateAdminRole(data.uid, data.isAdmin).then(() => {
       this.bottomSheetRef.dismiss();
-      this.snackBar.open(`Se actualizo el rol Admin de ${data.displayName}`, '', {
-        duration: 2000,
-      });
+      this.snackBar.open(
+        `Se actualizo el rol Admin de ${data.displayName}`,
+        '',
+        {
+          duration: 2000,
+        }
+      );
     });
     event.preventDefault();
   }
 
   updateSuperAdminRole(event: MouseEvent, data: any): void {
-    this.userService.updateSuperAdminRole(data.uid, data.isSuperAdmin).then(() => {
-      this.bottomSheetRef.dismiss();
-      this.snackBar.open(`Se actualizo el rol Super Admin de ${data.displayName}`, '', {
-        duration: 2000,
+    this.userService
+      .updateSuperAdminRole(data.uid, data.isSuperAdmin)
+      .then(() => {
+        this.bottomSheetRef.dismiss();
+        this.snackBar.open(
+          `Se actualizo el rol Super Admin de ${data.displayName}`,
+          '',
+          {
+            duration: 2000,
+          }
+        );
       });
-    });
     event.preventDefault();
   }
-
-
-
 }
