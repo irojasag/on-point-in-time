@@ -8,6 +8,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { UserService } from 'src/app/services/user/user.service';
 import { User } from 'src/app/models/user.model';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-user-update-bottom-sheet',
@@ -20,7 +21,8 @@ export class UserUpdateBottomSheetComponent implements OnInit {
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: User,
     private afs: AngularFirestore,
     private snackBar: MatSnackBar,
-    private userService: UserService
+    private userService: UserService,
+    public auth$: AuthService
   ) {}
   ngOnInit(): void {}
 
