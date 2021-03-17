@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { UserUpdateBottomSheetComponent } from '../user-update-bottom-sheet/user-update-bottom-sheet.component';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { UserService } from 'src/app/services/user/user.service';
 
 @Component({
   selector: 'app-users',
@@ -13,30 +14,11 @@ import { AngularFirestore } from '@angular/fire/firestore';
 })
 export class UsersComponent implements OnInit {
   public users$: Observable<User[]>;
-  constructor(
-    public auth: AuthService, 
-    private afs: AngularFirestore,
-    private bottomSheet: MatBottomSheet,
 
-    ) {
-    this.users$ = this.afs
-      .collection<User>('users', (ref) => {
-        return ref.orderBy('displayName', 'asc');
-      })
-      .valueChanges({ idField: 'id' });
-  }
-
-  public getSignInMethodIcon(method: string): string {
-    switch (method) {
-      case 'Google':
-        return 'fab fa-google text-google-red';
-      case 'Facebook':
-        return 'fab fa-facebook text-facebook-blue';
-      case 'Email':
-        return 'fas fa-at';
-      default:
-        return '';
-    }
+  constructor(public auth: AuthService, 
+    private userService: UserService,     
+    private bottomSheet: MatBottomSheet) {
+    this.users$ = this.userService.users$;
   }
 
   ngOnInit(): void {}
