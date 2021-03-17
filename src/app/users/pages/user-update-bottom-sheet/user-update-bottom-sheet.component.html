@@ -11,7 +11,7 @@
     <span mat-line><i class="text-xl mr-2 fas {{data.isAdmin ? 'fa-times' : 'fa-shield-alt'}}"></i>{{data.isAdmin ? "Remover" : "Otorgar"}} rol admin al usuario</span>
   </a>
 
-  <a href="#" target="_blank" mat-list-item (click)="updateSuperAdminRole($event, data)">
+  <a *ngIf="(auth$.user$ | async)?.isSuperAdmin" href="#" target="_blank" mat-list-item (click)="updateSuperAdminRole($event, data)">
     <span mat-line><i class="text-xl mr-2 fas {{data.isSuperAdmin ? 'fa-times' : 'fa-dungeon'}}"></i>{{data.isSuperAdmin ? "Remover" : "Otorgar"}} rol super admin al usuario</span>
   </a>
 
