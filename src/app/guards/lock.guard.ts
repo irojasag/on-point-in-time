@@ -36,7 +36,7 @@ export class LockGuard implements CanActivate {
           condition = condition && !user.locked;
           if (!condition) {
             this.snackBar.open(
-              `Tu usuario ha sido bloqueado, contacta con el administador`,
+              `Tu usuario ha sido bloqueado, contacta con el administrador`,
               'Ok',
               {
                 duration: 6000,
