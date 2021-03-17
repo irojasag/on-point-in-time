@@ -3,6 +3,8 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/models/user.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { UserUpdateBottomSheetComponent } from '../user-update-bottom-sheet/user-update-bottom-sheet.component';
 
 @Component({
   selector: 'app-users',
@@ -11,7 +13,12 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 })
 export class UsersComponent implements OnInit {
   public users$: Observable<User[]>;
-  constructor(public auth: AuthService, private afs: AngularFirestore) {
+  constructor(
+    public auth: AuthService, 
+    private afs: AngularFirestore,
+    private bottomSheet: MatBottomSheet,
+
+    ) {
     this.users$ = this.afs
       .collection<User>('users', (ref) => {
         return ref.orderBy('displayName', 'asc');
@@ -30,6 +37,12 @@ export class UsersComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  public openBottomSheet(userInfo): void {
+    this.bottomSheet.open(UserUpdateBottomSheetComponent, {
+      data: userInfo,
+    });
   }
 
   ngOnInit(): void {}
