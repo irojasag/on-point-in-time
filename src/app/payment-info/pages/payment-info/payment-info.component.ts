@@ -38,9 +38,9 @@ export class PaymentInfoComponent implements OnInit {
     private bankAccountsService: BankAccountsService,
     private paymentMethodsService: PaymentMethodsService
   ) {
-    this.paymentMethods$ = this.paymentContactsService.paymentContacts$;
+    this.paymentMethods$ = this.paymentMethodsService.paymentMethods$;
     this.bankAccounts$ = this.bankAccountsService.bankAccounts$;
-    this.paymentContact$ = this.paymentMethodsService.paymentMethods$;
+    this.paymentContact$ = this.paymentContactsService.paymentContacts$;
   }
 
   ngOnInit(): void {}
