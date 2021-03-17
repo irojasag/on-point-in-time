@@ -4,17 +4,21 @@
 <div *ngIf="auth.user$ | async; let user">
   <div *ngFor="let u of users$ | async" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
     <div class="flex flex-col w-14">
+      <div *ngIf="u.locked" class="h-14 w-14 bg-red-500 absolute flex flex-col justify-center items-center opacity-70">
+        <i class="text-2xl text-white fas fa-lock opacity-100 "></i>
+      </div>
       <img class="object-cover h-14 w-14 rounded-l-md" src="{{u.photoURL}}" alt="Foto de {{u.displayName}}">
     </div>
     <div class="flex flex-col">
       <div class="flex flex-row pl-2 justify-between w-full">
-        <span class="font-medium">{{u.displayName || 'Nombre no especificado'}}</span>
+        <span class="font-medium">{{u.displayName || 'Nombre no especificado'}} {{u.locked ? ' - BLOQUEADO' : ''}}</span>
       </div>
       <div class="flex flex-row pl-2 justify-between w-full">
         <span class="">Correo Electrónico: {{u.email || 'Email no especificado'}}</span>
       </div>
     </div>
     <div class="absolute right-2">
+      <i *ngIf="u.locked" class="fas fa-lock" alt="Usuario está bloqueado"></i>
       <i *ngIf="u.isAdmin" class="fas fa-shield-alt" alt="Usuario es administrador"></i>
       <i *ngIf="user.isSuperAdmin && u.isSuperAdmin" class="fas ml-1 fa-dungeon" alt="Usuario es super administrador"></i>
       <i *ngIf="u.method" class="ml-1 {{u.methodClass}}"></i>
