@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { User } from 'src/app/models/user.model';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
@@ -17,6 +17,7 @@ export class UsersComponent implements OnInit {
   public filteredUsers: User[];
   public users: User[];
   public filterValue: FormControl;
+  public subscriptions: Subscription;
 
 
   constructor(public auth: AuthService, 
@@ -24,10 +25,15 @@ export class UsersComponent implements OnInit {
     private bottomSheet: MatBottomSheet) {
     this.users$ = this.userService.users$;
     this.filterValue = new FormControl();
+    this.subscriptions = new Subscription();
   }
 
   ngOnInit(): void {
-    this.users$.subscribe(users => {
+    this.subscriptions.add(this.handleUsersSubscription());
+  }
+
+  private handleUsersSubscription(): Subscription {
+    return this.users$.subscribe(users => {
       this.users = users;
       this.restoreFilteredUsers();
     });
@@ -50,6 +56,10 @@ export class UsersComponent implements OnInit {
     else {
       this.filteredUsers = this.users.filter(item => item.displayName.toLowerCase().includes(this.filterValue.value.toLowerCase()));
     }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
 }

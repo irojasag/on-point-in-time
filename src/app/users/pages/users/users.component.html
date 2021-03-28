@@ -3,7 +3,7 @@
 </div>
 <div class="flex flex-row justify-center items-center mb-4 inline-block">
   <mat-form-field appearance="outline" class="w-11/12 inline-block">
-    <input matInput placeholder="Buscar" (input)="filterUser()" [formControl]="filterValue" class="w-full">
+    <input matInput (input)="filterUser()" placeholder="Buscar" [formControl]="filterValue" class="w-full">
   </mat-form-field>
   <button class="bg-blue-500 inline-block right-4 h-12 w-12 shadow-sm text-white rounded-full mb-4 ml-4" (click)="filterUser()"><i
     class="fas fa-search"></i></button>
