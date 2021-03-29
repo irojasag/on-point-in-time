@@ -1,9 +1,16 @@
 <div class="flex flex-row justify-between items-center my-2">
   <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Compras registradas</span>
 </div>
+<div class="flex flex-row justify-center items-center mb-4 inline-block">
+  <mat-form-field appearance="outline" class="w-11/12 inline-block">
+    <input matInput (input)="filterPurchase()" placeholder="Buscar" [formControl]="filterValue" class="w-full">
+  </mat-form-field>
+  <button class="bg-blue-500 inline-block right-4 h-12 w-12 shadow-sm text-white rounded-full mb-4 ml-4" (click)="filterPurchase()"><i
+    class="fas fa-search"></i></button>
+</div>
 
 <mat-accordion multi class="rounded-md">
-  <mat-expansion-panel *ngFor="let purchase of purchases$ | async; let index= index;" class="bg-transparent shadow-none rounded-md">
+  <mat-expansion-panel *ngFor="let purchase of filteredPurchases; let index= index;" class="bg-transparent shadow-none rounded-md">
     <mat-expansion-panel-header class="h-16 p-0 left-0 rounded-md bg-white mb-2 ">
       <div class="flex flex-col w-16">
         <div *ngIf="purchase?.client?.locked" class="h-16 w-16 bg-red-500 absolute flex flex-col justify-center items-center opacity-70">
