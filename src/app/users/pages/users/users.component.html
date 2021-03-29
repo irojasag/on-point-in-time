@@ -1,8 +1,16 @@
 <div class="flex flex-row justify-between items-center my-2">
   <span class="text-lg font-medium text-blue-600 uppercase tracking-wide">Usuarios</span>
 </div>
-<div *ngIf="auth.user$ | async; let user">
-  <div *ngFor="let u of users$ | async" (click)="openBottomSheet(u)" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
+<div class="flex flex-row justify-center items-center mb-4 inline-block">
+  <mat-form-field appearance="outline" class="w-11/12 inline-block">
+    <input matInput (input)="filterUser()" placeholder="Buscar" [formControl]="filterValue" class="w-full">
+  </mat-form-field>
+  <button class="bg-blue-500 inline-block right-4 h-12 w-12 shadow-sm text-white rounded-full mb-4 ml-4" (click)="filterUser()"><i
+    class="fas fa-search"></i></button>
+</div>
+
+<div *ngIf="true; let user">
+  <div *ngFor="let u of filteredUsers" (click)="openBottomSheet(u)" class="bg-white rounded-md h-14 w-full flex flex-row shadow-md mb-2 relative">
     <div class="flex flex-col w-14">
       <div *ngIf="u.locked" class="h-14 w-14 bg-red-500 absolute flex flex-col justify-center items-center opacity-70">
         <i class="text-2xl text-white fas fa-lock opacity-100 "></i>

@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
+import { ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -18,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
     UserUpdateBottomSheetComponent,
   ],
   imports: [
+    ReactiveFormsModule,
     CommonModule,
     UsersRoutingModule,
     MatListModule,
