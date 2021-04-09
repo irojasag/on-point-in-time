@@ -1,0 +1,23 @@
+<div class="flex flex-row justify-between items-center my-2">
+  <span class="text-lg font-medium text-blue-600 uppercase tracking-wide share-cd">Compartir</span>
+</div>
+
+<div class="flex flex-row rounded-md h-16 mb-3 shadow items-center bg-white justify-between" (click)="copy(baseUrl)">
+<div class="flex flex-col w-12 rounded-l-md h-full justify-center items-center border-r mr-4">
+  <span class="text-3xl"><i class="fas fa-share"></i></span>
+</div>
+<span>
+  <a  target="_blank" class="font-medium text-md">{{baseUrl}}</a>
+</span>
+<div class="flex flex-col w-12 rounded-r-md h-full justify-center items-center border-l ml-4">
+  <span class="text-3xl"><i class="far fa-copy"></i></span>
+</div>
+</div>
+
+<ngx-qrcode 
+  [elementType]="elementType" 
+  [value]="baseUrl"
+  [width]="300"
+  errorCorrectionLevel = "L"
+  cssClass="qrCode">
+</ngx-qrcode>

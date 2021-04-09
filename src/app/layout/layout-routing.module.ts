@@ -69,6 +69,11 @@ const routes: Routes = [
           import('../reports/reports.module').then((m) => m.ReportsModule),
       },
       {
+        path: 'share',
+        loadChildren: () =>
+          import('../share/share.module').then((m) => m.ShareModule),
+      },
+      {
         path: '**',
         redirectTo: 'dashboard',
       },
