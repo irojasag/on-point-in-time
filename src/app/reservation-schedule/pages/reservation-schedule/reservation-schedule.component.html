@@ -4,7 +4,7 @@
 <div *ngFor="let reservationSchedule of reservationSchedules$ | async; let index= index;" class="bg-white rounded-md h-14 w-full flex flex-row justify-between shadow-md mb-2 relative">
   <div class="flex flex-col justify-center w-full" (click)="openBottomSheet(reservationSchedule)">
     <div class="flex flex-row pl-2 justify-between w-full">
-      <span>{{reservationSchedule.displayName}}</span>
+      <span><i class="fas {{!reservationSchedule.disabled ? 'fa-eye' : 'fa-eye-slash'}}"></i> {{reservationSchedule.displayName}}</span>
     </div>
     <div class="flex flex-row pl-2 justify-between w-full">
       <span>Frecuencia: {{reservationSchedule.frequencyDisplayName}}</span>

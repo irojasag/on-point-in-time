@@ -105,7 +105,9 @@ export class CalendarComponent implements OnInit {
   }
 
   private setObservables(): void {
-    this.schedules$ = this.reservationSchedule.reservationSchedules$;
+    this.schedules$ = this.reservationSchedule.reservationSchedules$.pipe(
+      map((schedules) => (schedules || []).filter((s) => !s.disabled))
+    );
     this.reservations$ = this.reservationService.reservations$.pipe(
       switchMap((reservations) => {
         return combineLatest([of(reservations), this.userService.users$]);

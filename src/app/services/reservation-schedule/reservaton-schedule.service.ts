@@ -55,8 +55,11 @@ export class ReservatonScheduleService {
     ).displayName;
   }
 
-  public deleteReservationSchedule(id: string): Promise<void> {
-    return this.afs.doc(`reservation-schedules/${id}`).delete();
+  public disableDataReservationSchedule(
+    id: string,
+    disabled: boolean
+  ): Promise<void> {
+    return this.afs.doc(`reservation-schedules/${id}`).update({ disabled });
   }
 
   public addReservationSchedule(body: any): Promise<DocumentReference> {

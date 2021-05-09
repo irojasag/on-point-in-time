@@ -26,9 +26,9 @@ export class ReservationScheduleBottomSheetComponent implements OnInit {
     this.bottomSheetRef.dismiss();
   }
 
-  public deleteData(event: MouseEvent): void {
+  public disableData(event: MouseEvent): void {
     this.reservationSchedulesService
-      .deleteReservationSchedule(this.data.id)
+      .disableDataReservationSchedule(this.data.id, !this.data.disabled)
       .then(() => {
         this.bottomSheetRef.dismiss();
         this.snackBar.open(`${this.data.displayName} ha sido eliminado`, '', {

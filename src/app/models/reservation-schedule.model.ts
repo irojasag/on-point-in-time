@@ -6,6 +6,7 @@ export interface ReservationSchedule {
   showPhotos: boolean;
   distribution: ReservationScheduleDistribution[];
   weight: number;
+  disabled: boolean;
 }
 
 export interface ReservationScheduleDistribution {

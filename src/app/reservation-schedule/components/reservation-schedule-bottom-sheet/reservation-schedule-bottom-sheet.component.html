@@ -8,8 +8,8 @@
   </a>
 
 
-  <a href="#" mat-list-item (click)="deleteData($event)">
-    <span mat-line><i class="text-xl mr-2 fas fa-minus-square"></i>Eliminar {{data.displayName}}</span>
+  <a href="#" mat-list-item (click)="disableData($event)">
+    <span mat-line><i class="text-xl mr-2 fas fa-minus-square"></i>{{data.disabled ? 'Habilitar' : 'Deshabilitar'}} {{data.displayName}}</span>
   </a>
 
 
